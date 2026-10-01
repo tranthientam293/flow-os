@@ -75,6 +75,24 @@ The component lands in `src/components/atoms/`. The CLI names it in kebab-case a
 
 Create `src/apps/<id>/manifest.ts` and a root component; the folder name must match the id and holds everything the app owns. The registry discovers the app automatically. Details and the SDK (`useFlowApp`, `useAppStorage`) are in [`src/apps/README.md`](src/apps/README.md).
 
+## Deployment
+
+Pushing or merging to `master` runs `.github/workflows/deploy-vercel.yml`: it installs dependencies, runs `npm run check`, then `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`. You can also start it by hand from the Actions tab ("Run workflow").
+
+Add these repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret                          | Value                                                                       |
+| ------------------------------- | --------------------------------------------------------------------------- |
+| `VERCEL_TOKEN`                  | Vercel access token (Account settings → Tokens)                             |
+| `VERCEL_ORG_ID`                 | `orgId` from `.vercel/project.json` after running `npx vercel link` locally |
+| `VERCEL_PROJECT_ID`             | `projectId` from the same file                                              |
+| `VITE_SUPABASE_URL`             | Same value as in `.env.local`                                               |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Same value as in `.env.local`                                               |
+
+The two `VITE_*` values are passed to `vercel build` from these GitHub secrets, so nothing needs to be set in the Vercel project. They are public by design (Vite inlines them into the browser bundle), which is also why Vercel won't store `VITE_*` variables as "Sensitive".
+
+`vercel.json` rewrites every path that isn't a real file to `index.html`, so reloading or opening a deep link such as `/settings` works with React Router.
+
 ## Database
 
 | Table            | Purpose                                                  |

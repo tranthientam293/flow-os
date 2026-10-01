@@ -20,6 +20,8 @@ supabase/.temp
 supabase/.branches
 supabase/.env
 
+.vercel
+
 .claude/settings.local.json
 
 .vscode/*
@@ -32,3 +34,6 @@ supabase/.env
 .DS_Store
 Thumbs.db
 desktop.ini
+
+.vercel
+.env*

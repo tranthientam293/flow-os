@@ -110,7 +110,7 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 - [ ] `git init`, first commit, push to GitHub
 - [x] Lint + format (Sep 30, 2026): oxlint (`.oxlintrc.json`) + Prettier with the Tailwind class-sorting plugin (`.prettierrc.json`), `.editorconfig`, VS Code settings/extensions. `npm run check` = typecheck + lint + format check. First run fixed real issues (setState-in-effect, ref write during render, missing `override`, radio a11y, hook deps)
 - [x] TypeScript import safety: `forceConsistentCasingInFileNames`, `noUncheckedSideEffectImports`, `isolatedModules`, `verbatimModuleSyntax`, `noImplicitOverride`. Unused locals/params moved from `tsc` to oxlint so the `_` prefix is honoured
-- [ ] Run `npm run check` in CI (and optionally a pre-commit hook) once the repo is on GitHub
+- [x] Run `npm run check` in CI: the Vercel deploy workflow runs it before every production build (Oct 1, 2026). Optional: a pre-commit hook
 - [ ] Add Vitest + React Testing Library; test the registry, `useAppStorage` and the install flow
 - [ ] Code-split: lazy route components + vendor chunk (main bundle is ~813 KB with Radix and React Query; cmdk removed Oct 1, 2026)
 - [ ] Use react-hook-form + zod (shadcn `form`) once forms grow beyond a couple of fields
@@ -143,7 +143,7 @@ Each app is a new self-contained folder `src/apps/<app-id>/` built in this repo 
 
 ## Phase 5 — Ship
 
-- [ ] Deploy the frontend (Vercel, Netlify or Cloudflare Pages); set env vars
+- [x] Deploy the frontend to **Vercel** via GitHub Actions (Oct 1, 2026; switched from Netlify the same day): `.github/workflows/deploy-vercel.yml` runs on every push/merge to `master` (and manually via "Run workflow"): `npm ci` → `npm run check` → `vercel pull --environment=production` → `vercel build --prod` → `vercel deploy --prebuilt --prod`. Needs repo secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`; the two `VITE_*` values are passed to `vercel build` from GitHub (Vercel refuses to store `VITE_*` vars as Sensitive because they end up in the browser bundle). `vercel.json` sets the Vite build (`npm ci`, `npm run build`, `dist`) and rewrites `/(.*)` → `/index.html` so deep links and reloads on any React Router route work. Still to do: add the Vercel URL to Supabase Auth Site URL / redirect URLs, and disable Vercel's own Git deployments (or don't connect the repo) so production only deploys from CI
 - [ ] Separate Supabase environments: a dev branch for development, `main` for production
 - [ ] Manage migrations through the Supabase CLI (`supabase db push`) instead of ad-hoc changes
 - [ ] Error monitoring (e.g. Sentry) and basic usage analytics
