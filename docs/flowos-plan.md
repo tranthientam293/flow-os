@@ -4,7 +4,12 @@ flowOS is a personal platform that hosts small utility apps (time tracker, calcu
 
 **Stack:** React 19 · React Router 8 · Tailwind CSS v4 + plain CSS (no SCSS) · shadcn/ui (Radix) · zustand · TanStack React Query · dayjs · i18next (en/vi) · Vite 8 · TypeScript 7 · oxlint · Prettier · Supabase (Auth, Postgres, RLS)
 
-**Supabase project:** `flow-os-app` (`cxgliajkslpakdfwzuxf`, ap-south-1)
+**Supabase projects** (both Free plan, ap-south-1; branching needs Pro, so environments are separate projects):
+
+| Environment | Project        | Ref                    | Used by                                                              | Auth URLs                                                                |
+| ----------- | -------------- | ---------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Development | `flow-os-app`  | `cxgliajkslpakdfwzuxf` | `npm run dev` via `.env.local`                                       | Site URL `http://localhost:3000`                                         |
+| Production  | `flow-os-prod` | `xxzybkxzpzlhubdthsdt` | Vercel (`https://flow-os-project.vercel.app`) via the GitHub secrets | Site URL and the only redirect URL: `https://flow-os-project.vercel.app` |
 
 Check items off as they're done. Phases 1 and 1.5 are complete; later phases are proposals and can be reordered.
 
@@ -104,7 +109,7 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 
 - [ ] Sign up end to end: profile created, empty workspace, email confirmation flow
 - [ ] Email confirmation **off** during development. Decided Sep 30, 2026; switch it in Dashboard → Authentication → Providers → Email → "Confirm email"
-- [ ] Set Site URL and redirect URLs in Supabase Auth for local + production
+- [ ] Set Site URL and redirect URLs in Supabase Auth (Dashboard → Authentication → URL Configuration): dev `http://localhost:3000`; prod `https://flow-os-project.vercel.app` with `https://flow-os-project.vercel.app/**` as the only redirect URL
 - [ ] Walk every page in light and dark mode at phone, tablet and desktop widths on real devices
 - [ ] Keyboard pass: tab order, focus rings, Escape closes menus and dialogs
 - [ ] `git init`, first commit, push to GitHub
@@ -144,7 +149,7 @@ Each app is a new self-contained folder `src/apps/<app-id>/` built in this repo 
 ## Phase 5 — Ship
 
 - [x] Deploy the frontend to **Vercel** via GitHub Actions (Oct 1, 2026; switched from Netlify the same day): `.github/workflows/deploy-vercel.yml` runs on every push/merge to `master` (and manually via "Run workflow"): `npm ci` → `npm run check` → `vercel pull --environment=production` → `vercel build --prod` → `vercel deploy --prebuilt --prod`. Needs repo secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`; the two `VITE_*` values are passed to `vercel build` from GitHub (Vercel refuses to store `VITE_*` vars as Sensitive because they end up in the browser bundle). `vercel.json` sets the Vite build (`npm ci`, `npm run build`, `dist`) and rewrites `/(.*)` → `/index.html` so deep links and reloads on any React Router route work. Still to do: add the Vercel URL to Supabase Auth Site URL / redirect URLs, and disable Vercel's own Git deployments (or don't connect the repo) so production only deploys from CI
-- [ ] Separate Supabase environments: a dev branch for development, `main` for production
+- [x] Separate Supabase environments (Oct 1, 2026): `flow-os-app` for localhost, new `flow-os-prod` for production (both migrations applied, security advisor clean, no data). Branching was skipped because it needs the Pro plan
 - [ ] Manage migrations through the Supabase CLI (`supabase db push`) instead of ad-hoc changes
 - [ ] Error monitoring (e.g. Sentry) and basic usage analytics
 - [ ] Custom domain + favicon / social preview images
@@ -189,7 +194,7 @@ Each app is a new self-contained folder `src/apps/<app-id>/` built in this repo 
   - **One-level import paths (Oct 1, 2026):** every source folder has an `index.ts` barrel (`export * from "./file";`), and code imports the folder, never a file inside it: `@/types`, `@/constants`, `@/utils`, `@/libs`, `@/hooks`, `@/apis`, `@/models`, `@/stores`, `@/context`, `@/providers`, `@/locales`, `@/layouts`, `@/router`, `@/apps`, and `@/components/atoms` / `molecules` / `organisms` / `pages`. When you add a file, add its line to that folder's `index.ts`. Inside the same folder, import a sibling by relative path (`./routes`) instead, so a file never imports its own barrel. App folders (`src/apps/<app-id>/`) import their own files relatively and are not re-exported.
   - **Layering (keeps barrels cycle-free):** `utils` imports only `constants` / `types` / `models`; `libs` may use `utils` but never the reverse; `context` never imports `hooks` or components; `AppProviders` lives in `src/providers/` because it composes everything.
   - **Linter comments:** don't disable rules inline without a comment saying why.
-- **Schema changes:** add a migration file in `supabase/migrations/`, apply it, re-run the advisors, then regenerate `src/models/database.ts`.
+- **Schema changes:** add a migration file in `supabase/migrations/`, apply it to **development** (`flow-os-app`) first, test, then apply the same file to **production** (`flow-os-prod`) before merging to `master`. Re-run the advisors on both and regenerate `src/models/database.ts`.
 - **Brand colour:** mid green. Primary button `#188552`, accent `#24b573` (dark theme: `#005a35` / `#36c281`). Change it only in `src/styles/tokens.css` (plus `public/favicon.svg`).
 - **Styling:** CSS only, no SCSS. Use Tailwind utilities first; put reusable extras as an `@utility` in `src/styles/index.css`. Use token-backed classes (`bg-card`, `text-muted-foreground`, `border-border-strong`) instead of raw colours, so both themes keep working.
 - **Responsive:** design mobile first (`sm` 640, `md` 768 = sidebar appears, `lg` 1024). Use `pointer-coarse:` for bigger touch targets. Never hide controls behind hover only. shadcn inputs already use `text-base md:text-sm`, so iOS doesn't zoom in.

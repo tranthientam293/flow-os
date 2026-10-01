@@ -81,13 +81,13 @@ Pushing or merging to `master` runs `.github/workflows/deploy-vercel.yml`: it in
 
 Add these repository secrets (Settings → Secrets and variables → Actions):
 
-| Secret                          | Value                                                                       |
-| ------------------------------- | --------------------------------------------------------------------------- |
-| `VERCEL_TOKEN`                  | Vercel access token (Account settings → Tokens)                             |
-| `VERCEL_ORG_ID`                 | `orgId` from `.vercel/project.json` after running `npx vercel link` locally |
-| `VERCEL_PROJECT_ID`             | `projectId` from the same file                                              |
-| `VITE_SUPABASE_URL`             | Same value as in `.env.local`                                               |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Same value as in `.env.local`                                               |
+| Secret                          | Value                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `VERCEL_TOKEN`                  | Vercel access token (Account settings → Tokens)                                                   |
+| `VERCEL_ORG_ID`                 | `orgId` from `.vercel/project.json` after running `npx vercel link` locally                       |
+| `VERCEL_PROJECT_ID`             | `projectId` from the same file                                                                    |
+| `VITE_SUPABASE_URL`             | Production project URL: `https://xxzybkxzpzlhubdthsdt.supabase.co` (`flow-os-prod`)               |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Production publishable key (`sb_publishable_…` from `flow-os-prod` → Project Settings → API Keys) |
 
 The two `VITE_*` values are passed to `vercel build` from these GitHub secrets, so nothing needs to be set in the Vercel project. They are public by design (Vite inlines them into the browser bundle), which is also why Vercel won't store `VITE_*` variables as "Sensitive".
 
