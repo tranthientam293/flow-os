@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { CircleAlert, CircleCheck, Info, TriangleAlert } from "lucide-react";
 import { StyleProvider } from "@ant-design/cssinjs";
 import { App, ConfigProvider } from "antd";
 import { SpinnerIcon } from "@/components/atoms";
@@ -22,10 +23,17 @@ export function AntdProvider({ children }: { children: ReactNode }) {
         wave={{ disabled: true }}
         spin={{ indicator: <SpinnerIcon /> }}
         tooltip={{ arrow: false }}
+        form={{ requiredMark: false }}
+        alert={{
+          successIcon: <CircleCheck />,
+          infoIcon: <Info />,
+          warningIcon: <TriangleAlert />,
+          errorIcon: <CircleAlert />,
+        }}
       >
         <App
           component={false}
-          notification={{ placement: "bottomRight", duration: 4 }}
+          notification={{ placement: "topRight", duration: 4 }}
         >
           <NotificationBridge />
           {children}

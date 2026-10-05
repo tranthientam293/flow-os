@@ -1,15 +1,13 @@
 import { useNavigate } from "react-router";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, UserRound } from "lucide-react";
 import { Avatar, Dropdown } from "antd";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { ROUTES } from "@/constants";
 import { useRequiredUser } from "@/context";
 import { profileQueryOptions, signOutMutationOptions } from "@/apis";
-import { getDisplayName, getInitials } from "@/utils";
+import { getDisplayName } from "@/utils";
 
 export function UserMenu() {
-  const { t } = useTranslation();
   const user = useRequiredUser();
   const { data: profile } = useQuery(profileQueryOptions(user.id));
   const navigate = useNavigate();
@@ -39,14 +37,14 @@ export function UserMenu() {
           {
             key: "settings",
             icon: <Settings />,
-            label: t("userMenu.accountSettings"),
+            label: "Account settings",
             onClick: () => navigate(ROUTES.SETTINGS),
           },
           { type: "divider" },
           {
-            key: "logout",
+            key: "sign-out",
             icon: <LogOut />,
-            label: t("userMenu.logOut"),
+            label: "Sign out",
             onClick: () => signOut.mutate(),
           },
         ],
@@ -55,14 +53,13 @@ export function UserMenu() {
       <button
         type='button'
         className='cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-        aria-label={t("userMenu.trigger")}
+        aria-label='Account menu'
       >
         <Avatar
-          size={32}
-          className='bg-foreground text-xs font-semibold text-background'
-        >
-          {getInitials(name)}
-        </Avatar>
+          size={26}
+          icon={<UserRound className='size-3.5' strokeWidth={2} />}
+          className='bg-foreground text-background'
+        />
       </button>
     </Dropdown>
   );

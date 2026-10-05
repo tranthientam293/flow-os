@@ -1,6 +1,6 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
-import { i18n, queryClient, supabase } from "@/libs";
+import { queryClient, supabase } from "@/libs";
 import type { Profile, ProfileUpdate } from "@/models";
 
 export const profileQueryOptions = (userId: string) =>
@@ -32,7 +32,7 @@ export const updateProfileMutationOptions = (userId: string) =>
     onSuccess: (profile) =>
       queryClient.setQueryData(profileQueryOptions(userId).queryKey, profile),
     meta: {
-      successMessage: () => i18n.t("toast.profileSaved"),
-      errorMessage: () => i18n.t("toast.profileSaveFailed"),
+      successMessage: "Profile saved",
+      errorMessage: "Could not save profile",
     },
   });

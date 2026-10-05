@@ -1,12 +1,12 @@
-import { useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button, Input } from "antd";
-import { useTranslation } from "react-i18next";
-import { FormField, SettingsPanel } from "@/components/molecules";
+import { Button, Form, Input } from "antd";
+import { SettingsPanel } from "@/components/molecules";
 import { DISPLAY_NAME_MAX_LENGTH } from "@/constants";
 import { useRequiredUser } from "@/context";
 import { profileQueryOptions, updateProfileMutationOptions } from "@/apis";
 import { formatDate } from "@/libs";
+
+type ProfileValues = { displayName: string };
 
 export function ProfileSettings() {
   const user = useRequiredUser();
@@ -16,32 +16,33 @@ export function ProfileSettings() {
 }
 
 function ProfileForm({ saved }: { saved: string }) {
-  const { t } = useTranslation();
   const user = useRequiredUser();
   const update = useMutation(updateProfileMutationOptions(user.id));
-  const [name, setName] = useState(saved);
+  const [form] = Form.useForm<ProfileValues>();
+  const name = Form.useWatch("displayName", form) ?? saved;
   const dirty = name !== saved;
 
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    update.mutate({ display_name: name.trim() || null });
-  };
+  const onFinish = ({ displayName }: ProfileValues) =>
+    update.mutate({ display_name: displayName.trim() || null });
 
   return (
-    <form onSubmit={onSubmit}>
+    <Form
+      form={form}
+      layout='vertical'
+      initialValues={{ displayName: saved }}
+      onFinish={onFinish}
+    >
       <SettingsPanel
-        title={t("settings.profile.title")}
-        description={t("settings.profile.description", {
-          date: formatDate(user.created_at),
-        })}
+        title='Profile'
+        description={`How you appear across your workspace. Member since ${formatDate(user.created_at)}.`}
         footer={
           <>
             <Button
               size='small'
               disabled={!dirty || update.isPending}
-              onClick={() => setName(saved)}
+              onClick={() => form.resetFields()}
             >
-              {t("common.cancel")}
+              Cancel
             </Button>
             <Button
               type='primary'
@@ -50,32 +51,24 @@ function ProfileForm({ saved }: { saved: string }) {
               disabled={!dirty}
               loading={update.isPending}
             >
-              {t("common.save")}
+              Save
             </Button>
           </>
         }
       >
         <div className='grid gap-4 sm:grid-cols-2'>
-          <FormField label={t("settings.profile.displayName")}>
-            {(id) => (
-              <Input
-                id={id}
-                value={name}
-                maxLength={DISPLAY_NAME_MAX_LENGTH}
-                onChange={(e) => setName(e.target.value)}
-              />
-            )}
-          </FormField>
-          <FormField
-            label={t("settings.profile.email")}
-            hint={t("settings.profile.emailHint")}
+          <Form.Item name='displayName' label='Display name' className='mb-0'>
+            <Input maxLength={DISPLAY_NAME_MAX_LENGTH} />
+          </Form.Item>
+          <Form.Item
+            label='Email'
+            extra='Email changes are not supported yet.'
+            className='mb-0'
           >
-            {(id) => (
-              <Input id={id} value={user.email ?? ""} disabled readOnly />
-            )}
-          </FormField>
+            <Input value={user.email ?? ""} disabled readOnly />
+          </Form.Item>
         </div>
       </SettingsPanel>
-    </form>
+    </Form>
   );
 }

@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { Database } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { AppIcon } from "@/components/atoms";
 import { APP_NAME, BACKEND_REGION_CODE, appPath } from "@/constants";
 import type { HealthStatus, RegisteredApp } from "@/types";
@@ -12,11 +11,9 @@ export function WorkspacePanel({
   apps: RegisteredApp[];
   health: HealthStatus;
 }) {
-  const { t } = useTranslation();
-
   return (
     <section
-      aria-label={t("overview.diagram")}
+      aria-label='Workspace diagram'
       className='relative flex min-h-75 flex-col items-center justify-center overflow-hidden rounded-xl border dot-grid p-5 sm:min-h-105 sm:p-8'
     >
       <div className='w-full max-w-xs animate-fade-up rounded-lg border bg-card shadow-sm'>
@@ -25,11 +22,9 @@ export function WorkspacePanel({
             <Database className='size-4' strokeWidth={1.75} />
           </div>
           <div className='min-w-0 flex-1'>
-            <div className='text-sm text-foreground'>
-              {t("overview.core", { app: APP_NAME })}
-            </div>
+            <div className='text-sm text-foreground'>{APP_NAME} core</div>
             <div className='text-xs text-muted-foreground'>
-              Supabase · {t("overview.region")}
+              Supabase · South Asia (Mumbai)
             </div>
             <div className='text-xs text-muted-foreground'>
               {BACKEND_REGION_CODE}
@@ -38,12 +33,12 @@ export function WorkspacePanel({
         </div>
         <div className='flex items-center gap-2 border-t px-3 py-2 font-mono text-[11px] text-muted-foreground'>
           <span>
-            {t("overview.apps")}{" "}
+            {"Apps"}{" "}
             <span className='text-foreground-light'>{apps.length}</span>
           </span>
           <span>·</span>
           <span>
-            {t("overview.latency")}{" "}
+            {"Latency"}{" "}
             <span className='text-foreground-light'>
               {health.state === "healthy" ? `${health.latencyMs}ms` : "—"}
             </span>

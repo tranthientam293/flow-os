@@ -1,11 +1,10 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import { getApp } from "@/apps";
 import { QUERY_KEYS } from "@/constants";
-import { i18n, queryClient, supabase } from "@/libs";
+import { queryClient, supabase } from "@/libs";
 import type { InstalledApp } from "@/models";
 
-const appName = (appId: unknown) =>
-  getApp(String(appId))?.name ?? i18n.t("toast.fallbackAppName");
+const appName = (appId: unknown) => getApp(String(appId))?.name ?? "App";
 
 export const installedAppsQueryOptions = (userId: string) =>
   queryOptions({
@@ -36,9 +35,8 @@ export const installAppMutationOptions = (userId: string) => {
     onSuccess: (record) =>
       queryClient.setQueryData(queryKey, (prev = []) => [...prev, record]),
     meta: {
-      successMessage: (_data, appId) =>
-        i18n.t("toast.appInstalled", { name: appName(appId) }),
-      errorMessage: () => i18n.t("toast.installFailed"),
+      successMessage: (_data, appId) => `${appName(appId)} installed`,
+      errorMessage: "Could not install app",
     },
   });
 };
@@ -66,9 +64,8 @@ export const uninstallAppMutationOptions = (userId: string) => {
         queryClient.setQueryData(queryKey, onMutateResult.previous);
     },
     meta: {
-      successMessage: (_data, appId) =>
-        i18n.t("toast.appUninstalled", { name: appName(appId) }),
-      errorMessage: () => i18n.t("toast.uninstallFailed"),
+      successMessage: (_data, appId) => `${appName(appId)} uninstalled`,
+      errorMessage: "Could not uninstall app",
     },
   });
 };

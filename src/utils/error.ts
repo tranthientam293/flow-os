@@ -1,8 +1,6 @@
-import i18next from "i18next";
-
 export function getErrorMessage(
   error: unknown,
-  fallback = i18next.t("common.somethingWentWrong"),
+  fallback = "Something went wrong",
 ): string {
   if (typeof error === "string") return error;
   if (

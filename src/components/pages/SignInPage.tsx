@@ -1,5 +1,5 @@
-import { AuthForm } from "@/components/organisms";
+import { SignInForm } from "@/components/organisms";
 
 export function SignInPage() {
-  return <AuthForm mode='sign-in' />;
+  return <SignInForm />;
 }

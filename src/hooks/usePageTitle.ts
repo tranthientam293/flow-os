@@ -1,17 +1,15 @@
 import { useLocation } from "react-router";
-import { useTranslation } from "react-i18next";
 import { getApp } from "@/apps";
 import { ROUTES } from "@/constants";
 
 export function usePageTitle(): string {
   const { pathname } = useLocation();
-  const { t } = useTranslation();
-  if (pathname === ROUTES.HOME) return t("nav.overview");
-  if (pathname.startsWith(ROUTES.STORE)) return t("nav.appStore");
-  if (pathname.startsWith(ROUTES.SETTINGS)) return t("nav.settings");
+  if (pathname === ROUTES.HOME) return "Overview";
+  if (pathname.startsWith(ROUTES.STORE)) return "App Store";
+  if (pathname.startsWith(ROUTES.SETTINGS)) return "Settings";
   const appId = pathname.match(/^\/apps\/([^/]+)/)?.[1];
-  if (appId) return getApp(appId)?.name ?? t("pageTitle.unknownApp");
-  return t("pageTitle.notFound");
+  if (appId) return getApp(appId)?.name ?? "Unknown app";
+  return "Not found";
 }
 
 export function useCurrentApp() {

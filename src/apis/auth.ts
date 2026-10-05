@@ -1,5 +1,5 @@
 import { mutationOptions } from "@tanstack/react-query";
-import { i18n, supabase } from "@/libs";
+import { supabase } from "@/libs";
 import type { SignInPayload, SignUpPayload, SignUpResult } from "@/models";
 
 export const signInMutationOptions = () =>
@@ -39,5 +39,5 @@ export const signOutMutationOptions = () =>
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     },
-    meta: { errorMessage: () => i18n.t("toast.logOutFailed") },
+    meta: { errorMessage: "Could not log out" },
   });
