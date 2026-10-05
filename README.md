@@ -2,7 +2,7 @@
 
 A workspace that hosts small utility apps. The UI follows the Supabase dashboard (see `docs/refs/img/ui-reference.png`).
 
-**Stack:** React 19 · React Router · Tailwind CSS v4 · shadcn/ui · zustand · TanStack React Query · dayjs · Vite · Supabase
+**Stack:** React 19 · React Router · Ant Design v6 · Tailwind CSS v4 · zustand · TanStack React Query · dayjs · Vite · Supabase
 
 The full roadmap and conventions are in [`docs/flowos-plan.md`](docs/flowos-plan.md).
 
@@ -33,21 +33,21 @@ VS Code users: install the recommended extensions (`.vscode/extensions.json`) fo
 ```
 src/
   components/
-    atoms/        shadcn/ui primitives + tiny custom pieces (logo, kbd, spinner)
+    atoms/        tiny custom pieces (logo, app icon, badge, spinner); everything else is antd
     molecules/    small compositions (stat tile, empty state, form field, …)
     organisms/    feature blocks (top bar, sidebar, auth form, …)
     pages/        one component per route
   layouts/        AppLayout (signed-in shell), AuthLayout
   router/         routes + ProtectedRoute / GuestRoute
   context/        AuthContext, FlowAppContext (app SDK)
-  providers/      AppProviders (wraps the app in every provider)
+  providers/      AppProviders (wraps the app in every provider), AntdProvider (theme, notifications)
   stores/         zustand stores (theme, shell UI)
   apis/           queryOptions / mutationOptions per domain (Supabase client)
   hooks/          hooks that add logic on top of the API + UI hooks
   models/         API / database types
   types/          UI-only types
   constants/      env, routes, query keys, settings
-  libs/           configured clients: supabase, queryClient, dayjs (+ date helpers), i18n
+  libs/           configured clients: supabase, queryClient, dayjs (+ date helpers), i18n, antd theme, notify
   utils/          pure helpers (cn, errors, user names)
   apps/           plug-in apps, one folder each (see src/apps/README.md)
   styles/         tokens.css + index.css
@@ -55,13 +55,13 @@ src/
 
 Data flows component → `useQuery(xQueryOptions())` / `useMutation(xMutationOptions())` from `src/apis` → `libs/supabase`. Mutation toasts are declared in `meta` and shown globally.
 
-## Adding a UI primitive
+## UI components
 
-```bash
-npx shadcn@latest add <component>
-```
+Use [Ant Design](https://ant.design/components/overview) components directly (`import { Button } from "antd"`). Colours, radius, control heights and fonts come from `src/libs/antd-theme.ts`, which mirrors `src/styles/tokens.css` for light and dark; keep the two in sync.
 
-The component lands in `src/components/atoms/`. The CLI names it in kebab-case and writes `import { cn } from "cn"`, so rename the file to PascalCase and change the import to `@/utils`, then add the file to `src/components/atoms/index.ts`.
+Antd styles are injected into the `antd` cascade layer, which `src/styles/index.css` orders before Tailwind's `utilities`. So a Tailwind `className` on an antd component always wins, no `!important` needed. Use antd's `classNames={{ body: "…" }}` to reach inner parts.
+
+Only add a file to `src/components/atoms/` for something antd doesn't have.
 
 ## Naming
 

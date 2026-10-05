@@ -1,6 +1,9 @@
+/* antd injects into `antd`; listing it before `utilities` lets Tailwind classes override it. */
+@layer theme, base, antd, components, utilities;
+
 @import "tailwindcss";
-@import "tw-animate-css";
 @import "./tokens.css";
+@import "./antd.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -38,9 +41,11 @@
   --color-surface-muted: var(--surface-muted);
   --color-selection: var(--selection);
   --color-border-strong: var(--border-strong);
+  --color-border-stronger: var(--border-stronger);
   --color-foreground-light: var(--foreground-light);
   --color-foreground-muted: var(--foreground-muted);
   --color-primary-border: var(--primary-border);
+  --color-primary-hover: var(--primary-hover);
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
   --color-brand-soft: var(--brand-soft);

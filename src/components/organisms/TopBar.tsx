@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router";
 import { ChevronsUpDown, Menu } from "lucide-react";
+import { Button } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Badge, BreadcrumbSlash, Button, LogoMark } from "@/components/atoms";
+import { Badge, BreadcrumbSlash, LogoMark } from "@/components/atoms";
 import { ROUTES, APP_NAME } from "@/constants";
 import { useRequiredUser } from "@/context";
 import { useCurrentApp, usePageTitle } from "@/hooks";
@@ -23,14 +24,12 @@ export function TopBar() {
   return (
     <header className='flex h-12 shrink-0 items-center gap-1.5 border-b bg-card px-2 sm:gap-2 sm:px-3'>
       <Button
-        variant='ghost'
-        size='icon-sm'
-        className='-ml-1 md:hidden'
+        type='text'
+        className='-ml-1 size-8 md:hidden'
+        icon={<Menu />}
         onClick={() => setMobileNavOpen(true)}
         aria-label={t("topBar.openNavigation")}
-      >
-        <Menu />
-      </Button>
+      />
 
       <Link
         to={ROUTES.HOME}

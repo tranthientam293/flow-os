@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { Button } from "antd";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/atoms";
 
 export function CopyButton({
   value,
@@ -20,8 +20,7 @@ export function CopyButton({
   };
 
   return (
-    <Button variant='outline' size='xs' onClick={copy}>
-      {copied ? <Check /> : <Copy />}
+    <Button size='small' icon={copied ? <Check /> : <Copy />} onClick={copy}>
       {copied ? t("common.copied") : (label ?? t("common.copy"))}
     </Button>
   );

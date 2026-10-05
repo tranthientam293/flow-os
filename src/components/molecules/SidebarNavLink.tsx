@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { NavLink } from "react-router";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms";
+import { Tooltip } from "antd";
 import { cn } from "@/utils";
 
 type SidebarNavLinkProps = {
@@ -36,16 +36,15 @@ export function SidebarNavLink({
         )
       }
     >
-      <Icon className='size-[17px] shrink-0' strokeWidth={1.5} />
+      <Icon className='size-4.25 shrink-0' strokeWidth={1.5} />
       {!collapsed && <span className='truncate'>{label}</span>}
     </NavLink>
   );
 
   if (!collapsed) return link;
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side='right'>{label}</TooltipContent>
+    <Tooltip title={label} placement='right' mouseEnterDelay={0.3}>
+      {link}
     </Tooltip>
   );
 }

@@ -5,7 +5,7 @@ import { useLanguageStore } from "@/stores";
 import type { Language } from "@/types";
 
 const optionClassName =
-  "flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border px-3 py-4 text-center text-sm text-foreground-light transition-colors hover:border-border-strong hover:text-foreground has-checked:border-brand has-checked:bg-brand-soft has-checked:text-foreground has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50";
+  "flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border px-3 py-4 text-center text-sm text-foreground-light transition-colors hover:border-border-strong hover:text-foreground has-checked:border-brand has-checked:bg-brand-soft has-checked:text-foreground has-focus-visible:ring-2 has-focus-visible:ring-ring/50";
 
 export function LanguageSettings() {
   const { t } = useTranslation();
