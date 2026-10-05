@@ -120,3 +120,40 @@
     animation: none;
   }
 }
+
+/* Theme switch (withThemeTransition): a slow, even cross-dissolve of the whole
+   screen, like the macOS/iOS appearance change. Keeps the browser's default
+   blend mode so the two themes mix without dipping in brightness halfway. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* Same fade, but hidden for the first 150ms so quick loads never show it. */
+@utility animate-fade-up-delayed {
+  animation: fade-up 200ms ease-out 150ms both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: fade-up 0s 150ms both;
+  }
+}
+
+/* Indeterminate progress: a 1/3-width bar sweeping across its track. */
+@keyframes loading-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
+@utility animate-loading-bar {
+  animation: loading-bar 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    transform: translateX(100%);
+  }
+}

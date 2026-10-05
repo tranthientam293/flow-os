@@ -1,6 +1,7 @@
 import { SettingsPanel } from "@/components/molecules";
 import { THEME_OPTIONS } from "@/constants";
 import { useThemeStore } from "@/stores";
+import { withThemeTransition } from "@/utils";
 
 export function AppearanceSettings() {
   const { preference, setPreference } = useThemeStore();
@@ -22,7 +23,7 @@ export function AppearanceSettings() {
               name='theme'
               value={value}
               checked={preference === value}
-              onChange={() => setPreference(value)}
+              onChange={() => withThemeTransition(() => setPreference(value))}
               className='sr-only'
             />
             <Icon className='size-4.5' strokeWidth={1.5} />
