@@ -1,14 +1,12 @@
 import { createBrowserRouter } from "react-router";
-import { CenteredSpinner } from "@/components/atoms";
+import { LoadingScreen } from "@/components/molecules";
 import { ROUTES } from "@/constants";
 import { GuestRoute, ProtectedRoute } from "./Guards";
+import { appLoader } from "./loaders";
 
-// Layouts and pages are lazy so each route downloads only its own code. These
-// import files directly (not the barrels): a barrel import would pull every
-// page into one chunk and undo the split.
 export const router = createBrowserRouter([
   {
-    hydrateFallbackElement: <CenteredSpinner className='h-dvh' />,
+    hydrateFallbackElement: <LoadingScreen />,
     children: [
       {
         element: <GuestRoute />,
@@ -38,6 +36,7 @@ export const router = createBrowserRouter([
       },
       {
         element: <ProtectedRoute />,
+        loader: appLoader,
         children: [
           {
             lazy: async () => ({

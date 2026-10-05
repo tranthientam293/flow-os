@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router";
-import { CenteredSpinner } from "@/components/atoms";
+import { LoadingScreen } from "@/components/molecules";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/context";
 
@@ -7,7 +7,7 @@ export function ProtectedRoute() {
   const { session, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return <CenteredSpinner className='h-dvh' />;
+  if (loading) return <LoadingScreen />;
   if (!session)
     return (
       <Navigate
@@ -25,7 +25,14 @@ export function GuestRoute() {
   const from =
     (location.state as { from?: string } | null)?.from ?? ROUTES.HOME;
 
-  if (loading) return <CenteredSpinner className='h-dvh' />;
-  if (session) return <Navigate to={from} replace />;
+  if (loading) return <LoadingScreen />;
+
+  if (session)
+    return (
+      <>
+        <Navigate to={from} replace />
+        <LoadingScreen />
+      </>
+    );
   return <Outlet />;
 }

@@ -1,6 +1,6 @@
 import { Link } from "react-router";
-import { PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
-import { Button, Divider, Skeleton } from "antd";
+import { Blocks, PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
+import { Button, Divider, Skeleton, Tooltip } from "antd";
 import { SidebarNavLink } from "@/components/molecules";
 import { FOOTER_NAV, PLATFORM_NAV, appPath, ROUTES } from "@/constants";
 import { useInstalledApps } from "@/hooks";
@@ -41,9 +41,18 @@ export function Sidebar({
         <Divider className='my-2' />
 
         <div className='flex flex-col gap-0.5'>
-          {!collapsed && (
+          {collapsed ? (
+            // Keeps the section recognisable when only icons show.
+            <Tooltip title='Apps' placement='right' mouseEnterDelay={0.3}>
+              <div className='flex h-6 items-center justify-center text-muted-foreground'>
+                <Blocks className='size-3.5' strokeWidth={1.75} />
+                <span className='sr-only'>Apps</span>
+              </div>
+            </Tooltip>
+          ) : (
             <div className='flex items-center justify-between px-2.5 pt-1 pb-1.5'>
-              <span className='text-[11px] font-medium text-muted-foreground'>
+              <span className='flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground'>
+                <Blocks className='size-3.5' strokeWidth={1.75} />
                 Apps
               </span>
               <Link
