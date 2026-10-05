@@ -2,8 +2,8 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { MailCheck } from "lucide-react";
+import { Button, Input } from "antd";
 import { Trans, useTranslation } from "react-i18next";
-import { Button, Input, Spinner } from "@/components/atoms";
 import { EmptyState, FormField } from "@/components/molecules";
 import { PASSWORD_MIN_LENGTH, ROUTES } from "@/constants";
 import { signInMutationOptions, signUpMutationOptions } from "@/apis";
@@ -129,13 +129,12 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         )}
 
         <Button
-          type='submit'
-          className='mt-2 w-full'
-          disabled={mutation.isPending}
+          type='primary'
+          htmlType='submit'
+          block
+          className='mt-2'
+          loading={mutation.isPending}
         >
-          {mutation.isPending && (
-            <Spinner className='size-4 text-primary-foreground' />
-          )}
           {t(`${copy}.submit`)}
         </Button>
       </form>

@@ -1,16 +1,15 @@
 import { Loader2 } from "lucide-react";
+import { Spin } from "antd";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/utils";
 
-function Spinner({ className }: { className?: string }) {
+// Global Spin indicator, set on ConfigProvider so every <Spin /> matches.
+function SpinnerIcon({ className }: { className?: string }) {
   const { t } = useTranslation();
   return (
     <Loader2
       aria-label={t("common.loading")}
-      className={cn(
-        "size-[18px] animate-spin text-muted-foreground",
-        className,
-      )}
+      className={cn("size-4.5 animate-spin text-muted-foreground", className)}
     />
   );
 }
@@ -23,9 +22,9 @@ function CenteredSpinner({ className }: { className?: string }) {
         className,
       )}
     >
-      <Spinner />
+      <Spin />
     </div>
   );
 }
 
-export { Spinner, CenteredSpinner };
+export { SpinnerIcon, CenteredSpinner };

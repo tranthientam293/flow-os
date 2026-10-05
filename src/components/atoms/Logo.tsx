@@ -37,7 +37,9 @@ function Wordmark({ className }: { className?: string }) {
       )}
     >
       <LogoMark size={24} />
-      flow<span className='text-brand-strong'>OS</span>
+      <span>
+        flow<span className='text-brand-strong'>OS</span>
+      </span>
     </span>
   );
 }

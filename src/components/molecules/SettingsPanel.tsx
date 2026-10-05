@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Card } from "@/components/atoms";
+import { Card } from "antd";
 
 type SettingsPanelProps = {
   title: string;
@@ -15,7 +15,7 @@ export function SettingsPanel({
   footer,
 }: SettingsPanelProps) {
   return (
-    <Card className='gap-0 overflow-hidden py-0 shadow-none'>
+    <Card className='overflow-hidden' classNames={{ body: "p-0" }}>
       <div className='border-b px-4 py-4 sm:px-5'>
         <h2 className='text-sm font-medium text-foreground'>{title}</h2>
         <p className='mt-0.5 text-xs text-muted-foreground'>{description}</p>

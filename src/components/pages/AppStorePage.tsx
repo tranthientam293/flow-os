@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { PackageOpen, Search } from "lucide-react";
+import { Input, Segmented } from "antd";
 import { Trans, useTranslation } from "react-i18next";
 import { appRegistry } from "@/apps";
-import { Input, Tabs, TabsList, TabsTrigger } from "@/components/atoms";
 import { EmptyState, PageHeader } from "@/components/molecules";
 import { AppStoreCard } from "@/components/organisms";
 import { APP_CATEGORIES } from "@/constants";
@@ -56,32 +56,27 @@ export function AppStorePage() {
       ) : (
         <>
           <div className='mt-6 flex flex-col gap-3 sm:flex-row sm:items-center'>
-            <div className='relative sm:w-72'>
-              <Search className='pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground' />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("store.search")}
-                className='h-8 pl-8'
-                aria-label={t("store.search")}
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("store.search")}
+              prefix={<Search className='size-3.5 text-muted-foreground' />}
+              className='h-8 sm:w-72'
+              aria-label={t("store.search")}
+            />
+            <div className='-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0'>
+              <Segmented<CategoryFilter>
+                value={category}
+                onChange={setCategory}
+                options={[
+                  { value: "all", label: t("store.all") },
+                  ...APP_CATEGORIES.map((c) => ({
+                    value: c,
+                    label: t(`store.categories.${c}`),
+                  })),
+                ]}
               />
             </div>
-            <Tabs
-              value={category}
-              onValueChange={(v) => setCategory(v as CategoryFilter)}
-              className='-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0'
-            >
-              <TabsList>
-                <TabsTrigger value='all' className='pointer-coarse:h-8'>
-                  {t("store.all")}
-                </TabsTrigger>
-                {APP_CATEGORIES.map((c) => (
-                  <TabsTrigger key={c} value={c} className='pointer-coarse:h-8'>
-                    {t(`store.categories.${c}`)}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
           </div>
 
           <div className='mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>

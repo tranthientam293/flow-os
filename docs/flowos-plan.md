@@ -2,7 +2,7 @@
 
 flowOS is a personal platform that hosts small utility apps (time tracker, calculator, …), like a mini Steam for one publisher. Apps are developed **inside this repo**, one self-contained folder per app in `src/apps/`; there is no separate publishing step. Users install apps to their account and launch them only from flowOS, where they run as the signed-in user (no separate login). The UI follows the Supabase dashboard (`docs/refs/img/ui-reference.png`).
 
-**Stack:** React 19 · React Router 8 · Tailwind CSS v4 + plain CSS (no SCSS) · shadcn/ui (Radix) · zustand · TanStack React Query · dayjs · i18next (en/vi) · Vite 8 · TypeScript 7 · oxlint · Prettier · Supabase (Auth, Postgres, RLS)
+**Stack:** React 19 · React Router 8 · Ant Design v6 · Tailwind CSS v4 + plain CSS (no SCSS) · zustand · TanStack React Query · dayjs · i18next (en/vi) · Vite 8 · TypeScript 7 · oxlint · Prettier · Supabase (Auth, Postgres, RLS)
 
 **Supabase projects** (both Free plan, ap-south-1; branching needs Pro, so environments are separate projects):
 
@@ -19,7 +19,7 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 
 | Folder                      | Holds                                                                                                                                                                        |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/components/atoms/`     | shadcn/ui primitives (button, input, dialog, command, sheet, …) plus tiny custom ones (logo, kbd, spinner, app-icon)                                                         |
+| `src/components/atoms/`     | tiny custom pieces antd doesn't cover (logo, badge, spinner, app-icon); use antd components directly for everything else                                                     |
 | `src/components/molecules/` | Small compositions: stat tile, empty state, form field, sidebar link, settings panel                                                                                         |
 | `src/components/organisms/` | Feature blocks: top bar, sidebar, mobile nav, user menu , auth form, store card, app host                                                                                    |
 | `src/components/pages/`     | One component per route                                                                                                                                                      |
@@ -37,7 +37,7 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 | `src/locales/`              | Translation dictionaries: `en.ts` (source of truth, `as const`) and `vi.ts` (typed against it)                                                                               |
 | `src/utils/`                | Pure helpers: `cn`, errors, health, language, user display names; never import `@/libs`                                                                                      |
 | `src/apps/`                 | One self-contained folder per app (folder name = app id) with `manifest.ts`; `registry.ts` discovers them (empty)                                                            |
-| `src/styles/`               | `tokens.css` (shadcn-named CSS variables, Supabase palette) + `index.css` (Tailwind theme, utilities)                                                                        |
+| `src/styles/`               | `tokens.css` (CSS variables, Supabase palette; mirrored for antd in `libs/antd-theme.ts`) + `index.css` (Tailwind theme, utilities)                                          |
 | `supabase/migrations/`      | Schema, RLS policies, triggers                                                                                                                                               |
 
 **Data flow:** component → `useQuery(xQueryOptions(...))` / `useMutation(xMutationOptions(...))` from `src/apis` → `libs/supabase`. Cache updates (including optimistic ones) live in the mutation options. Toasts come from `meta: { successMessage, errorMessage }` and are shown globally by the `MutationCache` in `libs/query-client.ts`. Server state lives in React Query, global client state in zustand, and the auth session in context.
@@ -97,7 +97,8 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 - [x] React Query for all server state (profile, installed apps, app storage, health), with optimistic uninstall
 - [x] axios removed (Oct 1, 2026): all data access, including Edge Functions (`supabase.functions.invoke`), goes through the Supabase client
 - [x] dayjs (relativeTime, localizedFormat) configured in `libs/dayjs.ts`, with the `fromNow` / `formatDate` helpers (moved from `utils/date.ts` on Oct 1, 2026)
-- [x] Toast notifications (sonner) for install, uninstall, profile save and sign-out errors
+- [x] Toast notifications (antd `notification`, via `libs/notification.ts`) for install, uninstall, profile save and sign-out errors
+- [x] Migrated from shadcn/ui (Radix, sonner, cva, tw-animate-css) to Ant Design v6 (Oct 5, 2026). Antd styles live in `@layer antd`, ordered before Tailwind `utilities`, so `className` overrides antd; theme tokens in `libs/antd-theme.ts`
 - [x] Naming convention applied (Sep 30, 2026): 64 files renamed and imports rewritten; `*.tsx` → PascalCase, hooks → camelCase, other `.ts` → kebab-case
 - [x] API layer (Sep 30, 2026): `src/services/` replaced by `src/apis/` (`auth`, `profile`, `installed-apps`, `app-storage`, `health`) exporting `queryOptions` / `mutationOptions`. Thin wrapper hooks (`useProfile`, `useInstallApp`, `useUninstallApp`) removed; toasts moved to mutation `meta` + a global `MutationCache`
 - [x] Existing code comments removed (Sep 30, 2026) from `src/`, configs, `index.html`, `.prettierignore` and the SQL migrations; only the `/// <reference types="vite/client" />` directive remains. Docs (Markdown) keep their example snippets as-is
@@ -117,8 +118,8 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 - [x] TypeScript import safety: `forceConsistentCasingInFileNames`, `noUncheckedSideEffectImports`, `isolatedModules`, `verbatimModuleSyntax`, `noImplicitOverride`. Unused locals/params moved from `tsc` to oxlint so the `_` prefix is honoured
 - [x] Run `npm run check` in CI: the Vercel deploy workflow runs it before every production build (Oct 1, 2026). Optional: a pre-commit hook
 - [ ] Add Vitest + React Testing Library; test the registry, `useAppStorage` and the install flow
-- [ ] Code-split: lazy route components + vendor chunk (main bundle is ~813 KB with Radix and React Query; cmdk removed Oct 1, 2026)
-- [ ] Use react-hook-form + zod (shadcn `form`) once forms grow beyond a couple of fields
+- [ ] Code-split: lazy route components + vendor chunk (main bundle is ~1.2 MB with antd and React Query; cmdk removed Oct 1, 2026)
+- [ ] Use antd `Form` once forms grow beyond a couple of fields
 
 ## Phase 3 — Platform features
 
@@ -178,7 +179,7 @@ Each app is a new self-contained folder `src/apps/<app-id>/` built in this repo 
   - **Components** use `useQuery(xQueryOptions(...))` / `useMutation(xMutationOptions(...))` directly. Per-call reactions (e.g. navigate after install) go in `mutate(vars, { onSuccess })`.
 - **Comments:** don't add code comments automatically. Write one only when explicitly asked; explanations belong in this plan, the READMEs or the PR description.
 - **Components:** Atoms have no app logic. Molecules compose atoms. Organisms may use hooks and stores. Pages only compose organisms and molecules.
-- **shadcn:** add primitives with `npx shadcn@latest add <name>`; they land in `components/atoms` (see `components.json`). The CLI creates kebab-case files and writes `import { cn } from "cn"`, so after each add, rename the file to PascalCase (`dropdown-menu.tsx` → `DropdownMenu.tsx`) and change the import to `@/utils`, then add `export * from "./<Name>";` to `components/atoms/index.ts`. The Sonner toaster is wired to our theme store, not `next-themes`.
+- **Ant Design:** import components straight from `antd`. `providers/AntdProvider.tsx` sets the theme (from `libs/antd-theme.ts`, switched by our theme store), the global Spin indicator and antd `App`. Show toasts with `notify` from `@/libs` (or mutation `meta`), not antd's static `notification`, so they follow the theme. Override styles with Tailwind classes; antd sits in `@layer antd` below `utilities`.
 - **State:** server data → React Query (keys in `constants/query-keys.ts`, scoped by user). Global client state → zustand store. Auth → `useAuth()` / `useRequiredUser()`.
 - **i18n:** every user-facing string goes through `t()` / `<Trans>`, with no hard-coded copy in components.
   - **Adding copy:** add the key to `src/locales/en.ts` first; `vi.ts` is typed from it, so a missing Vietnamese key fails the type-check.
@@ -197,4 +198,4 @@ Each app is a new self-contained folder `src/apps/<app-id>/` built in this repo 
 - **Schema changes:** add a migration file in `supabase/migrations/`, apply it to **development** (`flow-os-app`) first, test, then apply the same file to **production** (`flow-os-prod`) before merging to `master`. Re-run the advisors on both and regenerate `src/models/database.ts`.
 - **Brand colour:** mid green. Primary button `#188552`, accent `#24b573` (dark theme: `#005a35` / `#36c281`). Change it only in `src/styles/tokens.css` (plus `public/favicon.svg`).
 - **Styling:** CSS only, no SCSS. Use Tailwind utilities first; put reusable extras as an `@utility` in `src/styles/index.css`. Use token-backed classes (`bg-card`, `text-muted-foreground`, `border-border-strong`) instead of raw colours, so both themes keep working.
-- **Responsive:** design mobile first (`sm` 640, `md` 768 = sidebar appears, `lg` 1024). Use `pointer-coarse:` for bigger touch targets. Never hide controls behind hover only. shadcn inputs already use `text-base md:text-sm`, so iOS doesn't zoom in.
+- **Responsive:** design mobile first (`sm` 640, `md` 768 = sidebar appears, `lg` 1024). Use `pointer-coarse:` for bigger touch targets. Never hide controls behind hover only. Inputs are 14px; add `text-base md:text-sm` if iOS zoom on focus becomes a problem.

@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
+import { Button, Divider, Skeleton } from "antd";
 import { useTranslation } from "react-i18next";
-import { Button, Separator, Skeleton } from "@/components/atoms";
 import { SidebarNavLink } from "@/components/molecules";
 import { FOOTER_NAV, PLATFORM_NAV, appPath, ROUTES } from "@/constants";
 import { useInstalledApps } from "@/hooks";
@@ -40,7 +40,7 @@ export function Sidebar({
           ))}
         </div>
 
-        <Separator className='my-2' />
+        <Divider className='my-2' />
 
         <div className='flex flex-col gap-0.5'>
           {!collapsed && (
@@ -48,25 +48,25 @@ export function Sidebar({
               <span className='text-[11px] font-medium text-muted-foreground'>
                 {t("sidebar.apps")}
               </span>
-              <Button
-                asChild
-                variant='ghost'
-                size='icon-xs'
-                className='size-5 text-muted-foreground'
+              <Link
+                to={ROUTES.STORE}
+                onClick={onNavigate}
+                aria-label={t("sidebar.addApps")}
+                className='flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground'
               >
-                <Link
-                  to={ROUTES.STORE}
-                  onClick={onNavigate}
-                  aria-label={t("sidebar.addApps")}
-                >
-                  <Plus />
-                </Link>
-              </Button>
+                <Plus className='size-3.5' />
+              </Link>
             </div>
           )}
           {isLoading
             ? Array.from({ length: 3 }, (_, i) => (
-                <Skeleton key={i} className='mx-2.5 my-2 h-4' />
+                <Skeleton
+                  key={i}
+                  active
+                  title={false}
+                  paragraph={{ rows: 1, width: "100%" }}
+                  className='px-2.5 py-2'
+                />
               ))
             : apps.map((app) => (
                 <SidebarNavLink
@@ -85,7 +85,7 @@ export function Sidebar({
           )}
         </div>
 
-        <Separator className='my-2' />
+        <Divider className='my-2' />
 
         <div className='flex flex-col gap-0.5'>
           {FOOTER_NAV.map((item) => (
@@ -105,14 +105,13 @@ export function Sidebar({
       {showCollapseToggle && (
         <div className='border-t p-1.5'>
           <Button
-            variant='ghost'
-            size='icon-sm'
+            type='text'
+            className='size-8'
+            icon={collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
             onClick={toggleSidebar}
             aria-label={toggleLabel}
             title={toggleLabel}
-          >
-            {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
-          </Button>
+          />
         </div>
       )}
     </nav>

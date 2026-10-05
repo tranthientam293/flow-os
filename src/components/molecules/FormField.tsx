@@ -1,5 +1,4 @@
 import { useId, type ReactNode } from "react";
-import { Label } from "@/components/atoms";
 
 type FormFieldProps = {
   label: string;
@@ -12,9 +11,12 @@ export function FormField({ label, hint, error, children }: FormFieldProps) {
   const id = useId();
   return (
     <div className='flex flex-col gap-1.5'>
-      <Label htmlFor={id} className='font-normal text-foreground-light'>
+      <label
+        htmlFor={id}
+        className='text-sm leading-none text-foreground-light select-none'
+      >
         {label}
-      </Label>
+      </label>
       {children(id)}
       {error ? (
         <p className='text-xs text-destructive'>{error}</p>

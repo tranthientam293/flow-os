@@ -1,0 +1,133 @@
+/*
+ * Supabase-style touches antd's theme tokens can't express. Sits in the
+ * `components` layer: above antd, below Tailwind utilities, so a className
+ * on a single component still wins. Uses tokens.css variables, so both
+ * themes follow automatically.
+ */
+@layer components {
+  /* ---------- Icons: lucide renders at 24px; size like antd icons ---------- */
+  .ant-btn .lucide,
+  .ant-dropdown-menu .lucide {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .ant-btn-sm .lucide,
+  .ant-dropdown-menu .lucide {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .ant-dropdown-menu .lucide {
+    color: var(--muted-foreground);
+  }
+
+  /* ---------- Button ---------- */
+  /* Primary: green fill with a darker green border, softens on hover. */
+  .ant-btn.ant-btn-color-primary.ant-btn-variant-solid {
+    border-color: var(--primary-border);
+  }
+
+  .ant-btn.ant-btn-color-primary.ant-btn-variant-solid:not(:disabled):hover,
+  .ant-btn.ant-btn-color-primary.ant-btn-variant-solid:not(:disabled):active {
+    border-color: var(--primary-border);
+    background: var(--primary-hover);
+    color: var(--primary-foreground);
+  }
+
+  .ant-btn.ant-btn-color-primary.ant-btn-variant-solid:disabled {
+    border-color: var(--primary-border);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    opacity: 0.5;
+  }
+
+  .ant-btn.ant-btn-variant-outlined:disabled {
+    opacity: 0.5;
+  }
+
+  /* Text buttons read as secondary until hovered. */
+  .ant-btn.ant-btn-variant-text:not(:hover) {
+    color: var(--foreground-light);
+  }
+
+  /* ---------- Input ---------- */
+  /* shadcn: shadow-xs at rest; antd's activeShadow takes over on focus. */
+  .ant-input-outlined:not(:focus):not(:focus-within) {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .ant-input-outlined {
+    transition-property: color, border-color, box-shadow;
+  }
+
+  .ant-input-outlined.ant-input-disabled,
+  .ant-input-outlined.ant-input-affix-wrapper-disabled {
+    opacity: 0.5;
+  }
+
+  .ant-input::placeholder,
+  .ant-input-affix-wrapper input::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  /* ---------- Dropdown ---------- */
+  .ant-dropdown .ant-dropdown-menu {
+    border: 1px solid var(--border);
+    padding: 4px;
+  }
+
+  .ant-dropdown .ant-dropdown-menu-item-group-title {
+    padding: 6px 8px;
+  }
+
+  .ant-dropdown .ant-dropdown-menu-item-divider {
+    margin: 4px -4px;
+    background-color: var(--border);
+  }
+
+  /* ---------- Tooltip: light, bordered, no arrow ---------- */
+  .ant-tooltip .ant-tooltip-container {
+    min-height: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  /* ---------- Notification: compact toast ---------- */
+  .ant-notification .ant-notification-notice {
+    --ant-notification-icon-font-size: 16px;
+    --ant-notification-title-font-size: 14px;
+    --ant-notification-title-line-height: 20px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+  }
+
+  .ant-notification .ant-notification-notice-icon {
+    margin-top: 2px;
+  }
+
+  .ant-notification .ant-notification-notice-section {
+    gap: 2px;
+  }
+
+  .ant-notification .ant-notification-notice-description {
+    font-size: 13px;
+    color: var(--foreground-light);
+  }
+
+  .ant-notification .ant-notification-notice-close {
+    top: 14px;
+    inset-inline-end: 12px;
+  }
+
+  /* ---------- Drawer ---------- */
+  .ant-drawer-left > .ant-drawer-content-wrapper,
+  .ant-drawer-left .ant-drawer-section {
+    border-inline-end: 1px solid var(--border);
+    box-shadow: none;
+  }
+}

@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router";
 import { Check, Download, Trash2 } from "lucide-react";
+import { Button, Card } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { AppIcon, Badge, Button, Card, Spinner } from "@/components/atoms";
+import { AppIcon, Badge } from "@/components/atoms";
 import { appPath } from "@/constants";
 import { installAppMutationOptions, uninstallAppMutationOptions } from "@/apis";
 import { useRequiredUser } from "@/context";
@@ -21,7 +22,10 @@ export function AppStoreCard({ app }: { app: RegisteredApp }) {
   const record = recordOf(app.id);
 
   return (
-    <Card className='animate-fade-up gap-0 p-4 shadow-none transition-colors hover:border-border-strong'>
+    <Card
+      className='flex animate-fade-up flex-col transition-colors hover:border-border-strong'
+      classNames={{ body: "flex flex-1 flex-col p-4" }}
+    >
       <div className='flex items-start gap-3'>
         <AppIcon icon={app.icon} size='lg' />
         <div className='min-w-0 flex-1'>
@@ -50,38 +54,27 @@ export function AppStoreCard({ app }: { app: RegisteredApp }) {
       <div className='mt-4 flex items-center gap-2'>
         {installed ? (
           <>
-            <Button
-              variant='outline'
-              size='xs'
-              onClick={() => navigate(appPath(app.id))}
-            >
+            <Button size='small' onClick={() => navigate(appPath(app.id))}>
               {t("common.open")}
             </Button>
             <Button
-              variant='ghost'
-              size='xs'
-              disabled={uninstall.isPending}
+              type='text'
+              size='small'
+              icon={<Trash2 />}
+              loading={uninstall.isPending}
               onClick={() => uninstall.mutate(app.id)}
             >
-              {uninstall.isPending ? (
-                <Spinner className='size-3.5' />
-              ) : (
-                <Trash2 />
-              )}
               {t("common.uninstall")}
             </Button>
           </>
         ) : (
           <Button
-            size='xs'
-            disabled={install.isPending}
+            type='primary'
+            size='small'
+            icon={<Download />}
+            loading={install.isPending}
             onClick={() => install.mutate(app.id)}
           >
-            {install.isPending ? (
-              <Spinner className='size-3.5 text-primary-foreground' />
-            ) : (
-              <Download />
-            )}
             {t("common.install")}
           </Button>
         )}

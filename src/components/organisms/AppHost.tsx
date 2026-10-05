@@ -1,8 +1,9 @@
 import { Component, Suspense, type ErrorInfo, type ReactNode } from "react";
 import { AlertTriangle, Download } from "lucide-react";
+import { Button } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Button, CenteredSpinner, Spinner } from "@/components/atoms";
+import { CenteredSpinner } from "@/components/atoms";
 import { EmptyState } from "@/components/molecules";
 import { useRequiredUser, FlowAppContext } from "@/context";
 import { installAppMutationOptions } from "@/apis";
@@ -26,15 +27,12 @@ export function AppHost({ app }: { app: RegisteredApp }) {
         description={app.tagline}
         action={
           <Button
-            size='xs'
-            disabled={install.isPending}
+            type='primary'
+            size='small'
+            icon={<Download />}
+            loading={install.isPending}
             onClick={() => install.mutate(app.id)}
           >
-            {install.isPending ? (
-              <Spinner className='size-3.5 text-primary-foreground' />
-            ) : (
-              <Download />
-            )}
             {t("appHost.install", { name: app.name })}
           </Button>
         }
@@ -82,11 +80,7 @@ class AppErrorBoundary extends Component<
         title={i18n.t("appHost.crashed", { name: this.props.appName })}
         description={this.state.error.message}
         action={
-          <Button
-            variant='outline'
-            size='xs'
-            onClick={() => this.setState({ error: null })}
-          >
+          <Button size='small' onClick={() => this.setState({ error: null })}>
             {i18n.t("appHost.reload")}
           </Button>
         }

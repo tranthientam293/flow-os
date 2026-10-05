@@ -17,7 +17,7 @@ export function AppearanceSettings() {
         {THEME_OPTIONS.map(({ value, labelKey, icon: Icon }) => (
           <label
             key={value}
-            className='flex cursor-pointer flex-col items-center gap-2 rounded-lg border px-3 py-4 text-center text-sm text-foreground-light transition-colors hover:border-border-strong hover:text-foreground has-checked:border-brand has-checked:bg-brand-soft has-checked:text-foreground has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50'
+            className='flex cursor-pointer flex-col items-center gap-2 rounded-lg border px-3 py-4 text-center text-sm text-foreground-light transition-colors hover:border-border-strong hover:text-foreground has-checked:border-brand has-checked:bg-brand-soft has-checked:text-foreground has-focus-visible:ring-2 has-focus-visible:ring-ring/50'
           >
             <input
               type='radio'
@@ -27,7 +27,7 @@ export function AppearanceSettings() {
               onChange={() => setPreference(value)}
               className='sr-only'
             />
-            <Icon className='size-[18px]' strokeWidth={1.5} />
+            <Icon className='size-4.5' strokeWidth={1.5} />
             {t(labelKey)}
           </label>
         ))}

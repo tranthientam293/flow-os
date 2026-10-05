@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Button, Input } from "antd";
 import { useTranslation } from "react-i18next";
-import { Button, Input, Spinner } from "@/components/atoms";
 import { FormField, SettingsPanel } from "@/components/molecules";
 import { DISPLAY_NAME_MAX_LENGTH } from "@/constants";
 import { useRequiredUser } from "@/context";
@@ -37,21 +37,19 @@ function ProfileForm({ saved }: { saved: string }) {
         footer={
           <>
             <Button
-              variant='outline'
-              size='xs'
+              size='small'
               disabled={!dirty || update.isPending}
               onClick={() => setName(saved)}
             >
               {t("common.cancel")}
             </Button>
             <Button
-              type='submit'
-              size='xs'
-              disabled={!dirty || update.isPending}
+              type='primary'
+              htmlType='submit'
+              size='small'
+              disabled={!dirty}
+              loading={update.isPending}
             >
-              {update.isPending && (
-                <Spinner className='size-3.5 text-primary-foreground' />
-              )}
               {t("common.save")}
             </Button>
           </>
