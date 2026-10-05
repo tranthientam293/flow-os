@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Blocks, LayoutGrid, UserRound } from "lucide-react";
+import { Blocks, ShoppingBag, UserRound } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { appRegistry } from "@/apps";
 import { CopyButton, HealthDots, StatTile } from "@/components/molecules";
@@ -56,7 +56,7 @@ export function OverviewPage() {
             <StatTile
               label='App Store'
               value='Browse more apps'
-              icon={LayoutGrid}
+              icon={ShoppingBag}
               to={ROUTES.STORE}
             />
           )}
