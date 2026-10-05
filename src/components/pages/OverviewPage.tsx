@@ -21,7 +21,7 @@ export function OverviewPage() {
   return (
     <div className='mx-auto grid max-w-7xl gap-8 px-4 py-6 sm:px-6 sm:py-10 lg:grid-cols-2 lg:gap-10 lg:px-10 lg:py-12'>
       <section className='flex min-w-0 animate-fade-up flex-col justify-center'>
-        <h1 className='text-2xl break-words text-foreground sm:text-3xl'>
+        <h1 className='text-2xl wrap-break-word text-foreground sm:text-3xl'>
           {getDisplayName(user, profile)}’s workspace
         </h1>
         <div className='mt-3 flex min-w-0 items-center gap-3 sm:mt-4'>
