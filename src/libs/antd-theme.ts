@@ -193,6 +193,17 @@ export function getAntdTheme(mode: ResolvedTheme): ThemeConfig {
         colorBorderSecondary: c.border,
         borderRadiusLG: 6,
       },
+      Alert: {
+        defaultPadding: "10px 14px",
+        withDescriptionPadding: "12px 14px",
+        withDescriptionIconSize: 16,
+      },
+      Form: {
+        labelColor: c.foregroundLight,
+        labelFontSize: 14,
+        verticalLabelPadding: "0 0 6px",
+        itemMarginBottom: 16,
+      },
       Divider: {
         colorSplit: c.border,
       },

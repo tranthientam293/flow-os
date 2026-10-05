@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router";
 import { ChevronsUpDown, Menu } from "lucide-react";
 import { Button } from "antd";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { Badge, BreadcrumbSlash, LogoMark } from "@/components/atoms";
 import { ROUTES, APP_NAME } from "@/constants";
 import { useRequiredUser } from "@/context";
@@ -13,7 +12,6 @@ import { getDisplayName } from "@/utils";
 import { UserMenu } from "./UserMenu";
 
 export function TopBar() {
-  const { t } = useTranslation();
   const user = useRequiredUser();
   const { data: profile } = useQuery(profileQueryOptions(user.id));
   const { pathname } = useLocation();
@@ -28,27 +26,27 @@ export function TopBar() {
         className='-ml-1 size-8 md:hidden'
         icon={<Menu />}
         onClick={() => setMobileNavOpen(true)}
-        aria-label={t("topBar.openNavigation")}
+        aria-label='Open navigation'
       />
 
       <Link
         to={ROUTES.HOME}
         className='rounded-md p-1'
-        aria-label={t("topBar.home", { app: APP_NAME })}
+        aria-label={`${APP_NAME} home`}
       >
         <LogoMark />
       </Link>
 
-      <nav aria-label={t("topBar.breadcrumb")} className='min-w-0'>
+      <nav aria-label='Breadcrumb' className='min-w-0'>
         <ol className='flex min-w-0 items-center gap-1 text-sm'>
           <li aria-hidden='true'>
             <BreadcrumbSlash />
           </li>
           <li className='hidden min-w-0 items-center gap-2 sm:flex'>
             <span className='truncate text-foreground'>
-              {t("topBar.workspace", { name: getDisplayName(user, profile) })}
+              {getDisplayName(user, profile)}’s workspace
             </span>
-            <Badge variant='status'>{t("topBar.free")}</Badge>
+            <Badge variant='status'>Free</Badge>
             <ChevronsUpDown className='size-3.5 shrink-0 text-muted-foreground' />
           </li>
           <li aria-hidden='true' className='hidden sm:block'>

@@ -2,7 +2,6 @@ import { useNavigate } from "react-router";
 import { Check, Download, Trash2 } from "lucide-react";
 import { Button, Card } from "antd";
 import { useMutation } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { AppIcon, Badge } from "@/components/atoms";
 import { appPath } from "@/constants";
 import { installAppMutationOptions, uninstallAppMutationOptions } from "@/apis";
@@ -12,7 +11,6 @@ import type { RegisteredApp } from "@/types";
 import { fromNow } from "@/libs";
 
 export function AppStoreCard({ app }: { app: RegisteredApp }) {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isInstalled, recordOf } = useInstalledApps();
   const user = useRequiredUser();
@@ -35,14 +33,13 @@ export function AppStoreCard({ app }: { app: RegisteredApp }) {
             </h2>
             {installed && (
               <Badge variant='brand'>
-                <Check /> {t("store.installed")}
+                <Check /> Installed
               </Badge>
             )}
           </div>
           <p className='mt-0.5 text-xs text-muted-foreground'>
-            {t(`store.categories.${app.category}`)} · v{app.version}
-            {record &&
-              ` · ${t("store.added", { time: fromNow(record.installed_at) })}`}
+            {app.category} · v{app.version}
+            {record && ` · added ${fromNow(record.installed_at)}`}
           </p>
         </div>
       </div>
@@ -55,7 +52,7 @@ export function AppStoreCard({ app }: { app: RegisteredApp }) {
         {installed ? (
           <>
             <Button size='small' onClick={() => navigate(appPath(app.id))}>
-              {t("common.open")}
+              Open
             </Button>
             <Button
               type='text'
@@ -64,7 +61,7 @@ export function AppStoreCard({ app }: { app: RegisteredApp }) {
               loading={uninstall.isPending}
               onClick={() => uninstall.mutate(app.id)}
             >
-              {t("common.uninstall")}
+              Uninstall
             </Button>
           </>
         ) : (
@@ -75,7 +72,7 @@ export function AppStoreCard({ app }: { app: RegisteredApp }) {
             loading={install.isPending}
             onClick={() => install.mutate(app.id)}
           >
-            {t("common.install")}
+            Install
           </Button>
         )}
       </div>

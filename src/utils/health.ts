@@ -1,7 +1,7 @@
-import type { HealthStatus, TranslationKey } from "@/types";
+import type { HealthStatus } from "@/types";
 
-export function healthLabelKey(health: HealthStatus): TranslationKey {
-  if (health.state === "checking") return "health.checking";
-  if (health.state === "healthy") return "health.healthy";
-  return "health.unreachable";
+export function healthLabel(health: HealthStatus) {
+  if (health.state === "checking") return "Checking…";
+  if (health.state === "healthy") return "Healthy";
+  return "Unreachable";
 }

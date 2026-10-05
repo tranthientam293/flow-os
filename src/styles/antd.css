@@ -72,6 +72,86 @@
     color: var(--muted-foreground);
   }
 
+  /* ---------- Form: 12px error + hint text under fields ---------- */
+  .ant-form-item .ant-form-item-explain,
+  .ant-form-item .ant-form-item-extra {
+    padding-top: 4px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .ant-form-item .ant-form-item-extra {
+    color: var(--muted-foreground);
+  }
+
+  /* antd lets the error eat the item's bottom margin; keep the 16px gap. */
+  .ant-form-item .ant-form-item-margin-offset {
+    display: none;
+  }
+
+  .ant-form-item .ant-form-item-label > label {
+    height: auto;
+    line-height: 1;
+  }
+
+  /* ---------- Alert: Supabase-style tinted box, coloured icon ---------- */
+  .ant-alert {
+    --alert-accent: var(--foreground-light);
+    gap: 10px;
+    border-radius: var(--radius);
+    border-color: var(--border);
+    background: var(--surface-muted);
+  }
+
+  .ant-alert-error {
+    --alert-accent: var(--destructive);
+    border-color: var(--destructive-border);
+    background: var(--destructive-soft);
+  }
+
+  .ant-alert-warning {
+    --alert-accent: var(--warning);
+    border-color: var(--warning-border);
+    background: var(--warning-soft);
+  }
+
+  .ant-alert-success {
+    --alert-accent: var(--brand-strong);
+    border-color: color-mix(in srgb, var(--brand) 40%, transparent);
+    background: var(--brand-soft);
+  }
+
+  .ant-alert .ant-alert-icon {
+    margin-inline-end: 0;
+    color: var(--alert-accent);
+  }
+
+  .ant-alert .ant-alert-icon .lucide {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .ant-alert.ant-alert-with-description .ant-alert-icon {
+    margin-top: 2px;
+  }
+
+  .ant-alert .ant-alert-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--foreground);
+  }
+
+  .ant-alert.ant-alert-with-description .ant-alert-title {
+    margin-bottom: 2px;
+    font-weight: 500;
+  }
+
+  .ant-alert .ant-alert-description {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    color: var(--foreground-light);
+  }
+
   /* ---------- Dropdown ---------- */
   .ant-dropdown .ant-dropdown-menu {
     border: 1px solid var(--border);
