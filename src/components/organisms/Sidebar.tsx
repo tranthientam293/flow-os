@@ -3,7 +3,7 @@ import { Blocks, PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
 import { Button, Divider, Skeleton, Tooltip } from "antd";
 import { SidebarNavLink } from "@/components/molecules";
 import { FOOTER_NAV, PLATFORM_NAV, appPath, ROUTES } from "@/constants";
-import { useInstalledApps } from "@/hooks";
+import { useInstalledApps, useLaunchApp } from "@/hooks";
 import { useUiStore } from "@/stores";
 
 type SidebarProps = {
@@ -18,6 +18,7 @@ export function Sidebar({
   onNavigate,
 }: SidebarProps) {
   const { apps, isLoading } = useInstalledApps();
+  const launchApp = useLaunchApp();
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
   const toggleLabel = collapsed ? "Expand sidebar" : "Collapse sidebar";
 
@@ -80,6 +81,7 @@ export function Sidebar({
                   key={app.id}
                   label={app.name}
                   to={appPath(app.id)}
+                  onClick={launchApp(app.id)}
                   icon={app.icon}
                   collapsed={collapsed}
                   onNavigate={onNavigate}

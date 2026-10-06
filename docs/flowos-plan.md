@@ -2,7 +2,7 @@
 
 flowOS is a personal platform that hosts small utility apps (time tracker, calculator, …), like a mini Steam for one publisher. Apps are developed **inside this repo**, one self-contained folder per app in `src/apps/`; there is no separate publishing step. Users install apps to their account and launch them only from flowOS, where they run as the signed-in user (no separate login). The UI follows the Supabase dashboard (`docs/refs/img/ui-reference.png`).
 
-**Stack:** React 19 · React Router 8 · Ant Design v6 · Tailwind CSS v4 + plain CSS (no SCSS) · zustand · TanStack React Query · dayjs · i18next (en/vi) · Vite 8 · TypeScript 7 · oxlint · Prettier · Supabase (Auth, Postgres, RLS)
+**Stack:** React 19 · React Router 8 · Ant Design v6 · Tailwind CSS v4 + plain CSS (no SCSS) · zustand · TanStack React Query · dayjs · Vite 8 · TypeScript 7 · oxlint · Prettier · Supabase (Auth, Postgres, RLS)
 
 **Supabase projects** (both Free plan, ap-south-1; branching needs Pro, so environments are separate projects):
 
@@ -26,16 +26,15 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 | `src/layouts/`              | `AppLayout` (signed-in shell) and `AuthLayout` (split screen)                                                                                                                |
 | `src/router/`               | `createBrowserRouter` config + `ProtectedRoute` / `GuestRoute` guards                                                                                                        |
 | `src/context/`              | `AuthContext` (session), `FlowAppContext` (app SDK)                                                                                                                          |
-| `src/providers/`            | `AppProviders`: composes i18n, React Query, auth, tooltips and the toaster around the router                                                                                 |
+| `src/providers/`            | `AppProviders`: composes React Query, auth, tooltips and the toaster around the router                                                                                 |
 | `src/stores/`               | zustand: `theme-store` (persisted preference), `ui-store` (sidebar, drawer)                                                                                                  |
 | `src/apis/`                 | One file per domain exporting `queryOptions` / `mutationOptions` factories (`profileQueryOptions(userId)`, `installAppMutationOptions(userId)`, …) that call `libs/supabase` |
 | `src/hooks/`                | Hooks that add logic on top of the API (`useInstalledApps` joins with the registry, `useHealth`, `useAppStorage`) and UI hooks                                               |
 | `src/models/`               | API/database types: generated `database.ts`, `Profile`, `InstalledApp`, auth payloads                                                                                        |
 | `src/types/`                | UI-only types: `AppManifest`, theme, navigation, health                                                                                                                      |
 | `src/constants/`            | `ENV` (validated env vars), routes, query keys, storage keys, navigation, app settings                                                                                       |
-| `src/libs/`                 | Configured third-party clients: `supabase`, `queryClient`, `dayjs`, `i18n`                                                                                                   |
-| `src/locales/`              | Translation dictionaries: `en.ts` (source of truth, `as const`) and `vi.ts` (typed against it)                                                                               |
-| `src/utils/`                | Pure helpers: `cn`, errors, health, language, user display names; never import `@/libs`                                                                                      |
+| `src/libs/`                 | Configured third-party clients: `supabase`, `queryClient`, `dayjs`                                                                                                           |
+| `src/utils/`                | Pure helpers: `cn`, errors, health, user display names; never import `@/libs`                                                                                      |
 | `src/apps/`                 | One self-contained folder per app (folder name = app id) with `manifest.ts`; `registry.ts` discovers them (empty)                                                            |
 | `src/styles/`               | `tokens.css` (CSS variables, Supabase palette; mirrored for antd in `libs/antd-theme.ts`) + `index.css` (Tailwind theme, utilities)                                          |
 | `supabase/migrations/`      | Schema, RLS policies, triggers                                                                                                                                               |
@@ -72,8 +71,8 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 - [x] Overview: status tiles, member since, app summaries, dotted "core" panel
 - [x] App Store: search, category tabs, install / uninstall, empty state when no apps exist
 - [x] Settings: display name, theme
-- [x] Sign in / sign up, including the "check your inbox" state, with a language picker next to the logo (theme toggle removed Oct 1, 2026; theme is changed in Settings)
-- [x] i18n (Sep 30, 2026; updated Oct 1, 2026): English + Vietnamese via `i18next` / `react-i18next`. The language (`en` | `vi`) is kept in a persisted zustand store and defaults to **English**; there is no "System" option and no browser/OS detection. Older saved "system" preferences are migrated to English. Switchers on the auth screen and Settings (not in the account menu, which only has Account settings and Log out). dayjs relative dates and `<html lang>` follow the language
+- [x] Sign in / sign up, including the "check your inbox" state (language picker removed Oct 6, 2026 with i18n; theme toggle removed Oct 1, 2026; theme is changed in Settings)
+- [x] ~~i18n~~: **dropped Oct 6, 2026.** flowOS and its apps are English only and don't need translations; the code has no `i18next`, `src/locales/` or `libs/i18n`. Previously (Sep 30 – Oct 1, 2026): English + Vietnamese via `i18next` / `react-i18next`. The language (`en` | `vi`) is kept in a persisted zustand store and defaults to **English**; there is no "System" option and no browser/OS detection. Older saved "system" preferences are migrated to English. Switchers on the auth screen and Settings (not in the account menu, which only has Account settings and Log out). dayjs relative dates and `<html lang>` follow the language
 - [x] Responsive: mobile-first padding and type, `100dvh`, larger touch targets on coarse pointers, 16px inputs on phones, no hover-only controls
 
 ### App platform
@@ -181,18 +180,14 @@ Each app is a new self-contained folder `src/apps/<app-id>/` built in this repo 
 - **Components:** Atoms have no app logic. Molecules compose atoms. Organisms may use hooks and stores. Pages only compose organisms and molecules.
 - **Ant Design:** import components straight from `antd`. `providers/AntdProvider.tsx` sets the theme (from `libs/antd-theme.ts`, switched by our theme store), the global Spin indicator and antd `App`. Show toasts with `notify` from `@/libs` (or mutation `meta`), not antd's static `notification`, so they follow the theme. Override styles with Tailwind classes; antd sits in `@layer antd` below `utilities`.
 - **State:** server data → React Query (keys in `constants/query-keys.ts`, scoped by user). Global client state → zustand store. Auth → `useAuth()` / `useRequiredUser()`.
-- **i18n:** every user-facing string goes through `t()` / `<Trans>`, with no hard-coded copy in components.
-  - **Adding copy:** add the key to `src/locales/en.ts` first; `vi.ts` is typed from it, so a missing Vietnamese key fails the type-check.
-  - **Outside React:** constants store translation keys (`labelKey`), not text. API toasts use `() => i18n.t(...)` so they render in the current language.
-  - **Markup in copy:** use `<Trans>` with named components (`<email>…</email>`, `<file/>`), never interpolate HTML.
-  - **Not translated:** app manifests (`name`, `tagline`) and Supabase error messages.
+- **Copy / language (Oct 6, 2026):** the platform and every app are **English only, with no i18n**. Write user-facing text directly in components (or in `constants/` when it's shared). Don't add `i18next`, translation keys or locale files; apps follow the same rule.
 - **Dates:** always use `dayjs`, `fromNow` or `formatDate` from `@/libs`, never `new Date()` formatting by hand.
 - **New app:** add `src/apps/<app-id>/` (see its README). The folder name is the id (`a-z 0-9 -`, never renamed once shipped); keep all of the app's code, types and docs inside that folder.
 - **Data:** use `useAppStorage` for settings and small state. Create a dedicated table (with RLS and a `user_id default auth.uid()` column) when the app stores many rows; name it `<app_id>_<thing>` and its migration `<timestamp>_app_<app-id>_<change>.sql`.
 - **Lint & format:** run `npm run check` before committing; `npm run lint:fix` and `npm run format` fix most issues automatically.
   - **Unused names:** anything intentionally unused starts with `_` (`_event`, `const [_first, second]`, `catch (_err)`).
   - **Imports:** use `import type` for type-only imports (enforced). No import cycles, duplicate imports or self-imports.
-  - **One-level import paths (Oct 1, 2026):** every source folder has an `index.ts` barrel (`export * from "./file";`), and code imports the folder, never a file inside it: `@/types`, `@/constants`, `@/utils`, `@/libs`, `@/hooks`, `@/apis`, `@/models`, `@/stores`, `@/context`, `@/providers`, `@/locales`, `@/layouts`, `@/router`, `@/validations`, `@/apps`, and `@/components/atoms` / `molecules` / `organisms` / `pages`. When you add a file, add its line to that folder's `index.ts`. Inside the same folder, import a sibling by relative path (`./routes`) instead, so a file never imports its own barrel. App folders (`src/apps/<app-id>/`) import their own files relatively and are not re-exported.
+  - **One-level import paths (Oct 1, 2026):** every source folder has an `index.ts` barrel (`export * from "./file";`), and code imports the folder, never a file inside it: `@/types`, `@/constants`, `@/utils`, `@/libs`, `@/hooks`, `@/apis`, `@/models`, `@/stores`, `@/context`, `@/providers`, `@/layouts`, `@/router`, `@/validations`, `@/apps`, and `@/components/atoms` / `molecules` / `organisms` / `pages`. When you add a file, add its line to that folder's `index.ts`. Inside the same folder, import a sibling by relative path (`./routes`) instead, so a file never imports its own barrel. App folders (`src/apps/<app-id>/`) import their own files relatively and are not re-exported.
   - **Layering (keeps barrels cycle-free):** `utils` imports only `constants` / `types` / `models`; `libs` may use `utils` but never the reverse; `context` never imports `hooks` or components; `AppProviders` lives in `src/providers/` because it composes everything.
   - **Linter comments:** don't disable rules inline without a comment saying why.
 - **Schema changes:** add a migration file in `supabase/migrations/`, apply it to **development** (`flow-os-app`) first, test, then apply the same file to **production** (`flow-os-prod`) before merging to `master`. Re-run the advisors on both and regenerate `src/models/database.ts`.

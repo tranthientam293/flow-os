@@ -1,9 +1,11 @@
 import { Component, Suspense, type ErrorInfo, type ReactNode } from "react";
+import { Link } from "react-router";
 import { AlertTriangle, Download } from "lucide-react";
 import { Button } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { CenteredSpinner } from "@/components/atoms";
 import { EmptyState } from "@/components/molecules";
+import { ROUTES } from "@/constants";
 import { useRequiredUser, FlowAppContext } from "@/context";
 import { installAppMutationOptions } from "@/apis";
 import { useInstalledApps } from "@/hooks";
@@ -24,15 +26,18 @@ export function AppHost({ app }: { app: RegisteredApp }) {
         title={`${app.name} is not installed`}
         description={app.tagline}
         action={
-          <Button
-            type='primary'
-            size='small'
-            icon={<Download />}
-            loading={install.isPending}
-            onClick={() => install.mutate(app.id)}
-          >
-            Install {app.name}
-          </Button>
+          <div className='flex items-center gap-3'>
+            <Button
+              type='primary'
+              size='small'
+              icon={<Download />}
+              loading={install.isPending}
+              onClick={() => install.mutate(app.id)}
+            >
+              Install {app.name}
+            </Button>
+            <HomeLink />
+          </div>
         }
       />
     );
@@ -46,6 +51,17 @@ export function AppHost({ app }: { app: RegisteredApp }) {
         </Suspense>
       </AppErrorBoundary>
     </FlowAppContext.Provider>
+  );
+}
+
+function HomeLink() {
+  return (
+    <Link
+      to={ROUTES.HOME}
+      className='text-sm text-foreground-light underline underline-offset-4 hover:text-foreground'
+    >
+      Go to Overview
+    </Link>
   );
 }
 
@@ -78,9 +94,12 @@ class AppErrorBoundary extends Component<
         title={`${this.props.appName} stopped working`}
         description={this.state.error.message}
         action={
-          <Button size='small' onClick={() => this.setState({ error: null })}>
-            Reload app
-          </Button>
+          <div className='flex items-center gap-3'>
+            <Button size='small' onClick={() => this.setState({ error: null })}>
+              Reload app
+            </Button>
+            <HomeLink />
+          </div>
         }
       />
     );

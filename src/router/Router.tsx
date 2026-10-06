@@ -58,13 +58,6 @@ export const router = createBrowserRouter([
                 }),
               },
               {
-                path: ROUTES.APP_PATTERN,
-                lazy: async () => ({
-                  Component: (await import("@/components/pages/AppPage"))
-                    .AppPage,
-                }),
-              },
-              {
                 path: ROUTES.SETTINGS,
                 lazy: async () => ({
                   Component: (await import("@/components/pages/SettingsPage"))
@@ -76,6 +69,21 @@ export const router = createBrowserRouter([
                 lazy: async () => ({
                   Component: (await import("@/components/pages/NotFoundPage"))
                     .NotFoundPage,
+                }),
+              },
+            ],
+          },
+          {
+            lazy: async () => ({
+              Component: (await import("@/layouts/AppFullscreenLayout"))
+                .AppFullscreenLayout,
+            }),
+            children: [
+              {
+                path: ROUTES.APP_PATTERN,
+                lazy: async () => ({
+                  Component: (await import("@/components/pages/AppPage"))
+                    .AppPage,
                 }),
               },
             ],

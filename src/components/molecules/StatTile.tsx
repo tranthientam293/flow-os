@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 
@@ -8,6 +8,7 @@ type StatTileProps = {
   icon?: LucideIcon;
   iconSlot?: ReactNode;
   to?: string;
+  onClick?: (event: MouseEvent) => void;
 };
 
 export function StatTile({
@@ -16,6 +17,7 @@ export function StatTile({
   icon: Icon,
   iconSlot,
   to,
+  onClick,
 }: StatTileProps) {
   const body = (
     <>
@@ -34,7 +36,7 @@ export function StatTile({
 
   const className = "group flex items-center gap-4 rounded-lg";
   return to ? (
-    <Link to={to} className={className}>
+    <Link to={to} onClick={onClick} className={className}>
       {body}
     </Link>
   ) : (

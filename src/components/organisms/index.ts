@@ -1,6 +1,7 @@
 export * from "./AppHost";
 export * from "./AppStoreCard";
 export * from "./AppearanceSettings";
+export * from "./LaunchAppModal";
 export * from "./MobileNav";
 export * from "./ProfileSettings";
 export * from "./Sidebar";

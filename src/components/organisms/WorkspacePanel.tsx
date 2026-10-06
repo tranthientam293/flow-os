@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { Database } from "lucide-react";
 import { AppIcon } from "@/components/atoms";
 import { APP_NAME, BACKEND_REGION_CODE, appPath } from "@/constants";
+import { useLaunchApp } from "@/hooks";
 import type { HealthStatus, RegisteredApp } from "@/types";
 
 export function WorkspacePanel({
@@ -11,6 +12,7 @@ export function WorkspacePanel({
   apps: RegisteredApp[];
   health: HealthStatus;
 }) {
+  const launchApp = useLaunchApp();
   return (
     <section
       aria-label='Workspace diagram'
@@ -54,6 +56,7 @@ export function WorkspacePanel({
               <Link
                 key={app.id}
                 to={appPath(app.id)}
+                onClick={launchApp(app.id)}
                 className='flex items-center gap-2 rounded-md border bg-card py-1.5 pr-3 pl-1.5 text-xs text-foreground-light shadow-sm transition-colors hover:border-border-strong hover:text-foreground'
               >
                 <AppIcon icon={app.icon} size='sm' />

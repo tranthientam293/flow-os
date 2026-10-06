@@ -1,0 +1,95 @@
+# Roster
+
+Schedules for a center and its trainers. Any user can **own** a center (create it, add branches, invite trainers by email, manage the schedule and center settings) and/or be a **trainer** at centers they're invited to (join from the invitation bell, book and manage their own sessions). The center switcher shows each center with the user's role there.
+
+Planning and design docs: `docs/apps/roster/` (plan, data model, design). They describe v1; see the 2.0.0 changelog entry for what was removed.
+
+## Routes
+
+Nested under the platform's `/apps/roster/*` (see `RosterApp.tsx`, `constants/routes.ts`):
+
+| Path                            | Screen                                                                                                                                                                                                        |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/apps/roster`                  | Redirects to **Manage centers** if you own one, otherwise **My schedule**                                                                                                                                     |
+| `/apps/roster/centers`          | **Manage centers** ("Centers you own"): one week schedule of all your centers, links to manage each, "Create a center"                                                                                        |
+| `/apps/roster/centers/:id/:tab` | Manage a center you own. Tabs: `schedule`, `trainers`, `branches`, `types`, `settings` (Settings)                                                                                                             |
+| `/apps/roster/work`             | **My schedule** ("Your trainer schedule"): one week schedule of your sessions at every center you train at, including centers you own where you turned on "Show me in the trainer list when booking sessions" |
+| `/apps/roster/work/:id/:tab`    | Your work at an invited center. Tabs: `week`, `schedule`                                                                                                                                                      |
+| `/apps/roster/settings`         | **My settings**: profile per center, preferences, my centers, Log out                                                                                                                                         |
+
+An unknown center goes back to the section's week schedule; a missing or unknown tab opens the first one. Creating a center opens its Branches tab; joining from the bell opens its My work page.
+
+## Screens
+
+| Area                                  | Who     | What                                                                                                                                                               |
+| ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Header                                | All     | Manage centers / My schedule, invitation bell, account menu (My settings, Log out)                                                                                 |
+| Center bar                            | All     | Center name, tabs and Book on one fixed-height line (tabs scroll sideways only)                                                                                    |
+| Schedule                              | Owner   | Week/day grid of every trainer's sessions, filters                                                                                                                 |
+| Trainers                              | Owner   | Invite, edit, branches, session types with salary per hour, registered date, deactivate, remove                                                                    |
+| Branches                              | Owner   | Add, edit, archive                                                                                                                                                 |
+| Session types                         | Owner   | Add, edit (name, default salary per hour), delete                                                                                                                  |
+| Settings                              | Owner   | Center name, timezone, week start, hours, default length, edit window; "Me as a trainer" (show me in the trainer list when booking, session types I teach); delete |
+| My week / Calendar                    | Trainer | Own sessions as an agenda and as a grid                                                                                                                            |
+| My settings (`/apps/roster/settings`) | All     | Profile per center (name, phone, color), calendar view, my centers (leave as a trainer), Log out                                                                   |
+
+Log out asks for confirmation, then returns to the flowOS Overview (you stay signed in to flowOS). Owners can make themselves bookable as a trainer with "Show me in the trainer list when booking sessions" in a center's Settings tab.
+
+## Structure
+
+| Folder        | Holds                                                                           |
+| ------------- | ------------------------------------------------------------------------------- |
+| `apis/`       | `queryOptions` / `mutationOptions` for every `roster_*` table and RPC, sign-out |
+| `components/` | Header, invitation bell, settings page, shell and tab views                     |
+| `constants/`  | Routes (sections and tabs), options, query and storage keys                     |
+| `context/`    | `RosterContext` / `useRoster()`: the selected center, role and shared lookups   |
+| `hooks/`      | `useSessions` (range + filters), `useNow`, `useRosterPaths`                     |
+| `models/`     | Types derived from `src/models/database.ts`                                     |
+| `utils/`      | Timezone helpers, permissions, overlap layout, colors, errors                   |
+| `summary.ts`  | `getSummary()` for the Overview tile, loaded lazily from the manifest           |
+
+## Tables
+
+Migrations: `supabase/migrations/20261006000000_app_roster_init.sql`, `20261006010000_app_roster_hours_and_series.sql`, `20261006020000_app_roster_trainers_see_own_sessions.sql`, `20261006030000_app_roster_simplify.sql`, `20261006040000_app_roster_update_my_profile.sql`, `20261006050000_app_roster_trainer_wording.sql`, `20261006060000_app_roster_owner_as_trainer.sql`, `20261006070000_app_roster_session_types_and_completed.sql`, `20261006080000_app_roster_trainer_sessions_and_rate.sql`, `20261006090000_app_roster_session_rates.sql`. All tables are center-scoped (no `user_id` column); access comes from active membership.
+
+| Table                         | Purpose                                                                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `roster_centers`              | Center settings: timezone, week start, hours, edit window, …                                                                    |
+| `roster_members`              | One person's role (`owner` / `trainer`), status, and `also_trainer` (owner is in the trainer list)                              |
+| `roster_branches`             | Branches, archived instead of deleted                                                                                           |
+| `roster_member_branches`      | Which branches a trainer may book at                                                                                            |
+| `roster_session_types`        | Session types per center with a default salary per hour; the chosen type is a session's default title                           |
+| `roster_member_session_types` | Session types a trainer teaches (none = all) and their salary per hour (null = the type's default); owner and that trainer only |
+| `roster_sessions`             | Booked sessions; exclusion constraint prevents double-booking                                                                   |
+
+RPCs: `roster_create_center`, `roster_pending_invites`, `roster_claim_invite`, `roster_leave_center`, `roster_member_directory`, `roster_update_my_profile`. RLS helpers: `roster_member_id`, `roster_is_owner`, `roster_can_book`, `roster_trainer_can_edit`, `roster_in_current_month`.
+
+## Storage keys (`useAppStorage`)
+
+| Key               | Value                                             |
+| ----------------- | ------------------------------------------------- |
+| `activeCenterId`  | Last center opened (Overview tile)                |
+| `scheduleView`    | `week` \| `day`                                   |
+| `scheduleFilters` | `{ branchIds, memberIds, onlyMe, showCancelled }` |
+
+## Changelog
+
+- **1.0.0** (Oct 6, 2026): v1 (milestones M1–M6). Centers with business type presets and custom labels, center switcher, invites, branches, trainers with branch and session type assignments, week/day schedule, My week agenda, booking drawer with live conflict check, edit window and booking horizon, session types and additional fees, monthly income (trainer and owner views, CSV export, close/reopen month), Overview summary.
+- **1.1.0** (Oct 6, 2026): fixed shifts (repeat every week on chosen weekdays until a date; clashing dates are listed and skipped; edit or cancel _this and following_), times to the minute, generated colors (most distinct unused color by default, "More colors", custom picker), center opening and closing hours (Settings; the schedule grid follows them and bookings outside are refused).
+- **1.2.0** (Oct 6, 2026): trainers only see their own sessions (RLS on `roster_sessions`); the trainer and "Only me" filters are owner-only, and a trainer's day view only shows their branches.
+- **1.2.1** (Oct 6, 2026): Schedule and My week prefetch the previous and next range (and the other Week/Day view), and keep showing the current range until the new one is loaded, so moving between weeks or days doesn't flicker.
+- **1.2.2** (Oct 6, 2026): removed the "Get set up" checklist from the Schedule.
+- **2.0.0** (Oct 6, 2026): simplified around two roles. Owners set up a center (branches, trainers, center settings); trainers join from the new invitation bell and book their own one-off sessions. Removed session types, fees, income and month closing, repeating shifts, business presets and custom labels, and currency (migration `app_roster_simplify` drops their tables, columns and RPCs). New header with center switcher, invitation bell, account menu (My settings, Sign out) and ✕ close. New My settings drawer: own profile per center (`roster_update_my_profile`), default schedule view, my centers (leave as a trainer).
+- **2.1.0** (Oct 6, 2026): split into routes. **My centers** (`/apps/roster/centers/:id/:tab`) manages centers you own; **My work** (`/apps/roster/work/:id/:tab`) is your schedule at centers you were invited to. Tabs are part of the URL, so pages can be bookmarked and the browser Back button works. The center switcher moved into each section and only lists that section's centers.
+- **2.2.0** (Oct 6, 2026): removed the center switcher. `/centers` and `/work` now list your centers as cards; open one to see its tabs. The center bar is a single fixed-height line with no vertical scroll.
+- **2.3.0** (Oct 6, 2026): `/centers` and `/work` show one week schedule across all centers in the section (grid on desktop, agenda on phones), so there is no center to pick first. Each session opens and edits in its own center; "Book session" asks for the center when there is more than one. Times use the centers' timezone, or the device timezone when centers differ. Center links above the schedule open a center's tabs.
+- **2.4.0** (Oct 6, 2026): removed the ✕ close button; **Log out** (account menu and My settings) asks for confirmation and returns to the flowOS Overview. My settings is now a page at `/apps/roster/settings` (profile per center, preferences, my centers, Log out). Sections renamed to **Manage centers** ("Centers you own") and **My schedule** ("Your trainer schedule") with a short description on each. Owners can turn on "Include me in the trainer list" (Trainers tab; `roster_members.also_trainer`, migration `app_roster_owner_as_trainer`): they can then be picked as a session's trainer and the center appears in their My schedule. Trainer pickers and filters only list trainers. Platform: removed `ExitAppButton`.
+- **2.4.1** (Oct 6, 2026): inviting a trainer gives access to all branches by default ("All branches" switch on). Turning it off shows the branch list, and at least one branch must be chosen.
+- **2.5.0** (Oct 6, 2026): new booking drawer. Branch is a searchable select; time is one start–end range of at least 1 hour (default length minimum is now 60 minutes); an optional **session type** fills in the title (owners manage types in Center settings; `roster_session_types`, `roster_sessions.session_type_id`); dates are limited to the current month (enforced for new bookings by RLS via `roster_in_current_month`; trainers' window also ends with the month); **Mark as completed** switch for sessions that have started (new `completed` status, which still blocks overlapping bookings). Cancelled or missed sessions can be restored from the drawer.
+- **2.6.0** (Oct 6, 2026): center tabs have icons; Session types moved from Center settings to its own tab. Trainers have session types they teach (none = all; `roster_member_session_types`) and a salary per hour (`roster_members.hourly_rate`, visible to the owner and that trainer), shown in the Trainers list; the booking form only offers the trainer's session types. "Book session" only shows on schedule screens.
+- **2.6.1** (Oct 6, 2026): Trainers list shows each trainer's registered date (when they were added to the center).
+- **2.7.0** (Oct 6, 2026): session types have a default salary per hour. The trainer form drops the color field (colors are picked automatically) and replaces the single salary with a list of session types, each with its own salary per hour, prefilled from the type's default; a salary equal to the default follows later changes to it. `roster_members.hourly_rate` moved to `roster_member_session_types.hourly_rate` (migration `app_roster_session_rates`), now readable only by the owner and that trainer.
+- **2.7.1** (Oct 6, 2026): Trainers list shows **Sessions** and **Salary** as two columns (one line per session type, so they line up); the owner's salary shows "-". The owner's form has session types but no salary fields.
+- **2.8.0** (Oct 6, 2026): "Center settings" tab renamed to **Settings**. The owner's trainer switch moved there as **Me as a trainer** ("Show me in the trainer list when booking sessions", plus the session types the owner teaches, no salary). The Trainers table no longer lists the owner.
+- **2.8.1** (Oct 7, 2026): fixed the trainer form showing empty session rows when editing. The form no longer uses `preserve={false}` (under StrictMode it cleared Form.List values on the extra unmount) and starts fresh each time it opens.
+- **2.8.2** (Oct 7, 2026): a trainer's salary per session type is saved exactly as entered (prefilled from the type's default, freely adjustable) and no longer follows later changes to the default. An empty salary still falls back to the default.

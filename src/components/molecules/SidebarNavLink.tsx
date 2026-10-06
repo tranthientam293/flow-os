@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import type { LucideIcon } from "lucide-react";
 import { NavLink } from "react-router";
 import { Tooltip } from "antd";
@@ -10,6 +11,7 @@ type SidebarNavLinkProps = {
   collapsed?: boolean;
   end?: boolean;
   onNavigate?: () => void;
+  onClick?: (event: MouseEvent) => void;
 };
 
 export function SidebarNavLink({
@@ -19,12 +21,16 @@ export function SidebarNavLink({
   collapsed = false,
   end,
   onNavigate,
+  onClick,
 }: SidebarNavLinkProps) {
   const link = (
     <NavLink
       to={to}
       end={end}
-      onClick={onNavigate}
+      onClick={(event) => {
+        onClick?.(event);
+        onNavigate?.();
+      }}
       aria-label={collapsed ? label : undefined}
       className={({ isActive }) =>
         cn(
