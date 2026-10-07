@@ -31,7 +31,7 @@ An unknown center goes back to the section's week schedule; a missing or unknown
 | Session types                         | Owner   | Add, edit (name, default salary per hour), delete                                                                                                                  |
 | Settings                              | Owner   | Center name, timezone, week start, hours, default length, edit window; "Me as a trainer" (show me in the trainer list when booking, session types I teach); delete |
 | My week / Calendar                    | Trainer | Own sessions as an agenda and as a grid                                                                                                                            |
-| My settings (`/apps/roster/settings`) | All     | Profile per center (name, phone, color), calendar view, my centers (leave as a trainer), Log out                                                                   |
+| My settings (`/apps/roster/settings`) | All     | Profile per center (name, phone), calendar view, my centers (leave as a trainer), Log out                                                                          |
 
 Log out asks for confirmation, then returns to the flowOS Overview (you stay signed in to flowOS). Owners can make themselves bookable as a trainer with "Show me in the trainer list when booking sessions" in a center's Settings tab.
 
@@ -94,3 +94,4 @@ RPCs: `roster_create_center`, `roster_pending_invites`, `roster_claim_invite`, `
 - **2.8.1** (Oct 7, 2026): fixed the trainer form showing empty session rows when editing. The form no longer uses `preserve={false}` (under StrictMode it cleared Form.List values on the extra unmount) and starts fresh each time it opens.
 - **2.8.2** (Oct 7, 2026): a trainer's salary per session type is saved exactly as entered (prefilled from the type's default, freely adjustable) and no longer follows later changes to the default. An empty salary still falls back to the default.
 - **2.8.3** (Oct 7, 2026): `components/` follows the platform's `src/components` layout: `atoms/` (BranchTag, MemberAvatar), `molecules/` (ColorSwatches, SectionEmpty, SessionBlock, SessionDetails), `organisms/` (header, bell, shell, tab views, drawers and modals) and `pages/` (SectionPage, MySettingsPage), each with an `index.ts` barrel. No behavior changes.
+- **2.9.0** (Oct 7, 2026): colors are always picked automatically and can't be edited. Removed `ColorSwatches` and the Color field from the branch form and My profile. A new branch gets the most distinct unused color; existing branches and members keep theirs.

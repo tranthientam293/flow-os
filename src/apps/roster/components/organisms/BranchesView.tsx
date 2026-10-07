@@ -14,9 +14,8 @@ import type { Branch } from "../../models/roster";
 import { nextColor } from "../../utils/colors";
 import { todayIn, weekStartOf } from "../../utils/time";
 import { BranchTag } from "../atoms";
-import { ColorSwatches } from "../molecules";
 
-type Values = Pick<Branch, "name" | "code" | "color"> & { address?: string };
+type Values = Pick<Branch, "name" | "code"> & { address?: string };
 
 export function BranchesView() {
   const { center, branches, memberBranches, anyBranchIds } = useRoster();
@@ -174,7 +173,8 @@ function BranchModal({
         id: existing?.id,
         name: values.name.trim(),
         code: values.code.trim(),
-        color: values.color,
+        // Colors are picked automatically: the most distinct unused one.
+        color: existing?.color ?? nextColor(branches.map((b) => b.color)),
         address: values.address?.trim() || null,
       },
       { onSuccess: onClose },
@@ -198,7 +198,7 @@ function BranchModal({
         initialValues={
           existing
             ? { ...existing, address: existing.address ?? undefined }
-            : { color: nextColor(branches.map((b) => b.color)) }
+            : undefined
         }
       >
         <div className='grid grid-cols-[1fr_7rem] gap-3'>
@@ -219,13 +219,6 @@ function BranchModal({
         </div>
         <Form.Item name='address' label='Address' rules={[{ max: 300 }]}>
           <Input maxLength={300} />
-        </Form.Item>
-        <Form.Item name='color' label='Color'>
-          <ColorSwatches
-            used={branches
-              .filter((b) => b.id !== existing?.id)
-              .map((b) => b.color)}
-          />
         </Form.Item>
       </Form>
     </Modal>

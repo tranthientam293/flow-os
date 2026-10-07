@@ -188,15 +188,15 @@ export const removeMemberMutationOptions = (centerId: string) =>
     meta: { successMessage: "Removed", errorMessage: "Could not remove" },
   });
 
+// The color isn't editable: it was picked automatically when the member was added.
 export type MyProfile = {
   display_name: string;
   phone: string | null;
-  color: string;
 };
 
 export const updateMyProfileMutationOptions = (centerId: string) =>
   mutationOptions({
-    mutationFn: async (profile: MyProfile) => {
+    mutationFn: async (profile: MyProfile & { color: string }) => {
       check(
         await supabase.rpc("roster_update_my_profile", {
           p_center_id: centerId,

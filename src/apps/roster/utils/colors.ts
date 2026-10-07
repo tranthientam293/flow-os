@@ -39,7 +39,7 @@ const hueDistance = (a: number, b: number) => {
   return d > 180 ? 360 - d : d;
 };
 
-export function generatePalette(count: number, seed = 0): string[] {
+function generatePalette(count: number, seed = 0): string[] {
   return Array.from({ length: count }, (_, i) =>
     hslToHex(((seed + i) * GOLDEN_ANGLE + 210) % 360),
   );
@@ -59,8 +59,4 @@ export function nextColor(used: readonly string[]): string {
     }
   }
   return hslToHex(best);
-}
-
-export function normalizeHex(value: string): string {
-  return value.toLowerCase().slice(0, 7);
 }

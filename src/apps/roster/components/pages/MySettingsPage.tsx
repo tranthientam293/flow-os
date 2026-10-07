@@ -5,10 +5,7 @@ import { Button, Form, Input, Popconfirm, Segmented, Select, Spin } from "antd";
 import { Badge } from "@/components/atoms";
 import { SettingsPanel } from "@/components/molecules";
 import { useAppStorage } from "@/hooks";
-import {
-  directoryQueryOptions,
-  leaveCenterMutationOptions,
-} from "../../apis/centers";
+import { leaveCenterMutationOptions } from "../../apis/centers";
 import {
   memberQueryOptions,
   updateMyProfileMutationOptions,
@@ -17,7 +14,6 @@ import {
 import { STORAGE_KEYS } from "../../constants/keys";
 import { useLogOut } from "../../hooks/useLogOut";
 import type { Membership } from "../../models/roster";
-import { ColorSwatches } from "../molecules";
 
 export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
   const [centerId, setCenterId] = useState(memberships[0]?.center.id);
@@ -85,7 +81,6 @@ export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
 function ProfileForm({ membership }: { membership: Membership }) {
   const centerId = membership.center.id;
   const me = useQuery(memberQueryOptions(centerId, membership.id));
-  const directory = useQuery(directoryQueryOptions(centerId));
   const save = useMutation(updateMyProfileMutationOptions(centerId));
   const [form] = Form.useForm<MyProfile>();
 
@@ -98,13 +93,12 @@ function ProfileForm({ membership }: { membership: Membership }) {
       initialValues={{
         display_name: me.data.display_name,
         phone: me.data.phone,
-        color: me.data.color,
       }}
       onFinish={(values) =>
         save.mutate({
           display_name: values.display_name.trim(),
           phone: values.phone?.trim() || null,
-          color: values.color,
+          color: me.data.color,
         })
       }
     >
@@ -120,13 +114,6 @@ function ProfileForm({ membership }: { membership: Membership }) {
       </Form.Item>
       <Form.Item name='phone' label='Phone' rules={[{ max: 40 }]}>
         <Input maxLength={40} />
-      </Form.Item>
-      <Form.Item name='color' label='Color'>
-        <ColorSwatches
-          used={(directory.data ?? [])
-            .filter((m) => m.id !== membership.id)
-            .map((m) => m.color)}
-        />
       </Form.Item>
       <div className='flex justify-end'>
         <Button type='primary' htmlType='submit' loading={save.isPending}>
