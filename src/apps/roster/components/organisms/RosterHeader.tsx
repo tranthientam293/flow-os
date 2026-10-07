@@ -3,10 +3,10 @@ import { NavLink, useNavigate } from "react-router";
 import { Avatar, Dropdown } from "antd";
 import { useFlowApp } from "@/context";
 import { cn } from "@/utils";
-import { SECTIONS } from "../constants/routes";
-import { useLogOut } from "../hooks/useLogOut";
-import { useRosterPaths } from "../hooks/useRosterPaths";
-import type { PendingInvite } from "../models/roster";
+import { SECTIONS } from "../../constants/routes";
+import { useLogOut } from "../../hooks/useLogOut";
+import { useRosterPaths } from "../../hooks/useRosterPaths";
+import type { PendingInvite } from "../../models/roster";
 import { InviteBell } from "./InviteBell";
 
 export function RosterHeader({

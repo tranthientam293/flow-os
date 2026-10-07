@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { cn } from "@/utils";
-import { HOUR_HEIGHT_PX } from "../constants/options";
-import type { Session } from "../models/roster";
-import { layoutOverlaps } from "../utils/layout";
-import { inTz, minutesOfDay, minutesToTime } from "../utils/time";
-import { SessionBlock } from "./SessionBlock";
+import { HOUR_HEIGHT_PX } from "../../constants/options";
+import type { Session } from "../../models/roster";
+import { layoutOverlaps } from "../../utils/layout";
+import { inTz, minutesOfDay, minutesToTime } from "../../utils/time";
+import { SessionBlock } from "../molecules";
 
 export type GridColumn = {
   key: string;

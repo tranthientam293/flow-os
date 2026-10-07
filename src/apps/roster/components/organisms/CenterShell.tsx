@@ -9,19 +9,19 @@ import { cn } from "@/utils";
 import {
   branchesQueryOptions,
   memberBranchesQueryOptions,
-} from "../apis/branches";
-import { directoryQueryOptions } from "../apis/centers";
-import { membersQueryOptions } from "../apis/members";
+} from "../../apis/branches";
+import { directoryQueryOptions } from "../../apis/centers";
+import { membersQueryOptions } from "../../apis/members";
 import {
   memberSessionTypesQueryOptions,
   sessionTypesQueryOptions,
-} from "../apis/session-types";
-import { STORAGE_KEYS } from "../constants/keys";
+} from "../../apis/session-types";
+import { STORAGE_KEYS } from "../../constants/keys";
 import {
   sectionOf,
   type RosterSection,
   type RosterTab,
-} from "../constants/routes";
+} from "../../constants/routes";
 import {
   DEFAULT_FILTERS,
   RosterContext,
@@ -29,9 +29,9 @@ import {
   type BookingRequest,
   type RosterContextValue,
   type ScheduleFilters,
-} from "../context/roster-context";
-import { useRosterPaths } from "../hooks/useRosterPaths";
-import type { Membership } from "../models/roster";
+} from "../../context/roster-context";
+import { useRosterPaths } from "../../hooks/useRosterPaths";
+import type { Membership } from "../../models/roster";
 import { BranchesView } from "./BranchesView";
 import { MyWeekView } from "./MyWeekView";
 import { ScheduleView } from "./ScheduleView";

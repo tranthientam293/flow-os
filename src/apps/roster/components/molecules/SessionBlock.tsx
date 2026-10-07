@@ -2,9 +2,9 @@ import { useState, type CSSProperties } from "react";
 import { CircleCheck } from "lucide-react";
 import { Popover } from "antd";
 import { cn } from "@/utils";
-import { useRoster } from "../context/roster-context";
-import type { Session } from "../models/roster";
-import { formatLongDay, formatRange, inTz } from "../utils/time";
+import { useRoster } from "../../context/roster-context";
+import type { Session } from "../../models/roster";
+import { formatLongDay, formatRange, inTz } from "../../utils/time";
 import { SessionDetails } from "./SessionDetails";
 
 export function SessionBlock({

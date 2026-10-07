@@ -3,9 +3,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, Checkbox, Segmented, Select, Spin } from "antd";
 import { useAppStorage } from "@/hooks";
 import { cn } from "@/utils";
-import { STORAGE_KEYS } from "../constants/keys";
-import { useRoster } from "../context/roster-context";
-import { useSessions } from "../hooks/useSessions";
+import { STORAGE_KEYS } from "../../constants/keys";
+import { useRoster } from "../../context/roster-context";
+import { useSessions } from "../../hooks/useSessions";
 import {
   addDays,
   daysFrom,
@@ -16,9 +16,9 @@ import {
   openingHours,
   todayIn,
   weekStartOf,
-} from "../utils/time";
-import { isTrainer } from "../utils/trainers";
-import { BranchTag } from "./BranchTag";
+} from "../../utils/time";
+import { isTrainer } from "../../utils/trainers";
+import { BranchTag } from "../atoms";
 import { TimeGrid, type GridColumn } from "./TimeGrid";
 
 type View = "week" | "day";

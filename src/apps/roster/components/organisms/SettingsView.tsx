@@ -14,9 +14,9 @@ import { dayjs, type Dayjs } from "@/libs";
 import {
   deleteCenterMutationOptions,
   updateCenterMutationOptions,
-} from "../apis/centers";
-import { useRoster } from "../context/roster-context";
-import { allTimezones, hhmm } from "../utils/time";
+} from "../../apis/centers";
+import { useRoster } from "../../context/roster-context";
+import { allTimezones, hhmm } from "../../utils/time";
 import { OwnerAsTrainerPanel } from "./OwnerAsTrainerPanel";
 
 type Values = {

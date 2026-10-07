@@ -11,11 +11,11 @@ import {
   Select,
   Switch,
 } from "antd";
-import { saveTrainerMutationOptions } from "../apis/members";
-import { useRoster } from "../context/roster-context";
-import type { Member } from "../models/roster";
-import { nextColor } from "../utils/colors";
-import { BranchTag } from "./BranchTag";
+import { saveTrainerMutationOptions } from "../../apis/members";
+import { useRoster } from "../../context/roster-context";
+import type { Member } from "../../models/roster";
+import { nextColor } from "../../utils/colors";
+import { BranchTag } from "../atoms";
 
 type SessionRow = { sessionTypeId?: string; hourlyRate?: number | null };
 

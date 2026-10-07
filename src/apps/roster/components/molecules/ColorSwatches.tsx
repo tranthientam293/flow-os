@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, Pipette, RefreshCw } from "lucide-react";
 import { Button, ColorPicker, Tooltip } from "antd";
 import { cn } from "@/utils";
-import { generatePalette, nextColor, normalizeHex } from "../utils/colors";
+import { generatePalette, nextColor, normalizeHex } from "../../utils/colors";
 
 const SWATCH_COUNT = 9;
 

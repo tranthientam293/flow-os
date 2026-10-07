@@ -1,7 +1,7 @@
 import { Bell, Building2, GraduationCap } from "lucide-react";
 import { Button } from "antd";
 import { EmptyState } from "@/components/molecules";
-import type { RosterSection } from "../constants/routes";
+import type { RosterSection } from "../../constants/routes";
 
 export function SectionEmpty({
   section,

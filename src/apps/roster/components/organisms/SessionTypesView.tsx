@@ -6,10 +6,10 @@ import { SettingsPanel } from "@/components/molecules";
 import {
   deleteSessionTypeMutationOptions,
   saveSessionTypeMutationOptions,
-} from "../apis/session-types";
-import { useRoster } from "../context/roster-context";
-import type { SessionType } from "../models/roster";
-import { formatRate } from "../utils/money";
+} from "../../apis/session-types";
+import { useRoster } from "../../context/roster-context";
+import type { SessionType } from "../../models/roster";
+import { formatRate } from "../../utils/money";
 
 export function SessionTypesView() {
   return (

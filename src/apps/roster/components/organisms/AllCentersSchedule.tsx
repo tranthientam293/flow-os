@@ -11,12 +11,15 @@ import { Button, Drawer, Grid, Select, Spin } from "antd";
 import { keepPreviousData, useQueries } from "@tanstack/react-query";
 import { EmptyState } from "@/components/molecules";
 import { cn } from "@/utils";
-import { sessionsQueryOptions } from "../apis/sessions";
-import { sectionOf, type RosterSection } from "../constants/routes";
-import { RosterContext, type BookingRequest } from "../context/roster-context";
-import { useCenterContexts } from "../hooks/useCenterContexts";
-import { useRosterPaths } from "../hooks/useRosterPaths";
-import type { Membership, Session } from "../models/roster";
+import { sessionsQueryOptions } from "../../apis/sessions";
+import { sectionOf, type RosterSection } from "../../constants/routes";
+import {
+  RosterContext,
+  type BookingRequest,
+} from "../../context/roster-context";
+import { useCenterContexts } from "../../hooks/useCenterContexts";
+import { useRosterPaths } from "../../hooks/useRosterPaths";
+import type { Membership, Session } from "../../models/roster";
 import {
   addDays,
   browserTimezone,
@@ -29,7 +32,7 @@ import {
   openingHours,
   todayIn,
   weekStartOf,
-} from "../utils/time";
+} from "../../utils/time";
 import { AgendaCard } from "./MyWeekView";
 import { SessionForm } from "./SessionDrawer";
 import { TimeGrid, type GridColumn } from "./TimeGrid";

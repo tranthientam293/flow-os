@@ -9,11 +9,11 @@ import {
   membersQueryOptions,
   removeMemberMutationOptions,
   setMemberStatusMutationOptions,
-} from "../apis/members";
-import { useRoster } from "../context/roster-context";
-import type { Member } from "../models/roster";
-import { formatRate } from "../utils/money";
-import { MemberAvatar } from "./MemberAvatar";
+} from "../../apis/members";
+import { useRoster } from "../../context/roster-context";
+import type { Member } from "../../models/roster";
+import { formatRate } from "../../utils/money";
+import { MemberAvatar } from "../atoms";
 import { TrainerModal } from "./TrainerModal";
 
 const inviteMessage = (name: string, email: string, center: string) =>

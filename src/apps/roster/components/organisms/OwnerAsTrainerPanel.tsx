@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Select, Switch } from "antd";
 import { SettingsPanel } from "@/components/molecules";
-import { setAlsoTrainerMutationOptions } from "../apis/members";
-import { setMemberSessionTypesMutationOptions } from "../apis/session-types";
-import { useRoster } from "../context/roster-context";
+import { setAlsoTrainerMutationOptions } from "../../apis/members";
+import { setMemberSessionTypesMutationOptions } from "../../apis/session-types";
+import { useRoster } from "../../context/roster-context";
 
 export function OwnerAsTrainerPanel() {
   const { center, membership, meId, sessionTypes, memberSessionTypes } =

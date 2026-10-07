@@ -18,13 +18,16 @@ import { dayjs, type Dayjs } from "@/libs";
 import {
   saveSessionMutationOptions,
   sessionsQueryOptions,
-} from "../apis/sessions";
-import { MAX_SESSION_HOURS, MIN_SESSION_MINUTES } from "../constants/options";
-import { useRoster, type BookingRequest } from "../context/roster-context";
-import { useNow } from "../hooks/useNow";
-import type { Session, SessionStatus } from "../models/roster";
-import { sessionAccess } from "../utils/permissions";
-import { isTrainer } from "../utils/trainers";
+} from "../../apis/sessions";
+import {
+  MAX_SESSION_HOURS,
+  MIN_SESSION_MINUTES,
+} from "../../constants/options";
+import { useRoster, type BookingRequest } from "../../context/roster-context";
+import { useNow } from "../../hooks/useNow";
+import type { Session, SessionStatus } from "../../models/roster";
+import { sessionAccess } from "../../utils/permissions";
+import { isTrainer } from "../../utils/trainers";
 import {
   DATE,
   addDays,
@@ -37,7 +40,7 @@ import {
   todayIn,
   trainerWindow,
   zonedIso,
-} from "../utils/time";
+} from "../../utils/time";
 
 type Values = {
   memberId: string;

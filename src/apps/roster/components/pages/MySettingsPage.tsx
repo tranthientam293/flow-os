@@ -8,16 +8,16 @@ import { useAppStorage } from "@/hooks";
 import {
   directoryQueryOptions,
   leaveCenterMutationOptions,
-} from "../apis/centers";
+} from "../../apis/centers";
 import {
   memberQueryOptions,
   updateMyProfileMutationOptions,
   type MyProfile,
-} from "../apis/members";
-import { STORAGE_KEYS } from "../constants/keys";
-import { useLogOut } from "../hooks/useLogOut";
-import type { Membership } from "../models/roster";
-import { ColorSwatches } from "./ColorSwatches";
+} from "../../apis/members";
+import { STORAGE_KEYS } from "../../constants/keys";
+import { useLogOut } from "../../hooks/useLogOut";
+import type { Membership } from "../../models/roster";
+import { ColorSwatches } from "../molecules";
 
 export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
   const [centerId, setCenterId] = useState(memberships[0]?.center.id);

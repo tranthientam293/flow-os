@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import { Form, Input, Modal, Select } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { useFlowApp } from "@/context";
-import { createCenterMutationOptions } from "../apis/centers";
-import { DEFAULT_TIMEZONE } from "../constants/options";
-import { nextColor } from "../utils/colors";
-import { allTimezones, browserTimezone } from "../utils/time";
+import { createCenterMutationOptions } from "../../apis/centers";
+import { DEFAULT_TIMEZONE } from "../../constants/options";
+import { nextColor } from "../../utils/colors";
+import { allTimezones, browserTimezone } from "../../utils/time";
 
 type Values = {
   name: string;

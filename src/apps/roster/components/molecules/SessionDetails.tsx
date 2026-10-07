@@ -3,14 +3,13 @@ import { Lock } from "lucide-react";
 import { Button, Popconfirm } from "antd";
 import { Badge } from "@/components/atoms";
 import { fromNow } from "@/libs";
-import { setSessionStatusMutationOptions } from "../apis/sessions";
-import { useRoster } from "../context/roster-context";
-import { useNow } from "../hooks/useNow";
-import type { Session } from "../models/roster";
-import { sessionAccess } from "../utils/permissions";
-import { formatLongDay, formatRange, inTz } from "../utils/time";
-import { BranchTag } from "./BranchTag";
-import { MemberAvatar } from "./MemberAvatar";
+import { setSessionStatusMutationOptions } from "../../apis/sessions";
+import { useRoster } from "../../context/roster-context";
+import { useNow } from "../../hooks/useNow";
+import type { Session } from "../../models/roster";
+import { sessionAccess } from "../../utils/permissions";
+import { formatLongDay, formatRange, inTz } from "../../utils/time";
+import { BranchTag, MemberAvatar } from "../atoms";
 
 const STATUS_LABEL: Record<string, string> = {
   completed: "Completed",

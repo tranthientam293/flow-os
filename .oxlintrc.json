@@ -82,7 +82,8 @@
     ],
 
     "unicorn/no-array-for-each": "off",
-    "unicorn/prefer-add-event-listener": "off"
+    "unicorn/prefer-add-event-listener": "off",
+    "unicorn/no-array-sort": "off"
   },
   "overrides": [
     {

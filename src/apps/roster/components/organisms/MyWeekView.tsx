@@ -3,9 +3,9 @@ import { CalendarX, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, Spin } from "antd";
 import { EmptyState } from "@/components/molecules";
 import { cn } from "@/utils";
-import { useRoster } from "../context/roster-context";
-import { useSessions } from "../hooks/useSessions";
-import type { Session } from "../models/roster";
+import { useRoster } from "../../context/roster-context";
+import { useSessions } from "../../hooks/useSessions";
+import type { Session } from "../../models/roster";
 import {
   addDays,
   daysFrom,
@@ -15,9 +15,9 @@ import {
   inTz,
   todayIn,
   weekStartOf,
-} from "../utils/time";
-import { BranchTag } from "./BranchTag";
-import { SessionDetails } from "./SessionDetails";
+} from "../../utils/time";
+import { BranchTag } from "../atoms";
+import { SessionDetails } from "../molecules";
 
 export function MyWeekView() {
   const { center, meId } = useRoster();

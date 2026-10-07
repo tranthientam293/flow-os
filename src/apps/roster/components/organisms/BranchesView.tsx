@@ -7,14 +7,14 @@ import { EmptyState } from "@/components/molecules";
 import {
   archiveBranchMutationOptions,
   saveBranchMutationOptions,
-} from "../apis/branches";
-import { useRoster } from "../context/roster-context";
-import { useSessions } from "../hooks/useSessions";
-import type { Branch } from "../models/roster";
-import { nextColor } from "../utils/colors";
-import { todayIn, weekStartOf } from "../utils/time";
-import { BranchTag } from "./BranchTag";
-import { ColorSwatches } from "./ColorSwatches";
+} from "../../apis/branches";
+import { useRoster } from "../../context/roster-context";
+import { useSessions } from "../../hooks/useSessions";
+import type { Branch } from "../../models/roster";
+import { nextColor } from "../../utils/colors";
+import { todayIn, weekStartOf } from "../../utils/time";
+import { BranchTag } from "../atoms";
+import { ColorSwatches } from "../molecules";
 
 type Values = Pick<Branch, "name" | "code" | "color"> & { address?: string };
 

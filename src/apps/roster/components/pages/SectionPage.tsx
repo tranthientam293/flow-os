@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { Navigate, useParams } from "react-router";
 import { useAppStorage } from "@/hooks";
-import { STORAGE_KEYS } from "../constants/keys";
-import { sectionOf, type RosterSection } from "../constants/routes";
-import { useRosterPaths } from "../hooks/useRosterPaths";
-import type { Membership } from "../models/roster";
-import { AllCentersSchedule } from "./AllCentersSchedule";
-import { CenterShell } from "./CenterShell";
-import { SectionEmpty } from "./SectionEmpty";
+import { STORAGE_KEYS } from "../../constants/keys";
+import { sectionOf, type RosterSection } from "../../constants/routes";
+import { useRosterPaths } from "../../hooks/useRosterPaths";
+import type { Membership } from "../../models/roster";
+import { AllCentersSchedule, CenterShell } from "../organisms";
+import { SectionEmpty } from "../molecules";
 
 export function SectionPage({
   section,

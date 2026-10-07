@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Bell, Mail } from "lucide-react";
 import { Badge, Button, Popover } from "antd";
 import { useMutation } from "@tanstack/react-query";
-import { claimInviteMutationOptions } from "../apis/centers";
-import type { PendingInvite } from "../models/roster";
+import { claimInviteMutationOptions } from "../../apis/centers";
+import type { PendingInvite } from "../../models/roster";
 
 export function InviteBell({
   invites,

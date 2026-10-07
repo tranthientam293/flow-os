@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import type { Branch } from "../models/roster";
+import type { Branch } from "../../models/roster";
 
 export function BranchTag({
   branch,

@@ -7,10 +7,8 @@ import {
   membershipsQueryOptions,
   pendingInvitesQueryOptions,
 } from "./apis/centers";
-import { MySettingsPage } from "./components/MySettingsPage";
-import { RegisterCenterModal } from "./components/RegisterCenterModal";
-import { RosterHeader } from "./components/RosterHeader";
-import { SectionPage } from "./components/SectionPage";
+import { MySettingsPage, SectionPage } from "./components/pages";
+import { RegisterCenterModal, RosterHeader } from "./components/organisms";
 import { SECTIONS, SETTINGS_PATH, sectionOf } from "./constants/routes";
 import { useRosterPaths } from "./hooks/useRosterPaths";
 
