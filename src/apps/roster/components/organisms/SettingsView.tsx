@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   Button,
@@ -15,13 +15,13 @@ import {
   deleteCenterMutationOptions,
   updateCenterMutationOptions,
 } from "../../apis/centers";
+import { TIMEZONES } from "../../constants/options";
 import { useRoster } from "../../context/roster-context";
-import { allTimezones, hhmm } from "../../utils/time";
+import { hhmm } from "../../utils/time";
 import { OwnerAsTrainerPanel } from "./OwnerAsTrainerPanel";
 
 type Values = {
   name: string;
-  timezone: string;
   week_start: number;
   default_session_min: number;
   past_edit_days: number;
@@ -49,14 +49,9 @@ function CenterSettings() {
   const { center } = useRoster();
   const [form] = Form.useForm<Values>();
   const update = useMutation(updateCenterMutationOptions(center.id));
-  const timezones = useMemo(
-    () => allTimezones().map((tz) => ({ value: tz, label: tz })),
-    [],
-  );
 
   const initialValues: Values = {
     name: center.name,
-    timezone: center.timezone,
     week_start: center.week_start,
     default_session_min: center.default_session_min,
     past_edit_days: center.past_edit_days,
@@ -69,7 +64,6 @@ function CenterSettings() {
   const onFinish = (values: Values) =>
     update.mutate({
       name: values.name.trim(),
-      timezone: values.timezone,
       week_start: values.week_start,
       default_session_min: values.default_session_min,
       past_edit_days: values.past_edit_days,
@@ -111,8 +105,11 @@ function CenterSettings() {
           >
             <Input maxLength={120} />
           </Form.Item>
-          <Form.Item name='timezone' label='Timezone'>
-            <Select showSearch options={timezones} />
+          <Form.Item
+            label='Timezone'
+            extra='Only Vietnam time is supported for now.'
+          >
+            <Select value={center.timezone} options={TIMEZONES} disabled />
           </Form.Item>
           <Form.Item name='week_start' label='Week starts on'>
             <Select

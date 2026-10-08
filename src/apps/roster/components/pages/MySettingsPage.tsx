@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { LogOut } from "lucide-react";
+import { House } from "lucide-react";
 import { Button, Form, Input, Popconfirm, Segmented, Select, Spin } from "antd";
 import { Badge } from "@/components/atoms";
 import { SettingsPanel } from "@/components/molecules";
+import { APP_NAME } from "@/constants";
 import { useAppStorage } from "@/hooks";
 import { leaveCenterMutationOptions } from "../../apis/centers";
 import {
@@ -12,14 +13,14 @@ import {
   type MyProfile,
 } from "../../apis/members";
 import { STORAGE_KEYS } from "../../constants/keys";
-import { useLogOut } from "../../hooks/useLogOut";
+import { useBackToPlatform } from "../../hooks/useBackToPlatform";
 import type { Membership } from "../../models/roster";
 
 export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
   const [centerId, setCenterId] = useState(memberships[0]?.center.id);
   const membership =
     memberships.find((m) => m.center.id === centerId) ?? memberships[0];
-  const { logOut, holder } = useLogOut();
+  const { backToPlatform, holder } = useBackToPlatform();
 
   return (
     <div className='mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 sm:px-6'>
@@ -67,11 +68,11 @@ export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
       </SettingsPanel>
 
       <SettingsPanel
-        title='Log out'
-        description='Leave Roster and go back to the flowOS home screen.'
+        title={`Back to ${APP_NAME}`}
+        description={`Leave Roster and go back to the ${APP_NAME} home screen. You stay signed in.`}
       >
-        <Button icon={<LogOut />} onClick={logOut}>
-          Log out
+        <Button icon={<House />} onClick={backToPlatform}>
+          Back to {APP_NAME}
         </Button>
       </SettingsPanel>
     </div>

@@ -29,7 +29,7 @@ export const SECTIONS: {
     label: "Manage centers",
     title: "Centers you own",
     description:
-      "The week across all your centers. Open a center to manage its trainers, branches and settings.",
+      "Open a center to see its schedule and manage its trainers, branches, session types and settings.",
     includes: (m) => m.role === "owner",
     tabs: [
       { key: "schedule", label: "Schedule", icon: CalendarDays },

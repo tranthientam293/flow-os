@@ -42,11 +42,9 @@ type Booking = { centerId: string | null; request: BookingRequest };
 export function AllCentersSchedule({
   section,
   memberships,
-  onCreateCenter,
 }: {
   section: RosterSection;
   memberships: Membership[];
-  onCreateCenter: () => void;
 }) {
   const screens = Grid.useBreakpoint();
   const paths = useRosterPaths();
@@ -136,15 +134,6 @@ export function AllCentersSchedule({
             <Settings2 className='size-3.5 text-muted-foreground' />
           </Link>
         ))}
-        {section === "centers" && (
-          <button
-            type='button'
-            onClick={onCreateCenter}
-            className='flex items-center gap-1.5 rounded-md border border-dashed px-2.5 py-1 text-sm text-foreground-light transition-colors hover:border-border-strong hover:text-foreground'
-          >
-            <Plus className='size-3.5' /> Create a center
-          </button>
-        )}
       </div>
 
       <div className='flex flex-wrap items-center gap-2'>

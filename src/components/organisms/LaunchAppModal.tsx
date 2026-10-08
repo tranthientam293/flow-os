@@ -35,8 +35,8 @@ export function LaunchAppModal() {
           <div className='min-w-0 space-y-1 text-sm'>
             <p className='text-foreground'>{app.tagline}</p>
             <p className='text-muted-foreground'>
-              {app.name} opens full screen. Use Log out in the app to come back
-              to {APP_NAME}.
+              {app.name} opens full screen. Use “Back to {APP_NAME}” in the app
+              to return here.
             </p>
           </div>
         </div>

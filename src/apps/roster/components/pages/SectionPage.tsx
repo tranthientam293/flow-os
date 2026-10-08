@@ -5,7 +5,7 @@ import { STORAGE_KEYS } from "../../constants/keys";
 import { sectionOf, type RosterSection } from "../../constants/routes";
 import { useRosterPaths } from "../../hooks/useRosterPaths";
 import type { Membership } from "../../models/roster";
-import { AllCentersSchedule, CenterShell } from "../organisms";
+import { AllCentersSchedule, CenterList, CenterShell } from "../organisms";
 import { SectionEmpty } from "../molecules";
 
 export function SectionPage({
@@ -49,13 +49,17 @@ export function SectionPage({
       />
     );
 
+  // Owners pick a center and manage it on its own; trainers see one week
+  // across every center they train at.
   if (!centerId)
-    return (
-      <AllCentersSchedule
+    return section === "centers" ? (
+      <CenterList
         section={section}
         memberships={list}
         onCreateCenter={onCreateCenter}
       />
+    ) : (
+      <AllCentersSchedule section={section} memberships={list} />
     );
 
   if (!membership) return <Navigate replace to={paths.section(section)} />;

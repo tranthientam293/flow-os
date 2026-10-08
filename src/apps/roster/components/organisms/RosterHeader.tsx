@@ -1,10 +1,11 @@
-import { CalendarRange, LogOut, Settings, UserRound } from "lucide-react";
+import { CalendarRange, House, Settings, UserRound } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { Avatar, Dropdown } from "antd";
+import { APP_NAME } from "@/constants";
 import { useFlowApp } from "@/context";
 import { cn } from "@/utils";
 import { SECTIONS } from "../../constants/routes";
-import { useLogOut } from "../../hooks/useLogOut";
+import { useBackToPlatform } from "../../hooks/useBackToPlatform";
 import { useRosterPaths } from "../../hooks/useRosterPaths";
 import type { PendingInvite } from "../../models/roster";
 import { InviteBell } from "./InviteBell";
@@ -53,7 +54,7 @@ function AccountMenu() {
   const { user } = useFlowApp();
   const navigate = useNavigate();
   const paths = useRosterPaths();
-  const { logOut, holder } = useLogOut();
+  const { backToPlatform, holder } = useBackToPlatform();
 
   return (
     <>
@@ -81,10 +82,10 @@ function AccountMenu() {
               onClick: () => navigate(paths.settings),
             },
             {
-              key: "log-out",
-              icon: <LogOut />,
-              label: "Log out",
-              onClick: logOut,
+              key: "back",
+              icon: <House />,
+              label: `Back to ${APP_NAME}`,
+              onClick: backToPlatform,
             },
           ],
         }}

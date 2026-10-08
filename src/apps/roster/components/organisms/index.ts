@@ -1,5 +1,6 @@
 export * from "./AllCentersSchedule";
 export * from "./BranchesView";
+export * from "./CenterList";
 export * from "./CenterShell";
 export * from "./InviteBell";
 export * from "./MyWeekView";

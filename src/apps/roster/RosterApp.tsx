@@ -15,7 +15,7 @@ import { useRosterPaths } from "./hooks/useRosterPaths";
 // Routes, relative to /apps/roster:
 //   centers[/:centerId/:tab]  centers the user owns (schedule, trainers, branches, settings)
 //   work[/:centerId/:tab]     the user's trainer schedule (week, schedule)
-//   settings                  the user's profile, preferences, centers and log out
+//   settings                  the user's profile, preferences, centers and the way back to flowOS
 export default function RosterApp() {
   const { user } = useFlowApp();
   const navigate = useNavigate();

@@ -92,14 +92,6 @@ export function browserTimezone() {
   }
 }
 
-export function allTimezones(): string[] {
-  try {
-    return Intl.supportedValuesOf("timeZone");
-  } catch {
-    return [];
-  }
-}
-
 export const hhmm = (time: string) => time.slice(0, 5);
 
 export function timeToMinutes(time: string) {

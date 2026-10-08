@@ -11,19 +11,19 @@ Nested under the platform's `/apps/roster/*` (see `RosterApp.tsx`, `constants/ro
 | Path                            | Screen                                                                                                                                                                                                        |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/apps/roster`                  | Redirects to **Manage centers** if you own one, otherwise **My schedule**                                                                                                                                     |
-| `/apps/roster/centers`          | **Manage centers** ("Centers you own"): one week schedule of all your centers, links to manage each, "Create a center"                                                                                        |
+| `/apps/roster/centers`          | **Manage centers** ("Centers you own"): a card per center (timezone, opening hours, shortcuts to each tab), "Create a center". Open a card to see that center's own schedule                                  |
 | `/apps/roster/centers/:id/:tab` | Manage a center you own. Tabs: `schedule`, `trainers`, `branches`, `types`, `settings` (Settings)                                                                                                             |
 | `/apps/roster/work`             | **My schedule** ("Your trainer schedule"): one week schedule of your sessions at every center you train at, including centers you own where you turned on "Show me in the trainer list when booking sessions" |
 | `/apps/roster/work/:id/:tab`    | Your work at an invited center. Tabs: `week`, `schedule`                                                                                                                                                      |
-| `/apps/roster/settings`         | **My settings**: profile per center, preferences, my centers, Log out                                                                                                                                         |
+| `/apps/roster/settings`         | **My settings**: profile per center, preferences, my centers, Back to flowOS                                                                                                                                  |
 
-An unknown center goes back to the section's week schedule; a missing or unknown tab opens the first one. Creating a center opens its Branches tab; joining from the bell opens its My work page.
+An unknown center goes back to the section's main page; a missing or unknown tab opens the first one. Creating a center opens its Branches tab; joining from the bell opens its My work page.
 
 ## Screens
 
 | Area                                  | Who     | What                                                                                                                                                               |
 | ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Header                                | All     | Manage centers / My schedule, invitation bell, account menu (My settings, Log out)                                                                                 |
+| Header                                | All     | Manage centers / My schedule, invitation bell, account menu (My settings, Back to flowOS)                                                                          |
 | Center bar                            | All     | Center name, tabs and Book on one fixed-height line (tabs scroll sideways only)                                                                                    |
 | Schedule                              | Owner   | Week/day grid of every trainer's sessions, filters                                                                                                                 |
 | Trainers                              | Owner   | Invite, edit, branches, session types with salary per hour, registered date, deactivate, remove                                                                    |
@@ -31,9 +31,9 @@ An unknown center goes back to the section's week schedule; a missing or unknown
 | Session types                         | Owner   | Add, edit (name, default salary per hour), delete                                                                                                                  |
 | Settings                              | Owner   | Center name, timezone, week start, hours, default length, edit window; "Me as a trainer" (show me in the trainer list when booking, session types I teach); delete |
 | My week / Calendar                    | Trainer | Own sessions as an agenda and as a grid                                                                                                                            |
-| My settings (`/apps/roster/settings`) | All     | Profile per center (name, phone), calendar view, my centers (leave as a trainer), Log out                                                                          |
+| My settings (`/apps/roster/settings`) | All     | Profile per center (name, phone), calendar view, my centers (leave as a trainer), Back to flowOS                                                                   |
 
-Log out asks for confirmation, then returns to the flowOS Overview (you stay signed in to flowOS). Owners can make themselves bookable as a trainer with "Show me in the trainer list when booking sessions" in a center's Settings tab.
+**Back to flowOS** (account menu and My settings) asks for confirmation, then returns to the flowOS Overview (you stay signed in to flowOS). Owners can make themselves bookable as a trainer with "Show me in the trainer list when booking sessions" in a center's Settings tab.
 
 ## Structure
 
@@ -50,7 +50,7 @@ Log out asks for confirmation, then returns to the flowOS Overview (you stay sig
 
 ## Tables
 
-Migrations: `supabase/migrations/20261006000000_app_roster_init.sql`, `20261006010000_app_roster_hours_and_series.sql`, `20261006020000_app_roster_trainers_see_own_sessions.sql`, `20261006030000_app_roster_simplify.sql`, `20261006040000_app_roster_update_my_profile.sql`, `20261006050000_app_roster_trainer_wording.sql`, `20261006060000_app_roster_owner_as_trainer.sql`, `20261006070000_app_roster_session_types_and_completed.sql`, `20261006080000_app_roster_trainer_sessions_and_rate.sql`, `20261006090000_app_roster_session_rates.sql`. All tables are center-scoped (no `user_id` column); access comes from active membership.
+Migrations: `supabase/migrations/20261006000000_app_roster_init.sql`, `20261006010000_app_roster_hours_and_series.sql`, `20261006020000_app_roster_trainers_see_own_sessions.sql`, `20261006030000_app_roster_simplify.sql`, `20261006040000_app_roster_update_my_profile.sql`, `20261006050000_app_roster_trainer_wording.sql`, `20261006060000_app_roster_owner_as_trainer.sql`, `20261006070000_app_roster_session_types_and_completed.sql`, `20261006080000_app_roster_trainer_sessions_and_rate.sql`, `20261006090000_app_roster_session_rates.sql`, `20261008000000_app_roster_vietnam_timezone.sql`. All tables are center-scoped (no `user_id` column); access comes from active membership.
 
 | Table                         | Purpose                                                                                                                         |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -95,3 +95,6 @@ RPCs: `roster_create_center`, `roster_pending_invites`, `roster_claim_invite`, `
 - **2.8.2** (Oct 7, 2026): a trainer's salary per session type is saved exactly as entered (prefilled from the type's default, freely adjustable) and no longer follows later changes to the default. An empty salary still falls back to the default.
 - **2.8.3** (Oct 7, 2026): `components/` follows the platform's `src/components` layout: `atoms/` (BranchTag, MemberAvatar), `molecules/` (ColorSwatches, SectionEmpty, SessionBlock, SessionDetails), `organisms/` (header, bell, shell, tab views, drawers and modals) and `pages/` (SectionPage, MySettingsPage), each with an `index.ts` barrel. No behavior changes.
 - **2.9.0** (Oct 7, 2026): colors are always picked automatically and can't be edited. Removed `ColorSwatches` and the Color field from the branch form and My profile. A new branch gets the most distinct unused color; existing branches and members keep theirs.
+- **2.10.0** (Oct 7, 2026): **Log out** is now **Back to flowOS** (house icon) in the account menu and My settings, since it returns to the flowOS home screen without signing out. Hook renamed to `useBackToPlatform`.
+- **2.11.0** (Oct 8, 2026): **Manage centers** (`/apps/roster/centers`) no longer shows a combined schedule. It lists your centers as cards (timezone, opening hours, shortcuts to Schedule, Trainers, Branches, Session types and Settings) plus "Create a center"; open one to see and manage that center on its own. **My schedule** keeps its week across all centers.
+- **2.12.0** (Oct 8, 2026): Vietnam time only for now. The timezone list came from the browser, which names Vietnam `Asia/Saigon`, so searching "Ho Chi Minh" or "Vietnam" found nothing. Creating a center no longer asks for a timezone, Settings shows **Vietnam (GMT+7)** read-only, and center cards show the same label. Migration `app_roster_vietnam_timezone` moves existing centers to `Asia/Ho_Chi_Minh` (the only one was on `Asia/Bangkok`, also UTC+7 with no daylight saving, so no session moved) and adds a check that allows only that zone.

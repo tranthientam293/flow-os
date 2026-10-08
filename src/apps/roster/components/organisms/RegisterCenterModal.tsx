@@ -1,15 +1,12 @@
-import { useMemo } from "react";
-import { Form, Input, Modal, Select } from "antd";
+import { Form, Input, Modal } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { useFlowApp } from "@/context";
 import { createCenterMutationOptions } from "../../apis/centers";
-import { DEFAULT_TIMEZONE } from "../../constants/options";
+import { DEFAULT_TIMEZONE, timezoneLabel } from "../../constants/options";
 import { nextColor } from "../../utils/colors";
-import { allTimezones, browserTimezone } from "../../utils/time";
 
 type Values = {
   name: string;
-  timezone: string;
   displayName: string;
 };
 
@@ -25,14 +22,9 @@ export function RegisterCenterModal({
   const { user } = useFlowApp();
   const [form] = Form.useForm<Values>();
   const create = useMutation(createCenterMutationOptions());
-  const timezones = useMemo(
-    () => allTimezones().map((tz) => ({ value: tz, label: tz })),
-    [],
-  );
 
   const initialValues: Values = {
     name: "",
-    timezone: browserTimezone() ?? DEFAULT_TIMEZONE,
     displayName:
       (user.user_metadata?.display_name as string | undefined) ??
       user.email?.split("@")[0] ??
@@ -43,7 +35,7 @@ export function RegisterCenterModal({
     create.mutate(
       {
         name: values.name.trim(),
-        timezone: values.timezone,
+        timezone: DEFAULT_TIMEZONE,
         displayName: values.displayName.trim(),
         color: nextColor([]),
       },
@@ -61,7 +53,8 @@ export function RegisterCenterModal({
       destroyOnHidden
     >
       <p className='mb-4 text-sm text-muted-foreground'>
-        You'll be the owner. Next, add branches and invite trainers.
+        You'll be the owner. Next, add branches and invite trainers. Times use{" "}
+        {timezoneLabel(DEFAULT_TIMEZONE)}.
       </p>
       <Form
         form={form}
@@ -90,9 +83,6 @@ export function RegisterCenterModal({
           ]}
         >
           <Input maxLength={80} />
-        </Form.Item>
-        <Form.Item name='timezone' label='Timezone'>
-          <Select showSearch options={timezones} />
         </Form.Item>
       </Form>
     </Modal>
