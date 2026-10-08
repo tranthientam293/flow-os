@@ -1,6 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useQueries } from "@tanstack/react-query";
-import { useAppStorage } from "@/hooks";
 import {
   branchesQueryOptions,
   memberBranchesQueryOptions,
@@ -11,7 +11,6 @@ import {
   memberSessionTypesQueryOptions,
   sessionTypesQueryOptions,
 } from "../apis/session-types";
-import { STORAGE_KEYS } from "../constants/keys";
 import type { RosterSection } from "../constants/routes";
 import {
   DEFAULT_FILTERS,
@@ -32,10 +31,7 @@ export function useCenterContexts(
 ) {
   const navigate = useNavigate();
   const paths = useRosterPaths();
-  const [filters, setFilters] = useAppStorage<ScheduleFilters>(
-    STORAGE_KEYS.scheduleFilters,
-    DEFAULT_FILTERS,
-  );
+  const [filters, setFilters] = useState<ScheduleFilters>(DEFAULT_FILTERS);
   const ids = memberships.map((m) => m.center.id);
   const directories = useQueries({
     queries: ids.map((id) => directoryQueryOptions(id)),

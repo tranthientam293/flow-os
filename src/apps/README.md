@@ -54,6 +54,7 @@ The id uses `a-z 0-9 -`, must be unique, and must never change once shipped: ins
 
 - `useFlowApp()` from `@/context`: `{ app, user, supabase }`. `supabase` is already signed in as the current user.
 - `useAppStorage(key, initial)` from `@/hooks`: persistent per-user state for this app, with no migration needed.
+- **Dates:** show them as `YYYY/MM/DD` everywhere: `formatDate()` from `@/libs`, or `DATE_FORMAT` / `DAY_FORMAT` (`ddd, YYYY/MM/DD`) from `@/constants` with dayjs. Relative times use `fromNow()`.
 - **A way back to flowOS (required):** apps open full screen with no platform top bar or sidebar, so every screen must offer a way back to the Overview, e.g. a "Back to flowOS" action that asks for confirmation and then navigates to `ROUTES.HOME` (from `@/constants`). Roster’s `hooks/useBackToPlatform.ts` is an example.
 
 ## App data

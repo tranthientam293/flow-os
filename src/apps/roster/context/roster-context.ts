@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import { ALL_STATUSES } from "../constants/options";
 import type { RosterTab } from "../constants/routes";
 import type {
   Branch,
@@ -9,6 +10,7 @@ import type {
   MemberSessionType,
   Membership,
   Session,
+  SessionStatus,
   SessionType,
 } from "../models/roster";
 
@@ -16,7 +18,7 @@ export type ScheduleFilters = {
   branchIds: string[];
   memberIds: string[];
   onlyMe: boolean;
-  showCancelled: boolean;
+  statuses: SessionStatus[];
 };
 
 export type BookingRequest = {
@@ -60,7 +62,7 @@ export const DEFAULT_FILTERS: ScheduleFilters = {
   branchIds: [],
   memberIds: [],
   onlyMe: false,
-  showCancelled: false,
+  statuses: ALL_STATUSES,
 };
 
 const byId = <T extends { id: string }>(items: readonly T[]) =>

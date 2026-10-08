@@ -1,3 +1,4 @@
+import { DATE_FORMAT, DAY_FORMAT, MONTH_FORMAT } from "@/constants";
 import { dayjs } from "@/libs";
 import type { Center } from "../models/roster";
 
@@ -42,21 +43,17 @@ export const formatRange = (startsAt: string, endsAt: string, tz: string) =>
 export const durationHours = (startsAt: string, endsAt: string) =>
   dayjs(endsAt).diff(dayjs(startsAt), "minute") / 60;
 
-export const formatDay = (date: string) => dayjs(date).format("ddd D");
+// Display formats follow the platform's DATE_FORMAT (YYYY/MM/DD).
+export const formatDate = (date: string) => dayjs(date).format(DATE_FORMAT);
 
-export const formatLongDay = (date: string) => dayjs(date).format("ddd, MMM D");
-
-export const formatMonth = (month: string) => dayjs(month).format("MMMM YYYY");
+export const formatLongDay = (date: string) => dayjs(date).format(DAY_FORMAT);
 
 export function formatWeekRange(start: string) {
   const a = dayjs(start);
-  const b = a.add(6, "day");
-  if (a.month() === b.month())
-    return `${a.format("MMM D")} – ${b.format("D, YYYY")}`;
-  if (a.year() === b.year())
-    return `${a.format("MMM D")} – ${b.format("MMM D, YYYY")}`;
-  return `${a.format("MMM D, YYYY")} – ${b.format("MMM D, YYYY")}`;
+  return `${formatDate(a.format(DATE))} – ${formatDate(a.add(6, "day").format(DATE))}`;
 }
+
+export const formatMonth = (date: string) => dayjs(date).format(MONTH_FORMAT);
 
 export function trainerWindow(center: Center) {
   const today = todayIn(center.timezone);
@@ -81,7 +78,7 @@ export function trainerCanEdit(center: Center, startsAt: string) {
 
 export function editableUntil(center: Center, startsAt: string) {
   const date = inTz(startsAt, center.timezone).format(DATE);
-  return dayjs(addDays(date, center.past_edit_days)).format("MMM D");
+  return formatDate(addDays(date, center.past_edit_days));
 }
 
 export function browserTimezone() {
@@ -120,3 +117,20 @@ export function monthBounds(date: string) {
     last: d.endOf("month").format(DATE),
   };
 }
+
+// How much of the calendar is shown at once.
+export type Period = "day" | "week";
+
+// The days a period covers around `anchor`.
+export const periodRange = (
+  anchor: string,
+  period: Period,
+  weekStart: number,
+) =>
+  period === "day"
+    ? { start: anchor, days: 1 }
+    : { start: weekStartOf(anchor, weekStart), days: 7 };
+
+// Moves `anchor` one period back (-1) or forward (1).
+export const stepPeriod = (anchor: string, period: Period, direction: 1 | -1) =>
+  addDays(anchor, direction * (period === "week" ? 7 : 1));

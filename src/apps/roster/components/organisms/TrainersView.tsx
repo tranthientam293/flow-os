@@ -4,7 +4,7 @@ import { MoreHorizontal, Plus, Users } from "lucide-react";
 import { Button, Dropdown, Grid, Modal, Table, Tag } from "antd";
 import { Badge } from "@/components/atoms";
 import { CopyButton, EmptyState } from "@/components/molecules";
-import { dayjs } from "@/libs";
+import { formatDate } from "@/libs";
 import {
   membersQueryOptions,
   removeMemberMutationOptions,
@@ -28,7 +28,7 @@ const statusBadge = (m: Member) =>
     <Badge>Active</Badge>
   );
 
-const registered = (m: Member) => dayjs(m.created_at).format("MMM D, YYYY");
+const registered = (m: Member) => formatDate(m.created_at);
 
 export function TrainersView() {
   const {

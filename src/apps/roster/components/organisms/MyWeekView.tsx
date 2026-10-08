@@ -3,6 +3,7 @@ import { CalendarX, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, Spin } from "antd";
 import { EmptyState } from "@/components/molecules";
 import { cn } from "@/utils";
+import { statusColor } from "../../constants/options";
 import { useRoster } from "../../context/roster-context";
 import { useSessions } from "../../hooks/useSessions";
 import type { Session } from "../../models/roster";
@@ -17,7 +18,6 @@ import {
   weekStartOf,
 } from "../../utils/time";
 import { BranchTag } from "../atoms";
-import { SessionDetails } from "../molecules";
 
 export function MyWeekView() {
   const { center, meId } = useRoster();
@@ -30,7 +30,7 @@ export function MyWeekView() {
     memberId: meId,
     prefetchAdjacent: true,
   });
-  const visible = sessions.filter((s) => s.status !== "cancelled");
+  const visible = sessions;
 
   const byDay = daysFrom(shown.fromDate, 7)
     .map((date) => ({
@@ -107,8 +107,7 @@ export function AgendaCard({
   session: Session;
   showCenter?: boolean;
 }) {
-  const { center, branchById } = useRoster();
-  const [expanded, setExpanded] = useState(false);
+  const { center, branchById, openBooking } = useRoster();
   const branch = branchById.get(session.branch_id);
   return (
     <div
@@ -116,12 +115,14 @@ export function AgendaCard({
         "rounded-md border border-l-[3px] bg-card",
         session.status === "missed" && "border-dashed",
       )}
-      style={{ borderLeftColor: branch?.color }}
+      style={{
+        borderLeftColor: statusColor(session.status),
+        backgroundColor: `color-mix(in srgb, ${statusColor(session.status)} 6%, var(--card))`,
+      }}
     >
       <button
         type='button'
-        aria-expanded={expanded}
-        onClick={() => setExpanded((v) => !v)}
+        onClick={() => openBooking({ session })}
         className='flex w-full flex-col gap-1 px-3 py-2.5 text-left'
       >
         <span className='flex flex-wrap items-center gap-3 text-sm'>
@@ -133,25 +134,10 @@ export function AgendaCard({
             <span className='text-xs text-muted-foreground'>{center.name}</span>
           )}
         </span>
-        {(session.title ||
-          session.status === "missed" ||
-          session.status === "completed") && (
-          <span className='text-sm text-foreground-light'>
-            {[
-              session.title,
-              session.status === "missed" ? "Missed" : null,
-              session.status === "completed" ? "Completed" : null,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </span>
+        {session.title && (
+          <span className='text-sm text-foreground-light'>{session.title}</span>
         )}
       </button>
-      {expanded && (
-        <div className='border-t px-3 py-3'>
-          <SessionDetails session={session} onDone={() => setExpanded(false)} />
-        </div>
-      )}
     </div>
   );
 }

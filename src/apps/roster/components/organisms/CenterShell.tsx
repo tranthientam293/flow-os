@@ -4,7 +4,6 @@ import { Plus } from "lucide-react";
 import { Button } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { CenteredSpinner } from "@/components/atoms";
-import { useAppStorage } from "@/hooks";
 import { cn } from "@/utils";
 import {
   branchesQueryOptions,
@@ -16,7 +15,6 @@ import {
   memberSessionTypesQueryOptions,
   sessionTypesQueryOptions,
 } from "../../apis/session-types";
-import { STORAGE_KEYS } from "../../constants/keys";
 import {
   sectionOf,
   type RosterSection,
@@ -66,10 +64,9 @@ export function CenterShell({
     enabled: isOwner,
   });
 
-  const [storedFilters, setStoredFilters] = useAppStorage<ScheduleFilters>(
-    STORAGE_KEYS.scheduleFilters,
-    DEFAULT_FILTERS,
-  );
+  // Filters last while the center is open, and every visit starts on all
+  // trainers and branches (saving them hid other trainers' bookings).
+  const [filters, setFilters] = useState<ScheduleFilters>(DEFAULT_FILTERS);
   const [booking, setBooking] = useState<BookingRequest | null>(null);
   const goTo = useCallback(
     (next: RosterTab) => navigate(paths.center(section, center.id, next)),
@@ -95,9 +92,9 @@ export function CenterShell({
         // My schedule only shows your own sessions, also for owners who train.
         filters:
           section === "work"
-            ? { ...storedFilters, onlyMe: true, memberIds: [] }
-            : storedFilters,
-        setFilters: setStoredFilters,
+            ? { ...filters, onlyMe: true, memberIds: [] }
+            : filters,
+        setFilters,
         goTo,
         openBooking,
       }),
@@ -110,8 +107,7 @@ export function CenterShell({
       memberSessionTypes.data,
       members.data,
       section,
-      storedFilters,
-      setStoredFilters,
+      filters,
       goTo,
       openBooking,
     ],
@@ -151,11 +147,10 @@ export function CenterShell({
             <div className='hidden shrink-0 items-center sm:flex'>
               <Button
                 type='primary'
-                size='small'
                 icon={<Plus />}
                 onClick={() => value.openBooking()}
               >
-                Book session
+                Create
               </Button>
             </div>
           )}
@@ -181,7 +176,7 @@ export function CenterShell({
           shape='circle'
           size='large'
           icon={<Plus />}
-          aria-label='Book session'
+          aria-label='Create session'
           onClick={() => value.openBooking()}
           className='fixed right-4 bottom-6 z-20 shadow-lg sm:hidden'
         />

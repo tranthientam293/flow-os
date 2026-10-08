@@ -126,20 +126,20 @@ function ProfileForm({ membership }: { membership: Membership }) {
 }
 
 function Preferences() {
-  const [view, setView] = useAppStorage<"week" | "day">(
+  const [view, setView] = useAppStorage<"day" | "week">(
     STORAGE_KEYS.scheduleView,
     "week",
   );
   return (
     <div className='flex items-center justify-between gap-3 text-sm'>
       <span className='text-foreground-light'>Center calendars open in</span>
-      <Segmented<"week" | "day">
+      <Segmented<"day" | "week">
         size='small'
         value={view}
         onChange={setView}
         options={[
-          { value: "week", label: "Week" },
           { value: "day", label: "Day" },
+          { value: "week", label: "Week" },
         ]}
       />
     </div>

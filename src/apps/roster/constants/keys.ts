@@ -15,12 +15,23 @@ export const ROSTER_KEYS = {
     ["roster", "center", centerId, "session-types"] as const,
   memberBranches: (centerId: string) =>
     ["roster", "center", centerId, "member-branches"] as const,
-  sessions: (centerId: string, from: string, to: string) =>
-    ["roster", "center", centerId, "sessions", from, to] as const,
+  sessionEvents: (centerId: string, sessionId: string) =>
+    ["roster", "center", centerId, "session-events", sessionId] as const,
+  sessionFees: (centerId: string, sessionId: string) =>
+    ["roster", "center", centerId, "session-fees", sessionId] as const,
+  sessions: (centerId: string, from: string, to: string, memberId?: string) =>
+    [
+      "roster",
+      "center",
+      centerId,
+      "sessions",
+      from,
+      to,
+      memberId ?? "all",
+    ] as const,
 };
 
 export const STORAGE_KEYS = {
   activeCenterId: "activeCenterId",
   scheduleView: "scheduleView",
-  scheduleFilters: "scheduleFilters",
 } as const;

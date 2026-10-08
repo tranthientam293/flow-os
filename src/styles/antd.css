@@ -13,7 +13,14 @@
     flex-shrink: 0;
   }
 
-  .ant-btn-sm .lucide,
+  /* Centre the icon with the button text. */
+  .ant-btn .ant-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+  }
+
+  /* Buttons of every size use 16px icons (14px text); menus a touch smaller. */
   .ant-dropdown-menu .lucide {
     width: 0.875rem;
     height: 0.875rem;
@@ -21,6 +28,26 @@
 
   .ant-dropdown-menu .lucide {
     color: var(--muted-foreground);
+  }
+
+  /* Segmented: 16px icons, like buttons, so toolbars line up. */
+  /* Centre the icon and text on one line (a bare <svg> otherwise rides on
+     the text baseline). */
+  .ant-segmented .ant-segmented-item-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ant-segmented .ant-segmented-item-icon {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .ant-segmented .lucide {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
   }
 
   /* ---------- Button ---------- */
@@ -75,13 +102,20 @@
   /* ---------- Form: 12px error + hint text under fields ---------- */
   .ant-form-item .ant-form-item-explain,
   .ant-form-item .ant-form-item-extra {
-    padding-top: 4px;
+    padding-top: 2px;
     font-size: 0.75rem;
     line-height: 1rem;
   }
 
   .ant-form-item .ant-form-item-extra {
     color: var(--muted-foreground);
+  }
+
+  /* antd gives every control row a 34px min height, which leaves a gap under
+     shorter fields (checkbox groups, switches, small inputs) before the message.
+     Vertical forms don't need it to align with a label. */
+  .ant-form-vertical .ant-form-item .ant-form-item-control-input {
+    min-height: 0;
   }
 
   /* antd lets the error eat the item's bottom margin; keep the 16px gap. */

@@ -35,6 +35,8 @@ export type MemberSessionType = Tables<"roster_member_session_types">;
 export type Session = Tables<"roster_sessions">;
 export type SessionInsert = TablesInsert<"roster_sessions">;
 export type SessionUpdate = TablesUpdate<"roster_sessions">;
+export type SessionFee = Tables<"roster_session_fees">;
+export type SessionEvent = Tables<"roster_session_events">;
 
 export type PendingInvite =
   Functions["roster_pending_invites"]["Returns"][number];

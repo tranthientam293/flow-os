@@ -1,38 +1,17 @@
-import { useMutation } from "@tanstack/react-query";
 import { Lock } from "lucide-react";
-import { Button, Popconfirm } from "antd";
-import { Badge } from "@/components/atoms";
-import { fromNow } from "@/libs";
-import { setSessionStatusMutationOptions } from "../../apis/sessions";
 import { useRoster } from "../../context/roster-context";
-import { useNow } from "../../hooks/useNow";
 import type { Session } from "../../models/roster";
 import { sessionAccess } from "../../utils/permissions";
 import { formatLongDay, formatRange, inTz } from "../../utils/time";
-import { BranchTag, MemberAvatar } from "../atoms";
+import { BranchTag, MemberAvatar, SessionStatusBadge } from "../atoms";
 
-const STATUS_LABEL: Record<string, string> = {
-  completed: "Completed",
-  missed: "Missed",
-  cancelled: "Cancelled",
-};
-
-export function SessionDetails({
-  session,
-  onDone,
-}: {
-  session: Session;
-  onDone?: () => void;
-}) {
+// Read-only summary of a session (the calendar's hover card). Actions and the
+// history are in the session drawer.
+export function SessionDetails({ session }: { session: Session }) {
   const ctx = useRoster();
-  const { center, memberById, branchById, directory, openBooking } = ctx;
+  const { center, memberById, branchById } = ctx;
   const access = sessionAccess(session, ctx);
-  const now = useNow();
-  const cancel = useMutation(setSessionStatusMutationOptions(center.id));
   const member = memberById.get(session.member_id);
-  const editor = session.updated_by
-    ? directory.find((m) => m.user_id === session.updated_by)
-    : undefined;
   const date = inTz(session.starts_at, center.timezone).format("YYYY-MM-DD");
 
   return (
@@ -41,12 +20,9 @@ export function SessionDetails({
         <div className='min-w-0 font-medium text-foreground'>
           {session.title || "Session"}
         </div>
-        {session.status !== "scheduled" && (
-          <Badge variant={session.status === "completed" ? "brand" : "warning"}>
-            {STATUS_LABEL[session.status] ?? session.status}
-          </Badge>
-        )}
+        <SessionStatusBadge status={session.status} />
       </div>
+      <div className='text-foreground-light'>{center.name}</div>
       <div className='text-foreground-light'>
         {formatLongDay(date)} ·{" "}
         {formatRange(session.starts_at, session.ends_at, center.timezone)}
@@ -74,44 +50,6 @@ export function SessionDetails({
           <Lock className='mt-0.5 size-3 shrink-0' />
           {access.reason}
         </p>
-      )}
-      {session.updated_by && (
-        <p className='text-xs text-muted-foreground'>
-          Edited by {editor?.display_name ?? "someone"} ·{" "}
-          {fromNow(session.updated_at)}
-        </p>
-      )}
-      {access.canEdit && (
-        <div className='flex justify-end gap-2 pt-1'>
-          {session.status === "scheduled" &&
-            new Date(session.starts_at).getTime() > now && (
-              <Popconfirm
-                title='Cancel this session?'
-                okText='Cancel session'
-                cancelText='Keep'
-                onConfirm={() =>
-                  cancel.mutate(
-                    { id: session.id, status: "cancelled" },
-                    { onSuccess: onDone },
-                  )
-                }
-              >
-                <Button size='small' danger loading={cancel.isPending}>
-                  Cancel
-                </Button>
-              </Popconfirm>
-            )}
-          <Button
-            size='small'
-            type='primary'
-            onClick={() => {
-              onDone?.();
-              openBooking({ session });
-            }}
-          >
-            {session.status === "cancelled" ? "Open" : "Edit"}
-          </Button>
-        </div>
       )}
     </div>
   );

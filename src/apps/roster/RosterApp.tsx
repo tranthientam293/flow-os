@@ -8,7 +8,11 @@ import {
   pendingInvitesQueryOptions,
 } from "./apis/centers";
 import { MySettingsPage, SectionPage } from "./components/pages";
-import { RegisterCenterModal, RosterHeader } from "./components/organisms";
+import {
+  CheckoutProvider,
+  RegisterCenterModal,
+  RosterHeader,
+} from "./components/organisms";
 import { SECTIONS, SETTINGS_PATH, sectionOf } from "./constants/routes";
 import { useRosterPaths } from "./hooks/useRosterPaths";
 
@@ -38,43 +42,45 @@ export default function RosterApp() {
   };
 
   return (
-    <div className='flex min-h-full flex-col'>
-      <RosterHeader
-        invites={inviteList}
-        onJoined={(centerId) => navigate(paths.center("work", centerId))}
-      />
-      {memberships.isLoading ? (
-        <CenteredSpinner />
-      ) : (
-        <Routes>
-          <Route index element={<Navigate replace to={home} />} />
-          {SECTIONS.map((s) => (
-            <Route key={s.key} path={s.key}>
-              <Route
-                index
-                element={<SectionPage section={s.key} {...sectionProps} />}
-              />
-              <Route
-                path=':centerId/:tab?'
-                element={<SectionPage section={s.key} {...sectionProps} />}
-              />
-            </Route>
-          ))}
-          <Route
-            path={SETTINGS_PATH}
-            element={<MySettingsPage memberships={list} />}
-          />
-          <Route path='*' element={<Navigate replace to={home} />} />
-        </Routes>
-      )}
-      <RegisterCenterModal
-        open={creating}
-        onClose={() => setCreating(false)}
-        onCreated={(centerId) => {
-          setCreating(false);
-          navigate(paths.center("centers", centerId, "branches"));
-        }}
-      />
-    </div>
+    <CheckoutProvider>
+      <div className='flex min-h-full flex-col'>
+        <RosterHeader
+          invites={inviteList}
+          onJoined={(centerId) => navigate(paths.center("work", centerId))}
+        />
+        {memberships.isLoading ? (
+          <CenteredSpinner />
+        ) : (
+          <Routes>
+            <Route index element={<Navigate replace to={home} />} />
+            {SECTIONS.map((s) => (
+              <Route key={s.key} path={s.key}>
+                <Route
+                  index
+                  element={<SectionPage section={s.key} {...sectionProps} />}
+                />
+                <Route
+                  path=':centerId/:tab?'
+                  element={<SectionPage section={s.key} {...sectionProps} />}
+                />
+              </Route>
+            ))}
+            <Route
+              path={SETTINGS_PATH}
+              element={<MySettingsPage memberships={list} />}
+            />
+            <Route path='*' element={<Navigate replace to={home} />} />
+          </Routes>
+        )}
+        <RegisterCenterModal
+          open={creating}
+          onClose={() => setCreating(false)}
+          onCreated={(centerId) => {
+            setCreating(false);
+            navigate(paths.center("centers", centerId, "branches"));
+          }}
+        />
+      </div>
+    </CheckoutProvider>
   );
 }

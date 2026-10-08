@@ -1,13 +1,13 @@
 import { useState, type ReactNode } from "react";
-import { Link } from "react-router";
 import {
+  CalendarDays,
   CalendarX,
   ChevronLeft,
   ChevronRight,
+  List,
   Plus,
-  Settings2,
 } from "lucide-react";
-import { Button, Drawer, Grid, Select, Spin } from "antd";
+import { Button, Drawer, Grid, Segmented, Select, Spin } from "antd";
 import { keepPreviousData, useQueries } from "@tanstack/react-query";
 import { EmptyState } from "@/components/molecules";
 import { cn } from "@/utils";
@@ -17,27 +17,47 @@ import {
   RosterContext,
   type BookingRequest,
 } from "../../context/roster-context";
+import {
+  ALL_STATUSES,
+  matchesStatuses,
+  statusesOrAll,
+} from "../../constants/options";
 import { useCenterContexts } from "../../hooks/useCenterContexts";
-import { useRosterPaths } from "../../hooks/useRosterPaths";
-import type { Membership, Session } from "../../models/roster";
+import type { Membership, Session, SessionStatus } from "../../models/roster";
 import {
   addDays,
   browserTimezone,
   dayStartIso,
   daysFrom,
-  formatDay,
   formatLongDay,
-  formatWeekRange,
+  formatMonth,
   inTz,
   openingHours,
+  periodRange,
+  stepPeriod,
   todayIn,
-  weekStartOf,
+  type Period,
 } from "../../utils/time";
+import {
+  FilterButton,
+  FilterField,
+  PeriodSelect,
+  StatusSelect,
+} from "../molecules";
+import { DayLabel } from "../atoms";
 import { AgendaCard } from "./MyWeekView";
-import { SessionForm } from "./SessionDrawer";
+import { SessionPanel } from "./SessionDrawer";
 import { TimeGrid, type GridColumn } from "./TimeGrid";
 
 type Booking = { centerId: string | null; request: BookingRequest };
+type View = "calendar" | "list";
+
+const ALL = "all";
+
+const EMPTY_TITLE: Record<Period, string> = {
+  day: "Nothing booked on this day",
+  week: "Nothing booked this week",
+};
 
 export function AllCentersSchedule({
   section,
@@ -47,9 +67,22 @@ export function AllCentersSchedule({
   memberships: Membership[];
 }) {
   const screens = Grid.useBreakpoint();
-  const paths = useRosterPaths();
-  const { tabs, title, description } = sectionOf(section);
+  const phone = screens.md === false;
+  const { title, description } = sectionOf(section);
   const [booking, setBooking] = useState<Booking | null>(null);
+  // Calendar by week on desktop and a list of the day on phones, until the
+  // user picks.
+  const [pickedView, setPickedView] = useState<View | null>(null);
+  const view: View = pickedView ?? (phone ? "list" : "calendar");
+  const [pickedPeriod, setPeriod] = useState<Period | null>(null);
+  const period: Period = pickedPeriod ?? (phone ? "day" : "week");
+  const [centerFilter, setCenterFilter] = useState<string>(ALL);
+  const [statuses, setStatuses] = useState<SessionStatus[]>(ALL_STATUSES);
+  const shown =
+    centerFilter === ALL
+      ? memberships
+      : memberships.filter((m) => m.center.id === centerFilter);
+  const visible = shown.length ? shown : memberships;
   const { contexts } = useCenterContexts(
     section,
     memberships,
@@ -58,21 +91,26 @@ export function AllCentersSchedule({
   );
 
   // One timezone for the whole grid: the centers' own when they share one.
-  const zones = new Set(memberships.map((m) => m.center.timezone));
+  const zones = new Set(visible.map((m) => m.center.timezone));
   const tz =
     zones.size === 1
-      ? memberships[0].center.timezone
-      : (browserTimezone() ?? memberships[0].center.timezone);
+      ? visible[0].center.timezone
+      : (browserTimezone() ?? visible[0].center.timezone);
   const today = todayIn(tz);
-  const [start, setStart] = useState(() =>
-    weekStartOf(today, memberships[0].center.week_start),
-  );
+  const weekStart = memberships[0].center.week_start;
+  // The day being looked at.
+  const [anchor, setAnchor] = useState(today);
+  const range = periodRange(anchor, period, weekStart);
+  // A day loads its whole week, so Day and Week share one cache.
+  const load =
+    period === "day" ? periodRange(anchor, "week", weekStart) : range;
 
-  const from = dayStartIso(start, tz);
-  const to = dayStartIso(addDays(start, 7), tz);
+  const from = dayStartIso(load.start, tz);
+  const to = dayStartIso(addDays(load.start, load.days), tz);
+  // Only my own sessions are loaded: `m.id` is my member id at that center.
   const queries = useQueries({
-    queries: memberships.map((m) => ({
-      ...sessionsQueryOptions(m.center.id, from, to),
+    queries: visible.map((m) => ({
+      ...sessionsQueryOptions(m.center.id, from, to, m.id),
       placeholderData: keepPreviousData,
     })),
   });
@@ -80,19 +118,14 @@ export function AllCentersSchedule({
   const isSwitching = queries.some((q) => q.isPlaceholderData);
   const sessions = queries
     .flatMap((q) => q.data ?? [])
-    .filter(
-      (s) =>
-        s.status !== "cancelled" &&
-        (section === "centers" ||
-          s.member_id === contexts.get(s.center_id)?.meId),
-    )
+    .filter((s) => matchesStatuses(statuses, s.status))
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
 
-  const hours = memberships.map((m) => openingHours(m.center));
+  const hours = visible.map((m) => openingHours(m.center));
   const openMinutes = Math.min(...hours.map((h) => h.openMinutes));
   const closeMinutes = Math.max(...hours.map((h) => h.closeMinutes));
   const dateOf = (s: Session) => inTz(s.starts_at, tz).format("YYYY-MM-DD");
-  const days = daysFrom(start, 7);
+  const days = daysFrom(range.start, range.days);
 
   const inContext = (session: Session, node: ReactNode) => {
     const ctx = contexts.get(session.center_id);
@@ -105,14 +138,14 @@ export function AllCentersSchedule({
 
   const book = (request: BookingRequest = {}) =>
     setBooking({
-      centerId: memberships.length === 1 ? memberships[0].center.id : null,
+      centerId: visible.length === 1 ? visible[0].center.id : null,
       request: { ...request, nonce: Date.now() },
     });
 
   const columns: GridColumn[] = days.map((date) => ({
     key: date,
     date,
-    header: formatDay(date),
+    header: <DayLabel date={date} today={date === today} />,
     highlight: date === today,
     sessions: sessions.filter((s) => dateOf(s) === date),
   }));
@@ -124,43 +157,21 @@ export function AllCentersSchedule({
         <p className='text-sm text-muted-foreground'>{description}</p>
       </div>
       <div className='flex flex-wrap items-center gap-2'>
-        {memberships.map((m) => (
-          <Link
-            key={m.id}
-            to={paths.center(section, m.center.id, tabs[0].key)}
-            className='flex items-center gap-1.5 rounded-md border bg-card px-2.5 py-1 text-sm text-foreground-light transition-colors hover:border-border-strong hover:text-foreground'
-          >
-            {m.center.name}
-            <Settings2 className='size-3.5 text-muted-foreground' />
-          </Link>
-        ))}
-      </div>
-
-      <div className='flex flex-wrap items-center gap-2'>
         <div className='flex items-center gap-1'>
           <Button
-            size='small'
             icon={<ChevronLeft />}
-            aria-label='Previous week'
-            onClick={() => setStart((d) => addDays(d, -7))}
+            aria-label={`Previous ${period}`}
+            onClick={() => setAnchor((d) => stepPeriod(d, period, -1))}
           />
           <Button
-            size='small'
             icon={<ChevronRight />}
-            aria-label='Next week'
-            onClick={() => setStart((d) => addDays(d, 7))}
+            aria-label={`Next ${period}`}
+            onClick={() => setAnchor((d) => stepPeriod(d, period, 1))}
           />
-          <Button
-            size='small'
-            onClick={() =>
-              setStart(weekStartOf(today, memberships[0].center.week_start))
-            }
-          >
-            Today
-          </Button>
+          <Button onClick={() => setAnchor(today)}>Today</Button>
         </div>
         <span className='text-sm font-medium text-foreground'>
-          {formatWeekRange(start)}
+          {period === "day" ? formatLongDay(anchor) : formatMonth(anchor)}
         </span>
         <span
           aria-hidden={!isSwitching}
@@ -169,24 +180,81 @@ export function AllCentersSchedule({
           <Spin size='small' />
         </span>
         {zones.size > 1 && (
-          <span className='text-xs text-muted-foreground'>Times in {tz}</span>
+          <span className='text-sm text-muted-foreground'>Times in {tz}</span>
         )}
-        <Button
-          type='primary'
-          size='small'
-          icon={<Plus />}
-          className='ms-auto'
-          onClick={() => book()}
-        >
-          Book session
-        </Button>
+        <div className='ms-auto flex flex-wrap items-center gap-2'>
+          <PeriodSelect value={period} onChange={setPeriod} />
+          <FilterButton
+            value={{ center: centerFilter, statuses }}
+            empty={{ center: ALL, statuses: ALL_STATUSES }}
+            count={(f) =>
+              [
+                f.center !== ALL,
+                f.statuses.length !== ALL_STATUSES.length,
+              ].filter(Boolean).length
+            }
+            onApply={(f) => {
+              setCenterFilter(f.center);
+              setStatuses(statusesOrAll(f.statuses));
+            }}
+          >
+            {(draft, change) => (
+              <>
+                <FilterField label='Center'>
+                  <Select
+                    aria-label='Center'
+                    value={draft.center}
+                    onChange={(center) => change({ center })}
+                    options={[
+                      { value: ALL, label: "All centers" },
+                      ...memberships.map((ms) => ({
+                        value: ms.center.id,
+                        label: ms.center.name,
+                      })),
+                    ]}
+                  />
+                </FilterField>
+                <FilterField label='Status'>
+                  <StatusSelect
+                    value={draft.statuses}
+                    onChange={(next) => change({ statuses: next })}
+                  />
+                </FilterField>
+              </>
+            )}
+          </FilterButton>
+          <Segmented<View>
+            value={view}
+            onChange={setPickedView}
+            options={[
+              {
+                value: "calendar",
+                icon: <CalendarDays aria-label='Calendar' />,
+                title: "Calendar",
+              },
+              {
+                value: "list",
+                icon: <List aria-label='List' />,
+                title: "List",
+              },
+            ]}
+          />
+          <Button type='primary' icon={<Plus />} onClick={() => book()}>
+            Create
+          </Button>
+        </div>
       </div>
 
-      {screens.md === false ? (
-        !isLoading && !sessions.length ? (
+      {view === "list" ? (
+        !isLoading &&
+        !days.some((d) => sessions.some((s) => dateOf(s) === d)) ? (
           <EmptyState
             icon={CalendarX}
-            title='Nothing booked this week'
+            title={
+              statuses.length !== ALL_STATUSES.length
+                ? "No sessions match the filters"
+                : EMPTY_TITLE[period]
+            }
             className='min-h-40'
           />
         ) : (
@@ -195,18 +263,23 @@ export function AllCentersSchedule({
               date,
               daySessions: sessions.filter((s) => dateOf(s) === date),
             }))
-            .filter((d) => d.daySessions.length || d.date === today)
+            .filter(
+              (d) =>
+                d.daySessions.length || d.date === today || period === "day",
+            )
             .map(({ date, daySessions }) => (
               <section key={date} className='flex flex-col gap-2'>
-                <h3
-                  className={cn(
-                    "text-xs font-medium text-muted-foreground",
-                    date === today && "text-brand-strong",
-                  )}
-                >
-                  {date === today ? "Today · " : ""}
-                  {formatLongDay(date)}
-                </h3>
+                {period !== "day" && (
+                  <h3
+                    className={cn(
+                      "text-xs font-medium text-muted-foreground",
+                      date === today && "text-brand-strong",
+                    )}
+                  >
+                    {date === today ? "Today · " : ""}
+                    {formatLongDay(date)}
+                  </h3>
+                )}
                 {daySessions.length ? (
                   daySessions.map((s) =>
                     inContext(s, <AgendaCard session={s} showCenter />),
@@ -224,7 +297,7 @@ export function AllCentersSchedule({
             timezone={tz}
             openMinutes={openMinutes}
             closeMinutes={closeMinutes}
-            showCenter={memberships.length > 1}
+            showCenter
             wrapSession={inContext}
             onSlotClick={(column, time) =>
               book({ date: column.date, start: time })
@@ -267,7 +340,7 @@ function BookingDrawer({
     <Drawer
       open={!!booking}
       onClose={onClose}
-      title={editing ? "Session" : "Book session"}
+      title={editing ? "Session" : "Create session"}
       placement={screens.md === false ? "bottom" : "right"}
       size={screens.md === false ? "85%" : 440}
       destroyOnHidden
@@ -289,7 +362,7 @@ function BookingDrawer({
       )}
       {booking && ctx && (
         <RosterContext.Provider value={ctx}>
-          <SessionForm
+          <SessionPanel
             key={`${booking.centerId}-${booking.request.nonce}`}
             request={booking.request}
             onDone={onClose}

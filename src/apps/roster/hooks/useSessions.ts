@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { sessionsQueryOptions } from "../apis/sessions";
+import { matchesStatuses } from "../constants/options";
 import { useRoster } from "../context/roster-context";
 import { addDays, dayStartIso } from "../utils/time";
 
@@ -65,9 +66,9 @@ export function useSessions(
     return all.filter((s) => {
       if (memberId && s.member_id !== memberId) return false;
       if (!applyFilters) return true;
-      if (s.status === "cancelled" && !filters.showCancelled) return false;
       if (filters.branchIds.length && !filters.branchIds.includes(s.branch_id))
         return false;
+      if (!matchesStatuses(filters.statuses, s.status)) return false;
       if (!isOwner) return true;
       if (filters.onlyMe && s.member_id !== meId) return false;
       if (filters.memberIds.length && !filters.memberIds.includes(s.member_id))

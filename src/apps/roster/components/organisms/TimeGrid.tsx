@@ -2,9 +2,13 @@ import type { ReactNode } from "react";
 import { cn } from "@/utils";
 import { HOUR_HEIGHT_PX } from "../../constants/options";
 import type { Session } from "../../models/roster";
-import { layoutOverlaps } from "../../utils/layout";
+import { cascade, layoutOverlaps } from "../../utils/layout";
 import { inTz, minutesOfDay, minutesToTime } from "../../utils/time";
 import { SessionBlock } from "../molecules";
+
+// Space kept free on the right of each day, like Google Calendar, so a busy
+// time can still be clicked to book another trainer then.
+const SLOT_GUTTER_PX = 14;
 
 export type GridColumn = {
   key: string;
@@ -53,6 +57,7 @@ export function TimeGrid({
     (_, i) => startHour + i,
   );
   const height = hours.length * HOUR_HEIGHT_PX;
+
   const pxPerMinute = HOUR_HEIGHT_PX / 60;
 
   return (
@@ -136,6 +141,9 @@ export function TimeGrid({
                     type='button'
                     tabIndex={-1}
                     aria-hidden='true'
+                    // Mouse-only target: don't take focus, or the browser
+                    // blocks aria-hidden on the focused button.
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() =>
                       onSlotClick?.(column, minutesToTime(slotStart))
                     }
@@ -160,7 +168,8 @@ export function TimeGrid({
                   column: 0,
                   columns: 1,
                 };
-                const width = 100 / place.columns;
+                const { left, width, zIndex } = cascade(place);
+                const stacked = place.columns > 1;
                 const blockHeight =
                   (interval.end - interval.start) * pxPerMinute;
                 return wrapSession(
@@ -170,12 +179,17 @@ export function TimeGrid({
                     session={session}
                     showCenter={showCenter}
                     compact={blockHeight < 40}
-                    className='absolute'
+                    className={cn(
+                      "absolute",
+                      // A thin outline keeps stacked blocks apart.
+                      stacked && "ring-1 ring-background",
+                    )}
                     style={{
                       top: interval.start * pxPerMinute + 1,
                       height: blockHeight - 2,
-                      left: `calc(${place.column * width}% + 2px)`,
-                      width: `calc(${width}% - 4px)`,
+                      left: `calc((100% - ${SLOT_GUTTER_PX}px) * ${left / 100} + 2px)`,
+                      width: `calc((100% - ${SLOT_GUTTER_PX}px) * ${width / 100} - 4px)`,
+                      zIndex,
                     }}
                   />,
                 );

@@ -6,6 +6,7 @@ const variants = {
   status: "border-border-strong bg-surface-muted text-foreground-light",
   brand: "border-brand/40 bg-brand-soft text-brand-strong",
   warning: "border-warning-border bg-warning-soft text-warning",
+  destructive: "border-destructive-border bg-destructive-soft text-destructive",
 };
 
 function Badge({
