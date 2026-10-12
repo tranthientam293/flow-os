@@ -135,3 +135,4 @@ RPCs: `roster_create_center`, `roster_pending_invites`, `roster_claim_invite`, `
 - **2.27.3** (Oct 8, 2026): the Status filter is a checkbox per status; all are checked by default, and applying with none checked shows every status.
 - **2.27.4** (Oct 8, 2026): the session hover card opens on the side with room (right, then left, then below or above) and lines up with the top or bottom edge near the screen edges, so it stays on screen.
 - **2.27.5** (Oct 8, 2026): the hover card no longer shows the last change ("Booked by you …"); the history stays in the drawer.
+- **2.27.6** (Oct 12, 2026): Branches tab: Edit, Archive and Restore are icon buttons (named by a title on hover), each in its own color (edit neutral, archive amber, restore green).

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { MapPin, Plus } from "lucide-react";
+import { Archive, ArchiveRestore, MapPin, Pencil, Plus } from "lucide-react";
 import { Button, Form, Grid, Input, Modal, Switch, Table } from "antd";
+import { cn } from "@/utils";
 import { Badge } from "@/components/atoms";
 import { EmptyState } from "@/components/molecules";
 import {
@@ -41,23 +42,30 @@ export function BranchesView() {
     weekSessions.filter((s) => s.branch_id === id && s.status !== "cancelled")
       .length;
 
-  const actions = (branch: Branch) => (
-    <div className='flex justify-end gap-1'>
-      <Button size='small' type='text' onClick={() => setEditing(branch)}>
-        Edit
-      </Button>
-      <Button
-        size='small'
-        type='text'
-        loading={archive.isPending && archive.variables?.id === branch.id}
-        onClick={() =>
-          archive.mutate({ id: branch.id, archived: !branch.archived_at })
-        }
-      >
-        {branch.archived_at ? "Restore" : "Archive"}
-      </Button>
-    </div>
-  );
+  const actions = (branch: Branch) => {
+    const archived = !!branch.archived_at;
+    return (
+      <div className='flex justify-end gap-1'>
+        <Button
+          type='text'
+          icon={<Pencil />}
+          title='Edit'
+          aria-label={`Edit ${branch.name}`}
+          className='text-foreground-light!'
+          onClick={() => setEditing(branch)}
+        />
+        <Button
+          type='text'
+          icon={archived ? <ArchiveRestore /> : <Archive />}
+          title={archived ? "Restore" : "Archive"}
+          aria-label={`${archived ? "Restore" : "Archive"} ${branch.name}`}
+          className={cn(archived ? "text-brand-strong!" : "text-warning!")}
+          loading={archive.isPending && archive.variables?.id === branch.id}
+          onClick={() => archive.mutate({ id: branch.id, archived: !archived })}
+        />
+      </div>
+    );
+  };
 
   return (
     <div className='flex flex-col gap-4 px-4 py-4 sm:px-6'>

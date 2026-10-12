@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { ListFilter } from "lucide-react";
-import { Badge, Button, Modal, Tooltip } from "antd";
+import { Badge, Button, Modal } from "antd";
 
 // An icon button that opens the filters in a modal. Changes are a draft until
 // Apply; closing the modal drops them. The badge shows how many are active.
@@ -25,21 +25,20 @@ export function FilterButton<T>({
 
   return (
     <>
-      <Tooltip title='Filters'>
-        <Badge
-          count={active}
-          size='small'
-          color='var(--primary)'
-          // Block-level, so it doesn't sit on the text baseline and lift the button.
-          className='flex'
-        >
-          <Button
-            icon={<ListFilter />}
-            aria-label={active ? `Filters (${active} active)` : "Filters"}
-            onClick={() => setDraft(value)}
-          />
-        </Badge>
-      </Tooltip>
+      <Badge
+        count={active}
+        size='small'
+        color='var(--primary)'
+        // Block-level, so it doesn't sit on the text baseline and lift the button.
+        className='flex'
+      >
+        <Button
+          icon={<ListFilter />}
+          title='Filters'
+          aria-label={active ? `Filters (${active} active)` : "Filters"}
+          onClick={() => setDraft(value)}
+        />
+      </Badge>
       <Modal
         open={draft !== null}
         title='Filters'
