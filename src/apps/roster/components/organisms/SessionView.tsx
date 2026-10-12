@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Lock, Pencil } from "lucide-react";
+import { Lock, Pencil, RotateCcw } from "lucide-react";
 import { Alert, Button, Popconfirm } from "antd";
-import { setSessionStatusMutationOptions } from "../../apis/sessions";
+import {
+  reopenSessionMutationOptions,
+  setSessionStatusMutationOptions,
+} from "../../apis/sessions";
 import { useCheckout } from "../../context/checkout-context";
 import { useRoster } from "../../context/roster-context";
 import { useNow } from "../../hooks/useNow";
@@ -34,6 +37,7 @@ export function SessionView({
   const access = sessionAccess(session, ctx);
   const now = useNow();
   const setStatus = useMutation(setSessionStatusMutationOptions(center.id));
+  const reopen = useMutation(reopenSessionMutationOptions(center.id));
   const { openCheckout } = useCheckout();
 
   const member = memberById.get(session.member_id);
@@ -41,6 +45,7 @@ export function SessionView({
     ? typeById.get(session.session_type_id)
     : undefined;
   const started = Date.parse(session.starts_at) <= now;
+  const completed = session.status === "completed";
   const inactive =
     session.status === "cancelled" || session.status === "missed";
 
@@ -142,33 +147,25 @@ export function SessionView({
         />
       )}
 
-      {!inactive && (
+      {session.status === "scheduled" && (
         <div className='mb-4 flex items-center justify-between gap-3 rounded-md border bg-surface-muted p-3'>
           <div>
-            <div className='text-sm text-foreground'>
-              {session.status === "completed"
-                ? "Completed"
-                : "Complete session"}
-            </div>
+            <div className='text-sm text-foreground'>Complete session</div>
             <p className='text-xs text-muted-foreground'>
-              {session.status === "completed"
-                ? "Salary and fees are in the checkout."
-                : started
-                  ? "Record the salary and any fees once it has taken place."
-                  : "Available once the session has started."}
+              {started
+                ? "Record the salary and any fees once it has taken place."
+                : "Available once the session has started."}
             </p>
           </div>
           <Button
             size='small'
-            disabled={
-              session.status !== "completed" && (!access.canEdit || !started)
-            }
+            disabled={!access.canEdit || !started}
             onClick={() => {
               onDone();
               openCheckout(session, ctx);
             }}
           >
-            {session.status === "completed" ? "Checkout" : "Complete"}
+            Complete
           </Button>
         </div>
       )}
@@ -193,11 +190,28 @@ export function SessionView({
         <Button className='ms-auto' onClick={onDone}>
           Close
         </Button>
-        {access.canEdit && (
-          <Button type='primary' icon={<Pencil />} onClick={onEdit}>
-            Edit
-          </Button>
-        )}
+        {access.canEdit &&
+          (completed ? (
+            // A completed session isn't edited; reopening reverts it.
+            <Popconfirm
+              title='Undo completion?'
+              description='It goes back to scheduled and its salary and fees are cleared.'
+              okText='Undo completion'
+              onConfirm={() => reopen.mutate(session.id, { onSuccess: onDone })}
+            >
+              <Button
+                type='primary'
+                icon={<RotateCcw />}
+                loading={reopen.isPending}
+              >
+                Undo completion
+              </Button>
+            </Popconfirm>
+          ) : (
+            <Button type='primary' icon={<Pencil />} onClick={onEdit}>
+              Edit
+            </Button>
+          ))}
       </div>
     </div>
   );

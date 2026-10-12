@@ -246,50 +246,53 @@ export function AllCentersSchedule({
       </div>
 
       {view === "list" ? (
-        !isLoading &&
-        !days.some((d) => sessions.some((s) => dateOf(s) === d)) ? (
-          <EmptyState
-            icon={CalendarX}
-            title={
-              statuses.length !== ALL_STATUSES.length
-                ? "No sessions match the filters"
-                : EMPTY_TITLE[period]
-            }
-            className='min-h-40'
-          />
-        ) : (
-          days
-            .map((date) => ({
-              date,
-              daySessions: sessions.filter((s) => dateOf(s) === date),
-            }))
-            .filter(
-              (d) =>
-                d.daySessions.length || d.date === today || period === "day",
-            )
-            .map(({ date, daySessions }) => (
-              <section key={date} className='flex flex-col gap-2'>
-                {period !== "day" && (
-                  <h3
-                    className={cn(
-                      "text-xs font-medium text-muted-foreground",
-                      date === today && "text-brand-strong",
-                    )}
-                  >
-                    {date === today ? "Today · " : ""}
-                    {formatLongDay(date)}
-                  </h3>
-                )}
-                {daySessions.length ? (
-                  daySessions.map((s) =>
-                    inContext(s, <AgendaCard session={s} showCenter />),
-                  )
-                ) : (
-                  <p className='text-sm text-muted-foreground'>No sessions</p>
-                )}
-              </section>
-            ))
-        )
+        // Readable column on wide screens, like My week.
+        <div className='mx-auto flex w-full max-w-2xl flex-col gap-4'>
+          {!isLoading &&
+          !days.some((d) => sessions.some((s) => dateOf(s) === d)) ? (
+            <EmptyState
+              icon={CalendarX}
+              title={
+                statuses.length !== ALL_STATUSES.length
+                  ? "No sessions match the filters"
+                  : EMPTY_TITLE[period]
+              }
+              className='min-h-40'
+            />
+          ) : (
+            days
+              .map((date) => ({
+                date,
+                daySessions: sessions.filter((s) => dateOf(s) === date),
+              }))
+              .filter(
+                (d) =>
+                  d.daySessions.length || d.date === today || period === "day",
+              )
+              .map(({ date, daySessions }) => (
+                <section key={date} className='flex flex-col gap-2'>
+                  {period !== "day" && (
+                    <h3
+                      className={cn(
+                        "text-xs font-medium text-muted-foreground",
+                        date === today && "text-brand-strong",
+                      )}
+                    >
+                      {date === today ? "Today · " : ""}
+                      {formatLongDay(date)}
+                    </h3>
+                  )}
+                  {daySessions.length ? (
+                    daySessions.map((s) =>
+                      inContext(s, <AgendaCard session={s} showCenter />),
+                    )
+                  ) : (
+                    <p className='text-sm text-muted-foreground'>No sessions</p>
+                  )}
+                </section>
+              ))
+          )}
+        </div>
       ) : (
         <div className='rounded-md border bg-card'>
           <TimeGrid

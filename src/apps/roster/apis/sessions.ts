@@ -61,24 +61,6 @@ export const saveSessionMutationOptions = (centerId: string) =>
     },
   });
 
-// Books several sessions in one request, e.g. the same time every week. The
-// insert is all-or-nothing, so callers skip dates that already clash.
-export const bookSessionsMutationOptions = (centerId: string) =>
-  mutationOptions({
-    mutationFn: async (rows: Omit<SessionInsert, "center_id">[]) =>
-      check(
-        await supabase
-          .from("roster_sessions")
-          .insert(rows.map((row) => ({ ...row, center_id: centerId })))
-          .select(),
-      ) as Session[],
-    onSuccess: () => refreshCenter(centerId),
-    meta: {
-      successMessage: (data) => `${(data as Session[]).length} sessions booked`,
-      errorMessage: "Could not book sessions",
-    },
-  });
-
 // Who did what to a session, newest first (recorded by a database trigger).
 export const sessionEventsQueryOptions = (
   centerId: string,
@@ -147,8 +129,8 @@ export const reopenSessionMutationOptions = (centerId: string) =>
     },
     onSuccess: () => refreshCenter(centerId),
     meta: {
-      successMessage: "Session reopened",
-      errorMessage: "Could not reopen session",
+      successMessage: "Completion undone",
+      errorMessage: "Could not undo completion",
     },
   });
 

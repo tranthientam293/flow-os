@@ -282,13 +282,13 @@ function CheckoutForm({
       <div className='flex items-center gap-2'>
         {completed && canEdit && (
           <Popconfirm
-            title='Reopen this session?'
+            title='Undo completion?'
             description='It goes back to scheduled and its salary and fees are cleared.'
-            okText='Reopen'
+            okText='Undo completion'
             onConfirm={() => reopen.mutate(session.id, { onSuccess: onClose })}
           >
             <Button disabled={false} loading={reopen.isPending}>
-              Reopen
+              Undo completion
             </Button>
           </Popconfirm>
         )}

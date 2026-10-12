@@ -76,6 +76,14 @@ export type Database = {
           { foreignKeyName: "roster_members_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
         ]
       }
+      roster_repeats: {
+        Row: { center_id: string; branch_id: string; created_at: string; created_by: string | null; ends_time: string; generated_through: string; id: string; member_id: string; note: string | null; session_type_id: string | null; starts_on: string; starts_time: string; stopped_at: string | null; title: string | null; weekdays: number[] }
+        Insert: { center_id: string; branch_id: string; created_at?: string; created_by?: string | null; ends_time: string; generated_through: string; id?: string; member_id: string; note?: string | null; session_type_id?: string | null; starts_on: string; starts_time: string; stopped_at?: string | null; title?: string | null; weekdays: number[] }
+        Update: { center_id?: string; branch_id?: string; created_at?: string; created_by?: string | null; ends_time?: string; generated_through?: string; id?: string; member_id?: string; note?: string | null; session_type_id?: string | null; starts_on?: string; starts_time?: string; stopped_at?: string | null; title?: string | null; weekdays?: number[] }
+        Relationships: [
+          { foreignKeyName: "roster_repeats_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
+        ]
+      }
       roster_session_events: {
         Row: { action: string; actor_id: string | null; center_id: string; created_at: string; id: string; session_id: string }
         Insert: { action: string; actor_id?: string | null; center_id: string; created_at?: string; id?: string; session_id: string }
@@ -103,9 +111,9 @@ export type Database = {
         ]
       }
       roster_sessions: {
-        Row: { branch_id: string; center_id: string; completed_at: string | null; created_at: string; created_by: string | null; ends_at: string; id: string; member_id: string; note: string | null; salary: number | null; session_type_id: string | null; starts_at: string; status: string; title: string | null; updated_at: string; updated_by: string | null }
-        Insert: { branch_id: string; center_id: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at: string; id?: string; member_id: string; note?: string | null; salary?: number | null; session_type_id?: string | null; starts_at: string; status?: string; title?: string | null; updated_at?: string; updated_by?: string | null }
-        Update: { branch_id?: string; center_id?: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at?: string; id?: string; member_id?: string; note?: string | null; salary?: number | null; session_type_id?: string | null; starts_at?: string; status?: string; title?: string | null; updated_at?: string; updated_by?: string | null }
+        Row: { branch_id: string; center_id: string; completed_at: string | null; created_at: string; created_by: string | null; ends_at: string; id: string; member_id: string; note: string | null; repeat_id: string | null; salary: number | null; session_type_id: string | null; starts_at: string; status: string; title: string | null; updated_at: string; updated_by: string | null }
+        Insert: { branch_id: string; center_id: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at: string; id?: string; member_id: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at: string; status?: string; title?: string | null; updated_at?: string; updated_by?: string | null }
+        Update: { branch_id?: string; center_id?: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at?: string; id?: string; member_id?: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at?: string; status?: string; title?: string | null; updated_at?: string; updated_by?: string | null }
         Relationships: [
           { foreignKeyName: "roster_sessions_center_id_branch_id_fkey"; columns: ["center_id", "branch_id"]; isOneToOne: false; referencedRelation: "roster_branches"; referencedColumns: ["center_id", "id"] },
           { foreignKeyName: "roster_sessions_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
@@ -146,6 +154,10 @@ export type Database = {
         Returns: undefined
       }
       roster_reopen_session: { Args: { p_session_id: string }; Returns: undefined }
+      roster_start_repeat: {
+        Args: { p_branch_id: string; p_center_id: string; p_ends_time: string; p_member_id: string; p_note: string | null; p_session_type_id: string | null; p_starts_on: string; p_starts_time: string; p_title: string | null; p_weekdays: number[] }
+        Returns: number
+      }
       roster_update_my_profile: {
         Args: { p_center_id: string; p_color: string; p_display_name: string; p_phone: string }
         Returns: undefined

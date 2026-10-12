@@ -9,7 +9,7 @@ const ACTION_LABEL: Record<string, string> = {
   edited: "Edited",
   completed: "Completed",
   checkout_updated: "Checkout updated",
-  reopened: "Reopened",
+  reopened: "Completion undone",
   cancelled: "Cancelled",
   missed: "Marked missed",
   restored: "Restored",

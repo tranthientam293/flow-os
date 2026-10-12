@@ -1,12 +1,6 @@
 import { useRef, useState, type ComponentRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  CalendarOff,
-  Lock,
-  Repeat,
-} from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarOff, Lock } from "lucide-react";
 import {
   Alert,
   Button,
@@ -16,14 +10,12 @@ import {
   Grid,
   Input,
   Select,
-  Switch,
   TimePicker,
 } from "antd";
 import { EmptyState } from "@/components/molecules";
 import { DAY_FORMAT } from "@/constants";
 import { dayjs, type Dayjs } from "@/libs";
 import {
-  bookSessionsMutationOptions,
   saveSessionMutationOptions,
   sessionsQueryOptions,
 } from "../../apis/sessions";
@@ -60,13 +52,11 @@ type Values = {
   time: [Dayjs, Dayjs];
   title?: string;
   note?: string;
-  repeatWeekly: boolean;
 };
 
 type TimeRange = [Dayjs | null, Dayjs | null] | null;
 
 const TIME = "HH:mm";
-const shortDay = (day: string) => formatDate(day);
 
 // antd types the range picker ref as a single picker; the underlying picker
 // also takes the field to focus (0 = start, 1 = end).
@@ -165,7 +155,6 @@ export function SessionForm({
   const readOnly = !!access && !access.canEdit;
   const now = useNow();
   const save = useMutation(saveSessionMutationOptions(center.id));
-  const bookWeekly = useMutation(bookSessionsMutationOptions(center.id));
   const [form] = Form.useForm<Values>();
   const timeRef = useRef<ComponentRef<typeof TimePicker.RangePicker>>(null);
   // The start time last shown in the open picker, to tell an hour click from
@@ -178,8 +167,6 @@ export function SessionForm({
     (isOwner ? "" : meId);
   const date = Form.useWatch("date", form);
   const time = Form.useWatch("time", form);
-  const repeatValue = Form.useWatch("repeatWeekly", form);
-  const repeatWeekly = !existing && !!repeatValue;
   const member = memberById.get(memberId);
   const memberIsOwner = member?.role === "owner";
   const anyBranch = ctx.anyBranchIds.has(memberId);
@@ -249,33 +236,6 @@ export function SessionForm({
       : undefined;
   const hasStarted = !!startsAt && new Date(startsAt).getTime() <= now;
 
-  // Repeat every week: the same weekday and time until the end of the month.
-  const weeklyDates: string[] = [];
-  if (repeatWeekly && dateStr)
-    for (let d = dateStr; d <= latestDate; d = addDays(d, 7))
-      weeklyDates.push(d);
-  const weeklyQuery = useQuery({
-    ...sessionsQueryOptions(
-      center.id,
-      dayStartIso(dateStr ?? today, tz),
-      dayStartIso(addDays(latestDate, 1), tz),
-      memberId || undefined,
-    ),
-    enabled: repeatWeekly && !!dateStr && !!memberId,
-  });
-  const weekly = weeklyDates.map((day) => {
-    const s = time?.[0] ? zonedIso(day, time[0].format(TIME), tz) : null;
-    const e = time?.[1] ? zonedIso(day, time[1].format(TIME), tz) : null;
-    const clash =
-      s && e
-        ? (weeklyQuery.data ?? []).some(
-            (x) => x.member_id === memberId && occupies(x) && overlaps(x, s, e),
-          )
-        : false;
-    return { day, clash };
-  });
-  const weeklyBookable = weekly.filter((w) => !w.clash).map((w) => w.day);
-  const weeklySkipped = weekly.filter((w) => w.clash).map((w) => w.day);
   const inactiveStatus =
     existing &&
     (existing.status === "cancelled" || existing.status === "missed")
@@ -318,7 +278,6 @@ export function SessionForm({
               : requested,
           ),
           time: [start, start.add(sessionLength, "minute")],
-          repeatWeekly: false,
         };
       })();
 
@@ -349,22 +308,6 @@ export function SessionForm({
   const onFinish = (values: Values) => {
     const day = values.date.format(DATE);
     const [start, end] = values.time;
-    if (repeatWeekly) {
-      bookWeekly.mutate(
-        weeklyBookable.map((d) => ({
-          member_id: values.memberId,
-          branch_id: values.branchId as string,
-          session_type_id: values.sessionTypeId ?? null,
-          starts_at: zonedIso(d, start.format(TIME), tz),
-          ends_at: zonedIso(d, end.format(TIME), tz),
-          title: values.title?.trim() || null,
-          note: values.note?.trim() || null,
-          status: "scheduled",
-        })),
-        { onSuccess: onDone },
-      );
-      return;
-    }
     save.mutate(
       {
         id: existing?.id,
@@ -586,42 +529,6 @@ export function SessionForm({
         />
       </Form.Item>
 
-      {!existing && (
-        <div className='mb-4 rounded-md border bg-surface-muted p-3'>
-          <div className='flex items-start justify-between gap-3'>
-            <div>
-              <div className='flex items-center gap-1.5 text-sm text-foreground'>
-                <Repeat className='size-3.5' />
-                Repeat every week
-              </div>
-              <p className='text-xs text-muted-foreground'>
-                {date
-                  ? `Books this time every ${date.format("dddd")} until ${shortDay(latestDate)}.`
-                  : "Books this time on the same weekday until the end of the month."}
-              </p>
-            </div>
-            <Form.Item name='repeatWeekly' valuePropName='checked' noStyle>
-              <Switch aria-label='Repeat every week' />
-            </Form.Item>
-          </div>
-          {repeatWeekly && weekly.length > 0 && (
-            <div className='mt-2 flex flex-col gap-1 text-xs'>
-              <p className='text-foreground-light'>
-                {weeklyBookable.length
-                  ? `Books ${weeklyBookable.length} ${weeklyBookable.length === 1 ? "session" : "sessions"}: ${weeklyBookable.map(shortDay).join(", ")}.`
-                  : "Every date clashes with another session."}
-              </p>
-              {weeklySkipped.length > 0 && (
-                <p className='text-warning'>
-                  Skips {weeklySkipped.map(shortDay).join(", ")} (already booked
-                  at that time).
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
       {!readOnly && (
         <div className='flex items-center gap-2'>
           <Button
@@ -635,18 +542,10 @@ export function SessionForm({
           <Button
             type='primary'
             htmlType='submit'
-            loading={save.isPending || bookWeekly.isPending}
-            disabled={
-              repeatWeekly
-                ? !weeklyBookable.length || weeklyQuery.isLoading
-                : !!conflict
-            }
+            loading={save.isPending}
+            disabled={!!conflict}
           >
-            {existing
-              ? "Save"
-              : repeatWeekly && weeklyBookable.length > 1
-                ? `Book ${weeklyBookable.length} sessions`
-                : "Book"}
+            Save
           </Button>
         </div>
       )}
