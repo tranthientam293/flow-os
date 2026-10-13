@@ -6,15 +6,15 @@ Roster runs inside the flowOS shell (top bar, sidebar), so it follows the platfo
 
 An app is one root component, so Roster uses an in-app tab bar under its header:
 
-| Tab        | Trainer | Owner |
-| ---------- | ------- | ----- |
-| Schedule   | ✅      | ✅    |
-| My week    | ✅      | ✅    |
-| Income     | ✅ (own) | ✅ (own + all trainers) |
-| Branches   | —       | ✅    |
-| Trainers   | —       | ✅    |
-| Fees       | —       | ✅    |
-| Settings   | —       | ✅    |
+| Tab      | Trainer  | Owner                   |
+| -------- | -------- | ----------------------- |
+| Schedule | ✅       | ✅                      |
+| My week  | ✅       | ✅                      |
+| Income   | ✅ (own) | ✅ (own + all trainers) |
+| Branches | —        | ✅                      |
+| Trainers | —        | ✅                      |
+| Fees     | —        | ✅                      |
+| Settings | —        | ✅                      |
 
 Trainers get three tabs, which keeps their experience simple. On phones, trainers get a bottom bar with those three. The owner's bottom bar shows Schedule, My week and Income, plus **More** (Branches, Trainers, Fees, Settings).
 
@@ -24,7 +24,7 @@ Header: **center switcher** · the user's role badge in that center (`Owner` / `
 
 **Center switcher:** a dropdown with the center name as its label. Each item shows the center name and the user's role there, and the last item is "+ Register a center". The tabs follow the role in the selected center, so a user who owns one center and trains at another sees all seven tabs in the first and three in the second. On phones the switcher sits above the tabs as a full-width select.
 
-**Invite banner:** when there are pending invites, a banner sits above the tabs on every screen: "You're invited to *Center name*" [Join] [Dismiss]. With several invites it reads "You have 2 invites" and opens a list.
+**Invite banner:** when there are pending invites, a banner sits above the tabs on every screen: "You're invited to _Center name_" [Join] [Dismiss]. With several invites it reads "You have 2 invites" and opens a list.
 
 ## First-run flows
 
@@ -96,7 +96,7 @@ This is the default view on phones. A wide 7-column grid doesn't fit a 375px scr
 
 ### Book / edit session (drawer on desktop, bottom sheet on mobile)
 
-Fields: **Trainer** (owner only; trainers are fixed to themselves) · **Branch** (radio cards with color + code) · **Date** · **Start / End** (End defaults to Start + center default length) · Title · Note · v1.1 *Repeat weekly until*.
+Fields: **Trainer** (owner only; trainers are fixed to themselves) · **Branch** (radio cards with color + code) · **Date** · **Start / End** (End defaults to Start + center default length) · Title · Note · v1.1 _Repeat weekly until_.
 
 - **Session type** comes first and is required, remembering the trainer's last choice. A trainer only sees their assigned session types (preselected if there's only one). The owner sees all active session types, with ones the chosen trainer isn't assigned marked "Not assigned", still selectable. Names only, never fees.
 - **Branch options:** for a trainer, only their assigned branches (all branches if "Can book at any branch" is on). If there's only one, it's preselected. For the owner, every active branch; branches the chosen trainer isn't assigned to are marked "Not assigned", but the owner can still pick them.
@@ -105,6 +105,7 @@ Fields: **Trainer** (owner only; trainers are fixed to themselves) · **Branch**
 - Check for conflicts live as the times change, and show an inline warning such as "You're already at D1 from 14:00 to 15:00". The database stays the final guard.
 
 **Past sessions:** opening a past session shows a **Status** control (`Happened` / `Missed`) as well as the time fields.
+
 - Inside the edit window, a trainer sees "Editable until Oct 13" under the title.
 - After the window closes, a trainer sees the session read-only with "Locked. Only the owner can change this session".
 - Every session popover ends with a small line such as "Edited by An · 2 hours ago" whenever it was changed after creation.
@@ -177,12 +178,12 @@ Center name, **business type and labels**, timezone, **currency** (select, defau
 
 Every mention of a labelled noun uses the center's words. Examples for a gym using the Fitness preset (Gym · Location · Coach · Session type):
 
-| Default wording                          | Fitness preset                             |
-| ---------------------------------------- | ------------------------------------------ |
-| Tabs: Branches, Trainers                 | Tabs: Locations, Coaches                   |
-| "Add trainer"                            | "Add coach"                                |
-| "Ask your owner to assign you a branch"  | "Ask your owner to assign you a location"  |
-| Filters: Branch ▾  Trainer ▾             | Filters: Location ▾  Coach ▾               |
+| Default wording                         | Fitness preset                            |
+| --------------------------------------- | ----------------------------------------- |
+| Tabs: Branches, Trainers                | Tabs: Locations, Coaches                  |
+| "Add trainer"                           | "Add coach"                               |
+| "Ask your owner to assign you a branch" | "Ask your owner to assign you a location" |
+| Filters: Branch ▾ Trainer ▾             | Filters: Location ▾ Coach ▾               |
 
 The mockups in this doc use a music school with the default words (Center, Branch, Trainer), so "Piano 1:1" and "Grade 3" are sample data, not fixed wording. Fixed words never change: Owner, Session, Schedule, My week, Income, Fees, Settings.
 
@@ -199,14 +200,14 @@ The mockups in this doc use a music school with the default words (Center, Branc
 
 ## Manifest (proposal)
 
-| Field         | Value                                                                  |
-| ------------- | ---------------------------------------------------------------------- |
-| `name`        | Roster                                                                 |
-| `tagline`     | Who works where, and when                                              |
+| Field         | Value                                                                                                                                                                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | Roster                                                                                                                                                                                                                                                               |
+| `tagline`     | Who works where, and when                                                                                                                                                                                                                                            |
 | `description` | Schedule staff across all your branches and see what everyone earns. For music schools, language centers, gyms, tutoring centers, studios and any business whose staff move between branches. Owners manage branches, staff and fees; staff book their own sessions. |
-| `icon`        | lucide `CalendarRange` (or `CalendarClock`)                            |
-| `category`    | Productivity                                                           |
-| `getSummary`  | "3 sessions today · this month 32.5 h · ₫6,100,000" (fixed words only, so it reads right for every center) |
+| `icon`        | lucide `CalendarRange` (or `CalendarClock`)                                                                                                                                                                                                                          |
+| `category`    | Productivity                                                                                                                                                                                                                                                         |
+| `getSummary`  | "3 sessions today · this month 32.5 h · ₫6,100,000" (fixed words only, so it reads right for every center)                                                                                                                                                           |
 
 All copy is English and written directly in the components (D8, no i18n).
 

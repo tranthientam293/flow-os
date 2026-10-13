@@ -2,22 +2,22 @@
 
 **Roster** is a flowOS app for schedules across branches. A center owner (a music school, language center, gym, tutoring center, studio, or any business whose trainers move between branches) registers the center, opens branches, manages trainers, and every trainer books their own teaching sessions at any branch. Everyone sees one schedule, so it is always clear who is teaching where and when.
 
-| Field           | Value                                                    |
-| --------------- | -------------------------------------------------------- |
-| App id          | `roster` (folder `src/apps/roster/`, never renamed)      |
-| Display name    | Roster                                                   |
-| Category        | Productivity                                             |
-| Table prefix    | `roster_`                                                |
-| Migration names | `<timestamp>_app_roster_<change>.sql`                    |
+| Field           | Value                                                        |
+| --------------- | ------------------------------------------------------------ |
+| App id          | `roster` (folder `src/apps/roster/`, never renamed)          |
+| Display name    | Roster                                                       |
+| Category        | Productivity                                                 |
+| Table prefix    | `roster_`                                                    |
+| Migration names | `<timestamp>_app_roster_<change>.sql`                        |
 | Status          | v1 built (M1–M6, Oct 6, 2026); migration applied to dev only |
 
 ## Documents
 
-| File                             | What it covers                                                                |
-| -------------------------------- | ----------------------------------------------------------------------------- |
-| [plan.md](plan.md)               | Goals, roles and permissions, features, milestones, open questions            |
-| [data-model.md](data-model.md)   | Tables, relationships, constraints, RLS rules, how the platform fits in       |
-| [design.md](design.md)           | Screens, user flows, layout and UI suggestions (desktop and mobile)           |
+| File                           | What it covers                                                          |
+| ------------------------------ | ----------------------------------------------------------------------- |
+| [plan.md](plan.md)             | Goals, roles and permissions, features, milestones, open questions      |
+| [data-model.md](data-model.md) | Tables, relationships, constraints, RLS rules, how the platform fits in |
+| [design.md](design.md)         | Screens, user flows, layout and UI suggestions (desktop and mobile)     |
 
 ## Key decisions so far
 

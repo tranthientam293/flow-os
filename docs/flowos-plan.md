@@ -26,7 +26,7 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 | `src/layouts/`              | `AppLayout` (signed-in shell) and `AuthLayout` (split screen)                                                                                                                |
 | `src/router/`               | `createBrowserRouter` config + `ProtectedRoute` / `GuestRoute` guards                                                                                                        |
 | `src/context/`              | `AuthContext` (session), `FlowAppContext` (app SDK)                                                                                                                          |
-| `src/providers/`            | `AppProviders`: composes React Query, auth, tooltips and the toaster around the router                                                                                 |
+| `src/providers/`            | `AppProviders`: composes React Query, auth, tooltips and the toaster around the router                                                                                       |
 | `src/stores/`               | zustand: `theme-store` (persisted preference), `ui-store` (sidebar, drawer)                                                                                                  |
 | `src/apis/`                 | One file per domain exporting `queryOptions` / `mutationOptions` factories (`profileQueryOptions(userId)`, `installAppMutationOptions(userId)`, …) that call `libs/supabase` |
 | `src/hooks/`                | Hooks that add logic on top of the API (`useInstalledApps` joins with the registry, `useHealth`, `useAppStorage`) and UI hooks                                               |
@@ -34,7 +34,7 @@ Check items off as they're done. Phases 1 and 1.5 are complete; later phases are
 | `src/types/`                | UI-only types: `AppManifest`, theme, navigation, health                                                                                                                      |
 | `src/constants/`            | `ENV` (validated env vars), routes, query keys, storage keys, navigation, app settings                                                                                       |
 | `src/libs/`                 | Configured third-party clients: `supabase`, `queryClient`, `dayjs`                                                                                                           |
-| `src/utils/`                | Pure helpers: `cn`, errors, health, user display names; never import `@/libs`                                                                                      |
+| `src/utils/`                | Pure helpers: `cn`, errors, health, user display names; never import `@/libs`                                                                                                |
 | `src/apps/`                 | One self-contained folder per app (folder name = app id) with `manifest.ts`; `registry.ts` discovers them (empty)                                                            |
 | `src/styles/`               | `tokens.css` (CSS variables, Supabase palette; mirrored for antd in `libs/antd-theme.ts`) + `index.css` (Tailwind theme, utilities)                                          |
 | `supabase/migrations/`      | Schema, RLS policies, triggers                                                                                                                                               |

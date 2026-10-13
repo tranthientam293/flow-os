@@ -22,8 +22,7 @@ export function StatTile({
   const body = (
     <>
       <div className='flex size-12 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground-light transition-colors group-hover:border-border-strong sm:size-16'>
-        {iconSlot ??
-          (Icon && <Icon className='size-4.5' strokeWidth={1.5} />)}
+        {iconSlot ?? (Icon && <Icon className='size-4.5' strokeWidth={1.5} />)}
       </div>
       <div className='min-w-0'>
         <div className='eyebrow'>{label}</div>
