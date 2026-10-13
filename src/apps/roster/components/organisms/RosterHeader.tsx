@@ -26,7 +26,11 @@ export function RosterHeader({
         <CalendarRange className='size-4 text-brand-strong' />
         {app.name}
       </span>
-      <nav aria-label='Roster' className='flex min-w-0 items-center gap-1'>
+      <nav
+        aria-label='Roster'
+        // Scrolls sideways on narrow phones instead of overflowing.
+        className='flex min-w-0 [scrollbar-width:none] items-center gap-1 overflow-x-auto'
+      >
         {SECTIONS.map((s) => (
           <NavLink
             key={s.key}
