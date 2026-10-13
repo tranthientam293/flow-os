@@ -17,7 +17,7 @@ import type {
   Session,
   SessionFee,
 } from "../../models/roster";
-import { formatAmount } from "../../utils/money";
+import { formatAmount, formatNumber } from "../../utils/money";
 import { sessionAccess } from "../../utils/permissions";
 import {
   dayStartIso,
@@ -44,8 +44,7 @@ type Line = {
   total: number;
 };
 
-const formatHours = (hours: number) =>
-  `${Number.isInteger(hours) ? hours : hours.toFixed(1)} h`;
+const formatHours = (hours: number) => `${formatNumber(hours)} h`;
 
 // My schedule → Income: your completed sessions in one month, with their
 // salary and fees and the month's total. Only your own sessions, also at

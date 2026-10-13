@@ -15,6 +15,7 @@ import { saveTrainerMutationOptions } from "../../apis/members";
 import { useRoster } from "../../context/roster-context";
 import type { Member } from "../../models/roster";
 import { nextColor } from "../../utils/colors";
+import { moneyInputProps } from "../../utils/money";
 import { BranchTag } from "../atoms";
 
 type SessionRow = { sessionTypeId?: string; hourlyRate?: number | null };
@@ -222,7 +223,7 @@ function TrainerModalContent({
                       className='mb-0'
                     >
                       <InputNumber<number>
-                        min={0}
+                        {...moneyInputProps}
                         className='w-full'
                         placeholder='Salary / hour'
                         aria-label='Salary per hour'
@@ -230,6 +231,7 @@ function TrainerModalContent({
                     </Form.Item>
                     <Button
                       type='text'
+                      danger
                       icon={<Trash2 />}
                       aria-label='Remove session type'
                       onClick={() => remove(field.name)}

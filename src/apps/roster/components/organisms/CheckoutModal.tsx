@@ -16,7 +16,13 @@ import {
 } from "../../apis/sessions";
 import { useRoster } from "../../context/roster-context";
 import type { Session, SessionFee } from "../../models/roster";
-import { formatAmount, formatRate, salaryFor } from "../../utils/money";
+import {
+  formatAmount,
+  formatNumber,
+  formatRate,
+  moneyInputProps,
+  salaryFor,
+} from "../../utils/money";
 import { sessionAccess } from "../../utils/permissions";
 import { formatLongDay, formatRange, inTz } from "../../utils/time";
 import { BranchTag, MemberAvatar } from "../atoms";
@@ -135,7 +141,7 @@ function CheckoutForm({
     ["Session", session.title || type?.name || "Session"],
     [
       "When",
-      `${formatLongDay(date)} · ${formatRange(session.starts_at, session.ends_at, tz)} (${formatAmount(hours)} h)`,
+      `${formatLongDay(date)} · ${formatRange(session.starts_at, session.ends_at, tz)} (${formatNumber(hours)} h)`,
     ],
     [
       "Trainer",
@@ -184,10 +190,10 @@ function CheckoutForm({
         <Form.Item
           name='salary'
           label='Salary'
-          extra={`${formatRate(rate)} × ${formatAmount(hours)} h = ${formatAmount(defaultSalary)}`}
+          extra={`${formatRate(rate)} × ${formatNumber(hours)} h = ${formatAmount(defaultSalary)}`}
           rules={[{ required: true, message: "Enter the salary" }]}
         >
-          <InputNumber<number> min={0} className='w-full' />
+          <InputNumber<number> {...moneyInputProps} className='w-full' />
         </Form.Item>
       ) : (
         <div className='mb-4'>
@@ -197,7 +203,7 @@ function CheckoutForm({
           </div>
           <p className='text-xs text-muted-foreground'>
             {session.salary === null
-              ? `From your rate: ${formatRate(rate)} × ${formatAmount(hours)} h. `
+              ? `From your rate: ${formatRate(rate)} × ${formatNumber(hours)} h. `
               : ""}
             The owner sets the salary.
           </p>
@@ -212,7 +218,7 @@ function CheckoutForm({
               {fields.map((field) => (
                 <div
                   key={field.key}
-                  className='grid grid-cols-[1fr_8rem_auto] items-start gap-2'
+                  className='grid grid-cols-[1fr_9rem_auto] items-start gap-2'
                 >
                   <Form.Item
                     name={[field.name, "label"]}
@@ -234,7 +240,7 @@ function CheckoutForm({
                     rules={[{ required: true, message: "Amount" }]}
                   >
                     <InputNumber<number>
-                      min={0}
+                      {...moneyInputProps}
                       className='w-full'
                       placeholder='Amount'
                       aria-label='Fee amount'
@@ -242,6 +248,7 @@ function CheckoutForm({
                   </Form.Item>
                   <Button
                     type='text'
+                    danger
                     icon={<Trash2 />}
                     aria-label='Remove fee'
                     onClick={() => remove(field.name)}
