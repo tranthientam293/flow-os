@@ -13,7 +13,8 @@ src/apps/
   time-tracker/
     manifest.ts           ← required: default-exports an AppManifest
     TimeTrackerApp.tsx    ← required: default-exports the app's root component
-    components/           ← app-private components (PascalCase .tsx)
+    components/           ← app-private components, laid out like src/components:
+      atoms/ molecules/ organisms/ pages/   (PascalCase .tsx + index.ts each)
     hooks/                ← app-private hooks (useX.ts)
     apis/                 ← queryOptions / mutationOptions for the app's own tables
     models/               ← the app's database/API types
@@ -46,13 +47,15 @@ The id uses `a-z 0-9 -`, must be unique, and must never change once shipped: ins
 ## Boundaries
 
 - An app may import from the platform: `@/components/atoms`, `@/components/molecules`, `@/libs`, `@/utils`, `@/types`, `@/constants`, `useFlowApp()` and `useAppStorage()`. Always import the folder (`@/types`), never a file inside it (`@/types/app`).
-- An app imports its own files with relative paths (`./components/EntryList`), never from another app's folder.
+- An app imports its own files with relative paths, never from another app's folder. As in `src/components`, components come through their level's barrel (`./components/organisms`, or `../atoms` from another level), and a file imports a sibling in the same level directly (`./EntryList`).
 - Platform code never imports from an app folder; only `registry.ts` touches apps, through their manifests.
 
 ## Platform SDK
 
 - `useFlowApp()` from `@/context`: `{ app, user, supabase }`. `supabase` is already signed in as the current user.
 - `useAppStorage(key, initial)` from `@/hooks`: persistent per-user state for this app, with no migration needed.
+- **Dates:** show them as `YYYY/MM/DD` everywhere: `formatDate()` from `@/libs`, or `DATE_FORMAT` / `DAY_FORMAT` (`ddd, YYYY/MM/DD`) from `@/constants` with dayjs. Relative times use `fromNow()`.
+- **A way back to flowOS (required):** apps open full screen with no platform top bar or sidebar, so every screen must offer a way back to the Overview, e.g. a "Back to flowOS" action that asks for confirmation and then navigates to `ROUTES.HOME` (from `@/constants`). Roster’s `hooks/useBackToPlatform.ts` is an example.
 
 ## App data
 

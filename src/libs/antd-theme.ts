@@ -117,7 +117,7 @@ export function getAntdTheme(mode: ResolvedTheme): ThemeConfig {
         fontWeight: 400,
         iconGap: 8,
         contentFontSize: 14,
-        contentFontSizeSM: 12,
+        contentFontSizeSM: 14,
         paddingInline: 12,
         paddingInlineSM: 10,
         primaryShadow: "none",
@@ -158,9 +158,13 @@ export function getAntdTheme(mode: ResolvedTheme): ThemeConfig {
         colorTextDisabled: c.foreground,
       },
       Segmented: {
-        controlHeight: 32,
+        controlHeight: 34,
+        // Overriding controlHeight re-derives these (34 × 0.75 ≈ 26), so pin
+        // them to the global sizes to line up with small/large buttons and selects.
+        controlHeightSM: 26,
+        controlHeightLG: 38,
         trackPadding: 3,
-        fontSize: 12,
+        fontSize: 14,
         borderRadius: 6,
         borderRadiusSM: 4,
         trackBg: c.accent,

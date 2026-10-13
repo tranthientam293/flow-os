@@ -1,17 +1,15 @@
-import { useNavigate } from "react-router";
 import { Check, Download, Trash2 } from "lucide-react";
 import { Button, Card } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { AppIcon, Badge } from "@/components/atoms";
-import { appPath } from "@/constants";
 import { installAppMutationOptions, uninstallAppMutationOptions } from "@/apis";
 import { useRequiredUser } from "@/context";
-import { useInstalledApps } from "@/hooks";
+import { useInstalledApps, useLaunchApp } from "@/hooks";
 import type { RegisteredApp } from "@/types";
 import { fromNow } from "@/libs";
 
 export function AppStoreCard({ app }: { app: RegisteredApp }) {
-  const navigate = useNavigate();
+  const launchApp = useLaunchApp();
   const { isInstalled, recordOf } = useInstalledApps();
   const user = useRequiredUser();
   const install = useMutation(installAppMutationOptions(user.id));
@@ -51,7 +49,7 @@ export function AppStoreCard({ app }: { app: RegisteredApp }) {
       <div className='mt-4 flex items-center gap-2'>
         {installed ? (
           <>
-            <Button size='small' onClick={() => navigate(appPath(app.id))}>
+            <Button size='small' onClick={launchApp(app.id)}>
               Open
             </Button>
             <Button
