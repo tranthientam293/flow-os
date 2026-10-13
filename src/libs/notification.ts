@@ -1,7 +1,7 @@
 import type { NotificationInstance } from "antd/es/notification/interface";
 
 // Antd's static notification API can't read ConfigProvider (theme, locale),
-// so <NotificationBridge /> hands us the context-aware instance from App.useApp().
+// so <NotificationBridge /> hands us the context-aware instance from notification.useNotification().
 let instance: NotificationInstance | null = null;
 
 export function bindNotification(api: NotificationInstance) {
@@ -10,7 +10,7 @@ export function bindNotification(api: NotificationInstance) {
 
 export const notify = {
   success: (message: string, description?: string) =>
-    instance?.success({ message, description }),
+    instance?.success({ title: message, description }),
   error: (message: string, description?: string) =>
-    instance?.error({ message, description }),
+    instance?.error({ title: message, description }),
 };

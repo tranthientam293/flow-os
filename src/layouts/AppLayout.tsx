@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router";
-import { MobileNav, Sidebar, TopBar } from "@/components/organisms";
+import {
+  LaunchAppModal,
+  MobileNav,
+  Sidebar,
+  TopBar,
+} from "@/components/organisms";
 import { APP_NAME } from "@/constants";
 import { usePageTitle } from "@/hooks";
 import { useUiStore } from "@/stores";
@@ -31,6 +36,7 @@ export function AppLayout() {
         </main>
       </div>
       <MobileNav />
+      <LaunchAppModal />
     </div>
   );
 }

@@ -10,7 +10,7 @@ export function AuthLayout() {
 
   return (
     <div className='flex min-h-full bg-background'>
-      <div className='flex w-full flex-col px-6 py-6 sm:px-10 lg:w-[480px] lg:shrink-0 lg:border-r lg:bg-card'>
+      <div className='flex w-full flex-col px-6 py-6 sm:px-10 lg:w-120 lg:shrink-0 lg:border-r lg:bg-card'>
         <Wordmark />
         <div className='mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-12'>
           <Outlet />

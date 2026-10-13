@@ -6,7 +6,7 @@ import { CopyButton, HealthDots, StatTile } from "@/components/molecules";
 import { WorkspacePanel } from "@/components/organisms";
 import { appPath, ROUTES } from "@/constants";
 import { useRequiredUser } from "@/context";
-import { useHealth, useInstalledApps } from "@/hooks";
+import { useHealth, useInstalledApps, useLaunchApp } from "@/hooks";
 import { profileQueryOptions } from "@/apis";
 import { fromNow, supabase } from "@/libs";
 import type { RegisteredApp } from "@/types";
@@ -76,6 +76,7 @@ function AppSummaryTile({
   userId: string;
 }) {
   const [summary, setSummary] = useState<string | null>(null);
+  const launchApp = useLaunchApp();
 
   useEffect(() => {
     if (!app.getSummary) return;
@@ -95,6 +96,7 @@ function AppSummaryTile({
       value={summary ?? app.tagline}
       icon={app.icon}
       to={appPath(app.id)}
+      onClick={launchApp(app.id)}
     />
   );
 }
