@@ -55,30 +55,12 @@ export function formatWeekRange(start: string) {
 
 export const formatMonth = (date: string) => dayjs(date).format(MONTH_FORMAT);
 
-export function trainerWindow(center: Center) {
-  const today = todayIn(center.timezone);
-  const earliestDate =
-    center.past_edit_days === 0
-      ? today
-      : addDays(today, -center.past_edit_days);
-  const latestDate = monthBounds(today).last;
-  const earliest =
-    center.past_edit_days === 0
-      ? dayjs()
-      : dayjs.tz(earliestDate, center.timezone);
-  return { earliestDate, latestDate, earliest };
-}
-
-export function trainerCanEdit(center: Center, startsAt: string) {
-  const { earliest, latestDate } = trainerWindow(center);
-  const start = dayjs(startsAt);
-  const end = dayjs.tz(addDays(latestDate, 1), center.timezone);
-  return !start.isBefore(earliest) && start.isBefore(end);
-}
-
-export function editableUntil(center: Center, startsAt: string) {
-  const date = inTz(startsAt, center.timezone).format(DATE);
-  return formatDate(addDays(date, center.past_edit_days));
+// Sessions can be booked and changed only while their date is in the
+// center's current month (1st to last day), by owners and trainers alike.
+export function inCurrentMonth(center: Center, startsAt: string) {
+  const day = inTz(startsAt, center.timezone).format(DATE);
+  const { first, last } = monthBounds(todayIn(center.timezone));
+  return day >= first && day <= last;
 }
 
 export function browserTimezone() {

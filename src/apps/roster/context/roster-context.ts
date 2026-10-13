@@ -24,6 +24,8 @@ export type ScheduleFilters = {
 export type BookingRequest = {
   nonce?: number;
   session?: Session;
+  // Open an existing session straight on its form.
+  edit?: boolean;
   branchId?: string;
   date?: string;
   start?: string;

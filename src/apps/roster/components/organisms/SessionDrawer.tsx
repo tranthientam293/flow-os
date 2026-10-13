@@ -24,7 +24,6 @@ import {
   MIN_SESSION_MINUTES,
 } from "../../constants/options";
 import { useRoster, type BookingRequest } from "../../context/roster-context";
-import { useNow } from "../../hooks/useNow";
 import type { Session, SessionStatus } from "../../models/roster";
 import { sessionAccess } from "../../utils/permissions";
 import { isTrainer } from "../../utils/trainers";
@@ -33,13 +32,11 @@ import {
   addDays,
   formatDate,
   dayStartIso,
-  editableUntil,
   formatRange,
   inTz,
   monthBounds,
   openingHours,
   todayIn,
-  trainerWindow,
   zonedIso,
 } from "../../utils/time";
 import { SessionView } from "./SessionView";
@@ -105,7 +102,7 @@ export function SessionPanel({
   request: BookingRequest;
   onDone: () => void;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(!!request.edit);
   const session = request.session;
   if (session && !editing)
     return (
@@ -153,7 +150,6 @@ export function SessionForm({
   const existing = request.session;
   const access = existing ? sessionAccess(existing, ctx) : null;
   const readOnly = !!access && !access.canEdit;
-  const now = useNow();
   const save = useMutation(saveSessionMutationOptions(center.id));
   const [form] = Form.useForm<Values>();
   const timeRef = useRef<ComponentRef<typeof TimePicker.RangePicker>>(null);
@@ -203,8 +199,7 @@ export function SessionForm({
 
   const today = todayIn(tz);
   const month = monthBounds(today);
-  const trainer = trainerWindow(center);
-  const earliestDate = isOwner ? month.first : trainer.earliestDate;
+  const earliestDate = month.first;
   const latestDate = month.last;
   const originalDate = existing
     ? inTz(existing.starts_at, tz).format(DATE)
@@ -234,7 +229,6 @@ export function SessionForm({
             overlaps(s, startsAt, endsAt),
         )
       : undefined;
-  const hasStarted = !!startsAt && new Date(startsAt).getTime() <= now;
 
   const inactiveStatus =
     existing &&
@@ -374,15 +368,11 @@ export function SessionForm({
           title={access.reason}
         />
       )}
-      {existing &&
-        !readOnly &&
-        !isOwner &&
-        hasStarted &&
-        center.past_edit_days > 0 && (
-          <p className='-mt-1 mb-4 text-xs text-muted-foreground'>
-            Editable until {editableUntil(center, existing.starts_at)}
-          </p>
-        )}
+      {existing && !readOnly && (
+        <p className='-mt-1 mb-4 text-xs text-muted-foreground'>
+          Editable until {formatDate(latestDate)} (end of this month)
+        </p>
+      )}
       {isOwner ? (
         <Form.Item
           name='memberId'

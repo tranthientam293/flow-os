@@ -61,6 +61,8 @@ Use [Ant Design](https://ant.design/components/overview) components directly (`i
 
 Antd styles are injected into the `antd` cascade layer, which `src/styles/index.css` orders before Tailwind's `utilities`. So a Tailwind `className` on an antd component always wins, no `!important` needed. Use antd's `classNames={{ body: "…" }}` to reach inner parts.
 
+On phones (below 768px) every antd `Modal`, including `Modal.confirm` / `useModal`, shows as a bottom sheet: full width, docked to the bottom, sliding up (`src/styles/antd.css`). No per-modal props needed; use a `Drawer` with `placement="bottom"` on phones for drawers.
+
 Only add a file to `src/components/atoms/` for something antd doesn't have.
 
 ## Naming

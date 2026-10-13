@@ -24,7 +24,6 @@ type Values = {
   name: string;
   week_start: number;
   default_session_min: number;
-  past_edit_days: number;
   opens_at: Dayjs;
   closes_at: Dayjs;
 };
@@ -54,7 +53,6 @@ function CenterSettings() {
     name: center.name,
     week_start: center.week_start,
     default_session_min: center.default_session_min,
-    past_edit_days: center.past_edit_days,
     opens_at: asTime(hhmm(center.opens_at)),
     closes_at: asTime(
       hhmm(center.closes_at) === "24:00" ? "00:00" : hhmm(center.closes_at),
@@ -66,7 +64,6 @@ function CenterSettings() {
       name: values.name.trim(),
       week_start: values.week_start,
       default_session_min: values.default_session_min,
-      past_edit_days: values.past_edit_days,
       opens_at: values.opens_at.format(TIME),
       closes_at: closeValue(values.closes_at),
     });
@@ -130,14 +127,6 @@ function CenterSettings() {
               step={15}
               className='w-full'
             />
-          </Form.Item>
-          <Form.Item
-            name='past_edit_days'
-            label='Past-session edit window (days)'
-            extra='How long trainers can fix their own past sessions. 0 = never.'
-            rules={[{ required: true }]}
-          >
-            <InputNumber<number> min={0} max={90} className='w-full' />
           </Form.Item>
           <Form.Item
             name='opens_at'

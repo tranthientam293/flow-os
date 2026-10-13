@@ -238,10 +238,76 @@
     inset-inline-end: 12px;
   }
 
+  /* ---------- Modal: bottom sheet on phones ---------- */
+  /* Below md (768px, where session drawers also open from the bottom) every
+     dialog, including Modal.confirm, docks to the bottom at full width and
+     slides up instead of zooming. */
+  @media (max-width: 767.98px) {
+    .ant-modal-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    /* `centered` modals align with a ::before strut; not needed here. */
+    .ant-modal-wrap::before {
+      display: none;
+    }
+
+    .ant-modal {
+      top: 0;
+      /* antd sets the width inline. */
+      width: 100% !important;
+      max-width: 100%;
+      margin: 0;
+      padding-bottom: 0;
+    }
+
+    .ant-modal .ant-modal-container {
+      max-height: 90dvh;
+      overflow-y: auto;
+      border-radius: 16px 16px 0 0;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .ant-modal.ant-zoom-enter,
+    .ant-modal.ant-zoom-appear {
+      transform: translateY(100%);
+      opacity: 1;
+    }
+
+    .ant-modal.ant-zoom-enter.ant-zoom-enter-active,
+    .ant-modal.ant-zoom-appear.ant-zoom-appear-active {
+      animation-name: flow-sheet-up;
+    }
+
+    .ant-modal.ant-zoom-leave.ant-zoom-leave-active {
+      animation-name: flow-sheet-down;
+    }
+  }
+
   /* ---------- Drawer ---------- */
   .ant-drawer-left > .ant-drawer-content-wrapper,
   .ant-drawer-left .ant-drawer-section {
     border-inline-end: 1px solid var(--border);
     box-shadow: none;
+  }
+}
+
+@keyframes flow-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes flow-sheet-down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
   }
 }

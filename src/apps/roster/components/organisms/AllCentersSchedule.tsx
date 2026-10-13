@@ -156,7 +156,7 @@ export function AllCentersSchedule({
         <h2 className='text-base font-medium text-foreground'>{title}</h2>
         <p className='text-sm text-muted-foreground'>{description}</p>
       </div>
-      <div className='flex flex-wrap items-center gap-2'>
+      <div className='flex flex-wrap items-center gap-2 justify-center md:justify-start'>
         <div className='flex items-center gap-1'>
           <Button
             icon={<ChevronLeft />}
@@ -182,7 +182,7 @@ export function AllCentersSchedule({
         {zones.size > 1 && (
           <span className='text-sm text-muted-foreground'>Times in {tz}</span>
         )}
-        <div className='ms-auto flex flex-wrap items-center gap-2'>
+        <div className='md:ms-auto flex flex-wrap items-center gap-2'>
           <PeriodSelect value={period} onChange={setPeriod} />
           <FilterButton
             value={{ center: centerFilter, statuses }}

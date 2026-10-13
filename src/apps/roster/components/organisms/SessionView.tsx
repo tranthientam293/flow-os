@@ -1,24 +1,19 @@
 import type { ReactNode } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Lock, Pencil, RotateCcw } from "lucide-react";
-import { Alert, Button, Popconfirm } from "antd";
-import {
-  reopenSessionMutationOptions,
-  setSessionStatusMutationOptions,
-} from "../../apis/sessions";
-import { useCheckout } from "../../context/checkout-context";
+import { Lock } from "lucide-react";
+import { Alert } from "antd";
 import { useRoster } from "../../context/roster-context";
-import { useNow } from "../../hooks/useNow";
 import type { Session } from "../../models/roster";
 import { sessionAccess } from "../../utils/permissions";
 import {
-  editableUntil,
+  formatDate,
   formatLongDay,
   formatRange,
   inTz,
+  monthBounds,
+  todayIn,
 } from "../../utils/time";
 import { BranchTag, MemberAvatar, SessionStatusBadge } from "../atoms";
-import { SessionHistory } from "../molecules";
+import { SessionActions, SessionHistory } from "../molecules";
 
 // An existing session, read-only, with its actions. Edit switches the drawer
 // to the session form.
@@ -32,22 +27,17 @@ export function SessionView({
   onDone: () => void;
 }) {
   const ctx = useRoster();
-  const { center, isOwner, memberById, branchById, typeById } = ctx;
+  const { center, memberById, branchById, typeById } = ctx;
   const tz = center.timezone;
   const access = sessionAccess(session, ctx);
-  const now = useNow();
-  const setStatus = useMutation(setSessionStatusMutationOptions(center.id));
-  const reopen = useMutation(reopenSessionMutationOptions(center.id));
-  const { openCheckout } = useCheckout();
 
   const member = memberById.get(session.member_id);
   const type = session.session_type_id
     ? typeById.get(session.session_type_id)
     : undefined;
-  const started = Date.parse(session.starts_at) <= now;
-  const completed = session.status === "completed";
-  const inactive =
-    session.status === "cancelled" || session.status === "missed";
+  // Completed and cancelled sessions aren't edited, only restored.
+  const editable =
+    session.status === "scheduled" || session.status === "missed";
 
   const details: [string, ReactNode][] = [
     ["Center", center.name],
@@ -114,105 +104,26 @@ export function SessionView({
         ))}
       </dl>
 
-      {access.canEdit && !isOwner && started && center.past_edit_days > 0 && (
+      {access.canEdit && editable && (
         <p className='-mt-2 mb-4 text-xs text-muted-foreground'>
-          Editable until {editableUntil(center, session.starts_at)}
+          Editable until {formatDate(monthBounds(todayIn(tz)).last)} (end of
+          this month)
         </p>
       )}
 
       <SessionHistory sessionId={session.id} />
 
-      {inactive && (
+      {/* Cancelled shows only its badge. */}
+      {session.status === "missed" && (
         <Alert
           type='info'
           showIcon
           className='mb-4'
-          title={`This session is ${session.status}.`}
-          action={
-            access.canEdit && (
-              <Button
-                size='small'
-                loading={setStatus.isPending}
-                onClick={() =>
-                  setStatus.mutate(
-                    { id: session.id, status: "scheduled" },
-                    { onSuccess: onDone },
-                  )
-                }
-              >
-                Restore
-              </Button>
-            )
-          }
+          title='This session is missed.'
         />
       )}
 
-      {session.status === "scheduled" && (
-        <div className='mb-4 flex items-center justify-between gap-3 rounded-md border bg-surface-muted p-3'>
-          <div>
-            <div className='text-sm text-foreground'>Complete session</div>
-            <p className='text-xs text-muted-foreground'>
-              {started
-                ? "Record the salary and any fees once it has taken place."
-                : "Available once the session has started."}
-            </p>
-          </div>
-          <Button
-            size='small'
-            disabled={!access.canEdit || !started}
-            onClick={() => {
-              onDone();
-              openCheckout(session, ctx);
-            }}
-          >
-            Complete
-          </Button>
-        </div>
-      )}
-
-      <div className='flex items-center gap-2'>
-        {session.status === "scheduled" && access.canEdit && (
-          <Popconfirm
-            title='Cancel this session?'
-            description='It stays on the schedule, marked cancelled. You can restore it later.'
-            okText='Cancel session'
-            cancelText='Keep'
-            onConfirm={() =>
-              setStatus.mutate(
-                { id: session.id, status: "cancelled" },
-                { onSuccess: onDone },
-              )
-            }
-          >
-            <Button loading={setStatus.isPending}>Cancel session</Button>
-          </Popconfirm>
-        )}
-        <Button className='ms-auto' onClick={onDone}>
-          Close
-        </Button>
-        {access.canEdit &&
-          (completed ? (
-            // A completed session isn't edited; reopening reverts it.
-            <Popconfirm
-              title='Undo completion?'
-              description='It goes back to scheduled and its salary and fees are cleared.'
-              okText='Undo completion'
-              onConfirm={() => reopen.mutate(session.id, { onSuccess: onDone })}
-            >
-              <Button
-                type='primary'
-                icon={<RotateCcw />}
-                loading={reopen.isPending}
-              >
-                Undo completion
-              </Button>
-            </Popconfirm>
-          ) : (
-            <Button type='primary' icon={<Pencil />} onClick={onEdit}>
-              Edit
-            </Button>
-          ))}
-      </div>
+      <SessionActions session={session} onEdit={onEdit} onDone={onDone} />
     </div>
   );
 }
