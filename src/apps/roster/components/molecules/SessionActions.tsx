@@ -141,6 +141,7 @@ export function SessionActions({
             openCheckout(session, ctx);
           }}
           {...look("Complete", "primary", true)}
+          className='hover:text-primary'
         />
       )}
     </div>

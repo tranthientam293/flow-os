@@ -9,7 +9,7 @@ import {
 } from "../../apis/session-types";
 import { useRoster } from "../../context/roster-context";
 import type { SessionType } from "../../models/roster";
-import { formatRate } from "../../utils/money";
+import { formatRate, moneyInputProps } from "../../utils/money";
 
 export function SessionTypesView() {
   return (
@@ -64,7 +64,7 @@ function SessionTypesPanel() {
           />
           <InputNumber<number>
             value={rate}
-            min={0}
+            {...moneyInputProps}
             placeholder='Default salary / hour'
             aria-label='Default salary per hour'
             className='w-48'
@@ -123,7 +123,7 @@ function SessionTypeRow({ type }: { type: SessionType }) {
           <InputNumber<number>
             size='small'
             value={rate}
-            min={0}
+            {...moneyInputProps}
             placeholder='Salary / hour'
             aria-label='Default salary per hour'
             className='w-40'
