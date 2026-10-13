@@ -15,6 +15,7 @@ export type RosterTab =
   "schedule" | "week" | "trainers" | "branches" | "types" | "settings";
 
 export const SETTINGS_PATH = "settings";
+export const INCOME_PATH = "income";
 
 export const SECTIONS: {
   key: RosterSection;

@@ -13,12 +13,18 @@ import {
   RegisterCenterModal,
   RosterHeader,
 } from "./components/organisms";
-import { SECTIONS, SETTINGS_PATH, sectionOf } from "./constants/routes";
+import {
+  INCOME_PATH,
+  SECTIONS,
+  SETTINGS_PATH,
+  sectionOf,
+} from "./constants/routes";
 import { useRosterPaths } from "./hooks/useRosterPaths";
 
 // Routes, relative to /apps/roster:
 //   centers[/:centerId/:tab]  centers the user owns (schedule, trainers, branches, settings)
 //   work[/:centerId/:tab]     the user's trainer schedule (week, schedule)
+//   work/income               the user's completed sessions in a month, with their pay
 //   settings                  the user's profile, preferences, centers and the way back to flowOS
 export default function RosterApp() {
   const { user } = useFlowApp();
@@ -59,6 +65,18 @@ export default function RosterApp() {
                   index
                   element={<SectionPage section={s.key} {...sectionProps} />}
                 />
+                {s.key === "work" && (
+                  <Route
+                    path={INCOME_PATH}
+                    element={
+                      <SectionPage
+                        section={s.key}
+                        view='income'
+                        {...sectionProps}
+                      />
+                    }
+                  />
+                )}
                 <Route
                   path=':centerId/:tab?'
                   element={<SectionPage section={s.key} {...sectionProps} />}

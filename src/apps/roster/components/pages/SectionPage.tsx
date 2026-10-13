@@ -5,17 +5,25 @@ import { STORAGE_KEYS } from "../../constants/keys";
 import { sectionOf, type RosterSection } from "../../constants/routes";
 import { useRosterPaths } from "../../hooks/useRosterPaths";
 import type { Membership } from "../../models/roster";
-import { AllCentersSchedule, CenterList, CenterShell } from "../organisms";
+import {
+  CenterList,
+  CenterShell,
+  WorkShell,
+  type WorkView,
+} from "../organisms";
 import { SectionEmpty } from "../molecules";
 
 export function SectionPage({
   section,
+  view = "schedule",
   memberships,
   email,
   inviteCount,
   onCreateCenter,
 }: {
   section: RosterSection;
+  // My schedule without a center: its Schedule or Income tab.
+  view?: WorkView;
   memberships: Membership[];
   email: string;
   inviteCount: number;
@@ -59,7 +67,7 @@ export function SectionPage({
         onCreateCenter={onCreateCenter}
       />
     ) : (
-      <AllCentersSchedule section={section} memberships={list} />
+      <WorkShell section={section} view={view} memberships={list} />
     );
 
   if (!membership) return <Navigate replace to={paths.section(section)} />;
