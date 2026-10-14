@@ -3,9 +3,10 @@ import { NavLink, useNavigate } from "react-router";
 import { Avatar, Dropdown } from "antd";
 import { APP_NAME } from "@/constants";
 import { useFlowApp } from "@/context";
+import { useBackToPlatform } from "@/hooks";
 import { cn } from "@/utils";
+import { ROSTER_LEAVE_NOTE } from "../../constants/options";
 import { SECTIONS } from "../../constants/routes";
-import { useBackToPlatform } from "../../hooks/useBackToPlatform";
 import { useRosterPaths } from "../../hooks/useRosterPaths";
 import type { PendingInvite } from "../../models/roster";
 import { InviteBell } from "./InviteBell";
@@ -58,7 +59,7 @@ function AccountMenu() {
   const { user } = useFlowApp();
   const navigate = useNavigate();
   const paths = useRosterPaths();
-  const { backToPlatform, holder } = useBackToPlatform();
+  const { backToPlatform, holder } = useBackToPlatform(ROSTER_LEAVE_NOTE);
 
   return (
     <>

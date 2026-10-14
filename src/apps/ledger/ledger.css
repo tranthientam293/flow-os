@@ -1,0 +1,115 @@
+/*
+ * Ledger's dialogs (transitionName MODAL_TRANSITION, constants/modal.ts).
+ * Desktop: fade in and scale up from 96% at the center, instead of antd's
+ * zoom from the click point. Below md: the slide-up bottom sheet, like the
+ * rest of flowOS (styles/antd.css). Reduced motion: a plain fade.
+ */
+@layer components {
+  .ledger-modal-enter,
+  .ledger-modal-appear,
+  .ledger-modal-leave {
+    /* antd sets the click point inline. */
+    transform-origin: center !important;
+    animation-fill-mode: both;
+  }
+
+  .ledger-modal-enter,
+  .ledger-modal-appear {
+    opacity: 0;
+    animation-duration: 200ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ledger-modal-leave {
+    animation-duration: 150ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  .ledger-modal-enter.ledger-modal-enter-active,
+  .ledger-modal-appear.ledger-modal-appear-active {
+    animation-name: ledger-modal-in;
+  }
+
+  .ledger-modal-leave.ledger-modal-leave-active {
+    animation-name: ledger-modal-out;
+  }
+
+  @media (max-width: 767.98px) {
+    .ledger-modal-enter,
+    .ledger-modal-appear {
+      opacity: 1;
+      transform: translateY(100%);
+      animation-duration: 250ms;
+    }
+
+    .ledger-modal-leave {
+      animation-duration: 200ms;
+    }
+
+    .ledger-modal-enter.ledger-modal-enter-active,
+    .ledger-modal-appear.ledger-modal-appear-active {
+      animation-name: flow-sheet-up;
+    }
+
+    .ledger-modal-leave.ledger-modal-leave-active {
+      animation-name: flow-sheet-down;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ledger-modal-enter,
+    .ledger-modal-appear {
+      opacity: 0;
+      transform: none;
+    }
+
+    .ledger-modal-enter.ledger-modal-enter-active,
+    .ledger-modal-appear.ledger-modal-appear-active {
+      animation-name: ledger-modal-fade-in;
+    }
+
+    .ledger-modal-leave.ledger-modal-leave-active {
+      animation-name: ledger-modal-fade-out;
+    }
+  }
+}
+
+@keyframes ledger-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ledger-modal-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes ledger-modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ledger-modal-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

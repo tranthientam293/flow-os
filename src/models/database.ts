@@ -24,6 +24,18 @@ export type Database = {
         Update: { app_id?: string; installed_at?: string; position?: number; user_id?: string }
         Relationships: []
       }
+      ledger_expenses: {
+        Row: { amount: number; category_id: string; created_at: string; id: string; note: string | null; spent_on: string; updated_at: string; user_id: string }
+        Insert: { amount: number; category_id: string; created_at?: string; id?: string; note?: string | null; spent_on?: string; updated_at?: string; user_id?: string }
+        Update: { amount?: number; category_id?: string; created_at?: string; id?: string; note?: string | null; spent_on?: string; updated_at?: string; user_id?: string }
+        Relationships: []
+      }
+      ledger_settings: {
+        Row: { created_at: string; monthly_limit: number | null; updated_at: string; user_id: string }
+        Insert: { created_at?: string; monthly_limit?: number | null; updated_at?: string; user_id?: string }
+        Update: { created_at?: string; monthly_limit?: number | null; updated_at?: string; user_id?: string }
+        Relationships: []
+      }
       notes: {
         Row: { body: string; created_at: string; id: string; pinned: boolean; title: string; updated_at: string; user_id: string }
         Insert: { body?: string; created_at?: string; id?: string; pinned?: boolean; title?: string; updated_at?: string; user_id?: string }

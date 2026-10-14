@@ -1,0 +1,4 @@
+# Supabase CLI settings, for applying supabase/migrations/ to flow-os-prod by
+# hand (`supabase link` + `supabase db push`; see README → Database).
+# Everything else keeps the CLI defaults.
+project_id = "flow-os"

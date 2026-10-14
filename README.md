@@ -104,3 +104,16 @@ The two `VITE_*` values are passed to `vercel build` from these GitHub secrets, 
 | `app_storage`    | Per-user, per-app key/value store behind `useAppStorage` |
 
 Every table has RLS enabled, with policies scoped to `auth.uid()`. After changing the schema, regenerate `src/models/database.ts` with `supabase gen types typescript`.
+
+### Migrating production
+
+Migrations reach `flow-os-prod` only by hand; deploys don't touch the database. Before (or right after) deploying code that needs a new migration, run from the repo root:
+
+```sh
+npx supabase login
+npx supabase link --project-ref xxzybkxzpzlhubdthsdt   # flow-os-prod; asks for the database password
+npx supabase migration list                            # local files vs. what prod has applied
+npx supabase db push                                   # applies the files prod hasn't recorded
+```
+
+`db push` matches migrations by the timestamp in the file name, and `flow-os-prod`'s history uses those timestamps. Never edit a migration that has shipped; add a new one.

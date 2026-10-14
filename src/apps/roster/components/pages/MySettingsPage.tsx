@@ -5,7 +5,7 @@ import { Button, Form, Input, Popconfirm, Segmented, Select, Spin } from "antd";
 import { Badge } from "@/components/atoms";
 import { SettingsPanel } from "@/components/molecules";
 import { APP_NAME } from "@/constants";
-import { useAppStorage } from "@/hooks";
+import { useAppStorage, useBackToPlatform } from "@/hooks";
 import { leaveCenterMutationOptions } from "../../apis/centers";
 import {
   memberQueryOptions,
@@ -13,14 +13,14 @@ import {
   type MyProfile,
 } from "../../apis/members";
 import { STORAGE_KEYS } from "../../constants/keys";
-import { useBackToPlatform } from "../../hooks/useBackToPlatform";
+import { ROSTER_LEAVE_NOTE } from "../../constants/options";
 import type { Membership } from "../../models/roster";
 
 export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
   const [centerId, setCenterId] = useState(memberships[0]?.center.id);
   const membership =
     memberships.find((m) => m.center.id === centerId) ?? memberships[0];
-  const { backToPlatform, holder } = useBackToPlatform();
+  const { backToPlatform, holder } = useBackToPlatform(ROSTER_LEAVE_NOTE);
 
   return (
     <div className='mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 sm:px-6'>
