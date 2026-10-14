@@ -22,6 +22,7 @@ import {
   matchesStatuses,
   statusesOrAll,
 } from "../../constants/options";
+import { useRegisterAddAction } from "../../context/add-action-context";
 import { useCenterContexts } from "../../hooks/useCenterContexts";
 import type { Membership, Session, SessionStatus } from "../../models/roster";
 import {
@@ -141,6 +142,7 @@ export function AllCentersSchedule({
       centerId: visible.length === 1 ? visible[0].center.id : null,
       request: { ...request, nonce: Date.now() },
     });
+  useRegisterAddAction(() => book());
 
   const columns: GridColumn[] = days.map((date) => ({
     key: date,
@@ -239,7 +241,13 @@ export function AllCentersSchedule({
               },
             ]}
           />
-          <Button type='primary' icon={<Plus />} onClick={() => book()}>
+          {/* Phones create from the bottom bar's +. */}
+          <Button
+            type='primary'
+            icon={<Plus />}
+            onClick={() => book()}
+            className='hidden sm:inline-flex'
+          >
             Create
           </Button>
         </div>

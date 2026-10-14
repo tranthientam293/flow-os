@@ -22,15 +22,16 @@ export function RosterHeader({
   const paths = useRosterPaths();
 
   return (
-    <header className='sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-card px-2 sm:gap-4 sm:px-4'>
-      <span className='hidden items-center gap-2 text-sm font-medium text-foreground sm:flex'>
+    <header className='sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-card px-4 sm:gap-4'>
+      {/* Phones: just the name and invites; navigation is in the bottom bar. */}
+      <span className='flex items-center gap-2 text-sm font-medium text-foreground'>
         <CalendarRange className='size-4 text-brand-strong' />
         {app.name}
       </span>
       <nav
         aria-label='Roster'
         // Scrolls sideways on narrow phones instead of overflowing.
-        className='flex min-w-0 [scrollbar-width:none] items-center gap-1 overflow-x-auto'
+        className='hidden min-w-0 [scrollbar-width:none] items-center gap-1 overflow-x-auto sm:flex'
       >
         {SECTIONS.map((s) => (
           <NavLink
@@ -49,7 +50,9 @@ export function RosterHeader({
       </nav>
       <div className='ms-auto flex items-center gap-1'>
         <InviteBell invites={invites} onJoined={onJoined} />
-        <AccountMenu />
+        <div className='hidden sm:block'>
+          <AccountMenu />
+        </div>
       </div>
     </header>
   );

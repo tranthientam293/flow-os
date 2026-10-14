@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CenteredSpinner } from "@/components/atoms";
+import { AppFooter } from "@/components/molecules";
 import { useFlowApp } from "@/context";
 import {
   membershipsQueryOptions,
@@ -9,8 +10,10 @@ import {
 } from "./apis/centers";
 import { MySettingsPage, SectionPage } from "./components/pages";
 import {
+  AddActionProvider,
   CheckoutProvider,
   RegisterCenterModal,
+  RosterBottomBar,
   RosterHeader,
 } from "./components/organisms";
 import {
@@ -48,57 +51,62 @@ export default function RosterApp() {
   };
 
   return (
-    <CheckoutProvider>
-      <div className='flex min-h-full flex-col'>
-        <RosterHeader
-          invites={inviteList}
-          onJoined={(centerId) => navigate(paths.center("work", centerId))}
-        />
-        {memberships.isLoading ? (
-          <CenteredSpinner />
-        ) : (
-          <Routes>
-            <Route index element={<Navigate replace to={home} />} />
-            {SECTIONS.map((s) => (
-              <Route key={s.key} path={s.key}>
-                <Route
-                  index
-                  element={<SectionPage section={s.key} {...sectionProps} />}
-                />
-                {s.key === "work" && (
+    <AddActionProvider>
+      <CheckoutProvider>
+        {/* On phones the navigation moves to the bottom bar; leave room for it. */}
+        <div className='flex min-h-full flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0'>
+          <RosterHeader
+            invites={inviteList}
+            onJoined={(centerId) => navigate(paths.center("work", centerId))}
+          />
+          {memberships.isLoading ? (
+            <CenteredSpinner />
+          ) : (
+            <Routes>
+              <Route index element={<Navigate replace to={home} />} />
+              {SECTIONS.map((s) => (
+                <Route key={s.key} path={s.key}>
                   <Route
-                    path={INCOME_PATH}
-                    element={
-                      <SectionPage
-                        section={s.key}
-                        view='income'
-                        {...sectionProps}
-                      />
-                    }
+                    index
+                    element={<SectionPage section={s.key} {...sectionProps} />}
                   />
-                )}
-                <Route
-                  path=':centerId/:tab?'
-                  element={<SectionPage section={s.key} {...sectionProps} />}
-                />
-              </Route>
-            ))}
-            <Route
-              path={SETTINGS_PATH}
-              element={<MySettingsPage memberships={list} />}
-            />
-            <Route path='*' element={<Navigate replace to={home} />} />
-          </Routes>
-        )}
-        <RegisterCenterModal
-          open={creating}
-          onClose={() => setCreating(false)}
-          onCreated={(centerId) => {
-            setCreating(false);
-            navigate(paths.center("centers", centerId, "branches"));
-          }}
-        />
-      </div>
-    </CheckoutProvider>
+                  {s.key === "work" && (
+                    <Route
+                      path={INCOME_PATH}
+                      element={
+                        <SectionPage
+                          section={s.key}
+                          view='income'
+                          {...sectionProps}
+                        />
+                      }
+                    />
+                  )}
+                  <Route
+                    path=':centerId/:tab?'
+                    element={<SectionPage section={s.key} {...sectionProps} />}
+                  />
+                </Route>
+              ))}
+              <Route
+                path={SETTINGS_PATH}
+                element={<MySettingsPage memberships={list} />}
+              />
+              <Route path='*' element={<Navigate replace to={home} />} />
+            </Routes>
+          )}
+          <RegisterCenterModal
+            open={creating}
+            onClose={() => setCreating(false)}
+            onCreated={(centerId) => {
+              setCreating(false);
+              navigate(paths.center("centers", centerId, "branches"));
+            }}
+          />
+          <AppFooter />
+          <RosterBottomBar />
+        </div>
+      </CheckoutProvider>
+    </AddActionProvider>
   );
 }

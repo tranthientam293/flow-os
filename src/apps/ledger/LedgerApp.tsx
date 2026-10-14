@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
-import { APP_NAME } from "@/constants";
+import { AppFooter } from "@/components/molecules";
 import {
   ExpenseEditorProvider,
   LedgerBottomBar,
@@ -14,9 +14,6 @@ import "./ledger.css";
 //   (index)    dashboard: the month at a glance
 //   expenses   the month's expenses, grouped by day
 //   settings   the user's account and the way back to flowOS
-// For the footer; read once when the app loads.
-const COPYRIGHT_YEAR = new Date().getFullYear();
-
 export default function LedgerApp() {
   const paths = useLedgerPaths();
 
@@ -31,11 +28,7 @@ export default function LedgerApp() {
           <Route path={SETTINGS_PATH} element={<SettingsPage />} />
           <Route path='*' element={<Navigate replace to={paths.base} />} />
         </Routes>
-        {/* Quiet copyright line. On phones the extra bottom space keeps it
-            clear of the bottom bar's raised + button. */}
-        <footer className='mt-auto px-4 pt-8 pb-10 text-center text-[11px] text-muted-foreground/70 sm:pb-6'>
-          Original by tranthientam2903 · © {COPYRIGHT_YEAR} {APP_NAME}
-        </footer>
+        <AppFooter />
         <LedgerBottomBar />
       </div>
     </ExpenseEditorProvider>

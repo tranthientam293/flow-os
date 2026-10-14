@@ -1,3 +1,4 @@
+export * from "./AddActionProvider";
 export * from "./AllCentersSchedule";
 export * from "./BranchesView";
 export * from "./CenterList";
@@ -10,6 +11,7 @@ export * from "./MySalaryForm";
 export * from "./MyWeekView";
 export * from "./OwnerAsTrainerPanel";
 export * from "./RegisterCenterModal";
+export * from "./RosterBottomBar";
 export * from "./RosterHeader";
 export * from "./ScheduleView";
 export * from "./SessionDrawer";

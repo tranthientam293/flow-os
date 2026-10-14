@@ -29,6 +29,7 @@ import {
   type RosterContextValue,
   type ScheduleFilters,
 } from "../../context/roster-context";
+import { useRegisterAddAction } from "../../context/add-action-context";
 import { useRosterPaths } from "../../hooks/useRosterPaths";
 import type { Membership } from "../../models/roster";
 import { BranchesView } from "./BranchesView";
@@ -118,6 +119,11 @@ export function CenterShell({
   );
 
   const tabs = sectionOf(section).tabs;
+  // The phone bottom bar's + creates a session from the schedules.
+  useRegisterAddAction(
+    () => value.openBooking(),
+    tab === "schedule" || tab === "week",
+  );
 
   return (
     <RosterContext.Provider value={value}>
@@ -174,17 +180,6 @@ export function CenterShell({
           )}
         </div>
       </div>
-      {tab === "schedule" && (
-        <Button
-          type='primary'
-          shape='circle'
-          size='large'
-          icon={<Plus />}
-          aria-label='Create session'
-          onClick={() => value.openBooking()}
-          className='fixed right-4 bottom-6 z-20 shadow-lg sm:hidden'
-        />
-      )}
       <SessionDrawer request={booking} onClose={() => setBooking(null)} />
     </RosterContext.Provider>
   );

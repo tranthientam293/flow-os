@@ -1,3 +1,4 @@
+export * from "./AppFooter";
 export * from "./CopyButton";
 export * from "./EmptyState";
 export * from "./HealthDots";
