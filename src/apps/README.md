@@ -46,7 +46,7 @@ The id uses `a-z 0-9 -`, must be unique, and must never change once shipped: ins
 
 ## Boundaries
 
-- An app may import from the platform: `@/components/atoms`, `@/components/molecules`, `@/libs`, `@/utils`, `@/types`, `@/constants`, `useFlowApp()` and `useAppStorage()`. Always import the folder (`@/types`), never a file inside it (`@/types/app`).
+- An app may import from the platform: `@/components/atoms`, `@/components/molecules`, `@/libs`, `@/utils`, `@/types`, `@/constants`, `useFlowApp()`, `useAppStorage()` and `useBackToPlatform()`. Always import the folder (`@/types`), never a file inside it (`@/types/app`).
 - An app imports its own files with relative paths, never from another app's folder. As in `src/components`, components come through their level's barrel (`./components/organisms`, or `../atoms` from another level), and a file imports a sibling in the same level directly (`./EntryList`).
 - Platform code never imports from an app folder; only `registry.ts` touches apps, through their manifests.
 
@@ -54,8 +54,9 @@ The id uses `a-z 0-9 -`, must be unique, and must never change once shipped: ins
 
 - `useFlowApp()` from `@/context`: `{ app, user, supabase }`. `supabase` is already signed in as the current user.
 - `useAppStorage(key, initial)` from `@/hooks`: persistent per-user state for this app, with no migration needed.
+- `useBackToPlatform(note?)` from `@/hooks`: `{ backToPlatform, holder }`. `backToPlatform()` asks for confirmation, then returns to the flowOS Overview; `note` adds an app-specific line to the confirmation. Render `holder` once in the component that calls it.
 - **Dates:** show them as `YYYY/MM/DD` everywhere: `formatDate()` from `@/libs`, or `DATE_FORMAT` / `DAY_FORMAT` (`ddd, YYYY/MM/DD`) from `@/constants` with dayjs. Relative times use `fromNow()`.
-- **A way back to flowOS (required):** apps open full screen with no platform top bar or sidebar, so every screen must offer a way back to the Overview, e.g. a "Back to flowOS" action that asks for confirmation and then navigates to `ROUTES.HOME` (from `@/constants`). Roster’s `hooks/useBackToPlatform.ts` is an example.
+- **A way back to flowOS (required):** apps open full screen with no platform top bar or sidebar, so every screen must offer a way back to the Overview, e.g. a "Back to flowOS" action built on `useBackToPlatform()` from `@/hooks`.
 
 ## App data
 

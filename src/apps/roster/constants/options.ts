@@ -46,3 +46,6 @@ export const MIN_SESSION_MINUTES = 60;
 export const MAX_SESSION_HOURS = 12;
 
 export const OVERLAP_CONSTRAINT = "roster_sessions_no_overlap";
+
+// Extra line in the Back to flowOS confirmation.
+export const ROSTER_LEAVE_NOTE = "Your centers and sessions stay as they are.";
