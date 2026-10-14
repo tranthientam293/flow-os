@@ -89,9 +89,9 @@ export type Database = {
         ]
       }
       roster_repeats: {
-        Row: { center_id: string; branch_id: string; created_at: string; created_by: string | null; ends_time: string; generated_through: string; id: string; member_id: string; note: string | null; session_type_id: string | null; starts_on: string; starts_time: string; stopped_at: string | null; title: string | null; weekdays: number[] }
-        Insert: { center_id: string; branch_id: string; created_at?: string; created_by?: string | null; ends_time: string; generated_through: string; id?: string; member_id: string; note?: string | null; session_type_id?: string | null; starts_on: string; starts_time: string; stopped_at?: string | null; title?: string | null; weekdays: number[] }
-        Update: { center_id?: string; branch_id?: string; created_at?: string; created_by?: string | null; ends_time?: string; generated_through?: string; id?: string; member_id?: string; note?: string | null; session_type_id?: string | null; starts_on?: string; starts_time?: string; stopped_at?: string | null; title?: string | null; weekdays?: number[] }
+        Row: { center_id: string; branch_id: string; created_at: string; created_by: string | null; ends_time: string; generated_through: string; id: string; member_id: string; note: string | null; session_type_id: string | null; starts_on: string; starts_time: string; stopped_at: string | null; title: string | null; trainee_count: number; weekdays: number[] }
+        Insert: { center_id: string; branch_id: string; created_at?: string; created_by?: string | null; ends_time: string; generated_through: string; id?: string; member_id: string; note?: string | null; session_type_id?: string | null; starts_on: string; starts_time: string; stopped_at?: string | null; title?: string | null; trainee_count?: number; weekdays: number[] }
+        Update: { center_id?: string; branch_id?: string; created_at?: string; created_by?: string | null; ends_time?: string; generated_through?: string; id?: string; member_id?: string; note?: string | null; session_type_id?: string | null; starts_on?: string; starts_time?: string; stopped_at?: string | null; title?: string | null; trainee_count?: number; weekdays?: number[] }
         Relationships: [
           { foreignKeyName: "roster_repeats_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
         ]
@@ -175,8 +175,13 @@ export type Database = {
         Returns: undefined
       }
       roster_reopen_session: { Args: { p_session_id: string }; Returns: undefined }
+      roster_stop_repeat: { Args: { p_repeat_id: string }; Returns: number }
       roster_start_repeat: {
-        Args: { p_branch_id: string; p_center_id: string; p_ends_time: string; p_member_id: string; p_note: string | null; p_session_type_id: string | null; p_starts_on: string; p_starts_time: string; p_title: string | null; p_weekdays: number[] }
+        Args: { p_branch_id: string; p_center_id: string; p_ends_time: string; p_member_id: string; p_note: string | null; p_session_type_id: string | null; p_starts_on: string; p_starts_time: string; p_title: string | null; p_trainee_count?: number; p_weekdays: number[] }
+        Returns: number
+      }
+      roster_update_repeat: {
+        Args: { p_branch_id: string; p_ends_time: string; p_note: string | null; p_repeat_id: string; p_session_type_id: string | null; p_starts_time: string; p_title: string | null; p_trainee_count: number; p_weekdays: number[] }
         Returns: number
       }
       roster_update_my_profile: {

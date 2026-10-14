@@ -18,6 +18,7 @@ import {
 } from "./components/organisms";
 import {
   INCOME_PATH,
+  REPEATS_PATH,
   SECTIONS,
   SETTINGS_PATH,
   sectionOf,
@@ -28,6 +29,7 @@ import { useRosterPaths } from "./hooks/useRosterPaths";
 //   centers[/:centerId/:tab]  centers the user owns (schedule, trainers, branches, settings)
 //   work[/:centerId/:tab]     the user's trainer schedule (week, schedule)
 //   work/income               the user's completed sessions in a month, with their pay
+//   work/repeats              the user's weekly repeats: edit or stop them
 //   settings                  the user's profile, preferences, centers and the way back to flowOS
 export default function RosterApp() {
   const { user } = useFlowApp();
@@ -77,6 +79,18 @@ export default function RosterApp() {
                         <SectionPage
                           section={s.key}
                           view='income'
+                          {...sectionProps}
+                        />
+                      }
+                    />
+                  )}
+                  {s.key === "work" && (
+                    <Route
+                      path={REPEATS_PATH}
+                      element={
+                        <SectionPage
+                          section={s.key}
+                          view='repeats'
                           {...sectionProps}
                         />
                       }

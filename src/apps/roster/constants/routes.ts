@@ -1,6 +1,5 @@
 import {
   CalendarDays,
-  ListTodo,
   MapPin,
   Settings2,
   Shapes,
@@ -12,10 +11,17 @@ import type { Membership } from "../models/roster";
 export type RosterSection = "centers" | "work";
 
 export type RosterTab =
-  "schedule" | "week" | "trainers" | "branches" | "types" | "settings";
+  | "schedule"
+  | "week"
+  | "trainers"
+  | "branches"
+  | "types"
+  | "repeats"
+  | "settings";
 
 export const SETTINGS_PATH = "settings";
 export const INCOME_PATH = "income";
+export const REPEATS_PATH = "repeats";
 
 export const SECTIONS: {
   key: RosterSection;
@@ -30,10 +36,12 @@ export const SECTIONS: {
     label: "Manage centers",
     title: "Centers you own",
     description:
-      "Open a center to see its schedule and manage its trainers, branches, session types and settings.",
+      "Open a center to manage its trainers, branches, session types and settings.",
     includes: (m) => m.role === "owner",
+    // Hidden in this release: the center's Schedule and Repeats tabs (their
+    // views, ScheduleView and CenterRepeatsView, stay in the code). Links to
+    // them land on the first tab.
     tabs: [
-      { key: "schedule", label: "Schedule", icon: CalendarDays },
       { key: "trainers", label: "Trainers", icon: Users },
       { key: "branches", label: "Branches", icon: MapPin },
       { key: "types", label: "Session types", icon: Shapes },
@@ -47,10 +55,9 @@ export const SECTIONS: {
     description:
       "Your sessions at every center you train at. Book, change or cancel them here.",
     includes: (m) => m.role === "trainer" || m.also_trainer,
-    tabs: [
-      { key: "week", label: "My week", icon: ListTodo },
-      { key: "schedule", label: "Calendar", icon: CalendarDays },
-    ],
+    // Hidden in this release: the My week tab (MyWeekView stays in the code).
+    // Links to it land on Calendar.
+    tabs: [{ key: "schedule", label: "Calendar", icon: CalendarDays }],
   },
 ];
 

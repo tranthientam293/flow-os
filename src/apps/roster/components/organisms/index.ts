@@ -11,6 +11,8 @@ export * from "./MySalaryForm";
 export * from "./MyWeekView";
 export * from "./OwnerAsTrainerPanel";
 export * from "./RegisterCenterModal";
+export * from "./RepeatModal";
+export * from "./RepeatsView";
 export * from "./RosterBottomBar";
 export * from "./RosterHeader";
 export * from "./ScheduleView";

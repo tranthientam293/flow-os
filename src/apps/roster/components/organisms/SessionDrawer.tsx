@@ -11,6 +11,7 @@ import {
   Input,
   InputNumber,
   Select,
+  Switch,
   TimePicker,
 } from "antd";
 import { EmptyState } from "@/components/molecules";
@@ -21,6 +22,7 @@ import {
   saveSessionMutationOptions,
   sessionsQueryOptions,
 } from "../../apis/sessions";
+import { startRepeatMutationOptions } from "../../apis/repeats";
 import {
   MAX_SESSION_HOURS,
   MIN_SESSION_MINUTES,
@@ -41,6 +43,7 @@ import {
   todayIn,
   zonedIso,
 } from "../../utils/time";
+import { WeekdayPicker } from "../molecules";
 import { SessionView } from "./SessionView";
 
 type Values = {
@@ -53,6 +56,9 @@ type Values = {
   time: [Dayjs, Dayjs];
   title?: string;
   note?: string;
+  // New sessions only: repeat every week on these days (0 = Sunday).
+  repeat?: boolean;
+  weekdays?: number[];
 };
 
 type TimeRange = [Dayjs | null, Dayjs | null] | null;
@@ -155,18 +161,25 @@ export function SessionForm({
   const access = existing ? sessionAccess(existing, ctx) : null;
   const readOnly = !!access && !access.canEdit;
   const save = useMutation(saveSessionMutationOptions(center.id));
+  const startRepeat = useMutation(startRepeatMutationOptions(center.id));
   const [form] = Form.useForm<Values>();
   const timeRef = useRef<ComponentRef<typeof TimePicker.RangePicker>>(null);
   // The start time last shown in the open picker, to tell an hour click from
   // a minute click.
   const pickingStart = useRef<Dayjs | null>(null);
 
+  // Only the owner, and only in Manage centers, books for other trainers; My
+  // schedule always books yourself.
+  const assignsAnyone = isOwner && ctx.section === "centers";
   const memberId =
     Form.useWatch("memberId", form) ??
     existing?.member_id ??
-    (isOwner ? "" : meId);
+    (assignsAnyone ? "" : meId);
   const date = Form.useWatch("date", form);
   const time = Form.useWatch("time", form);
+  // One time by default; the switch turns on a weekly repeat.
+  const repeatOn = Form.useWatch("repeat", form);
+  const repeat = !existing && !!repeatOn;
   const sessionTypeId = Form.useWatch("sessionTypeId", form) as
     string | undefined;
   // Per-trainee types need the number of trainees.
@@ -269,9 +282,10 @@ export function SessionForm({
         const requested = request.date ?? today;
         const onlyType = typeChoices.length === 1 ? typeChoices[0] : null;
         return {
-          memberId:
-            request.memberId ??
-            (isOwner && !memberById.get(meId)?.also_trainer ? undefined : meId),
+          memberId: assignsAnyone
+            ? (request.memberId ??
+              (memberById.get(meId)?.also_trainer ? meId : undefined))
+            : meId,
           sessionTypeId: onlyType?.id,
           title: onlyType?.name,
           branchId:
@@ -314,6 +328,24 @@ export function SessionForm({
   const onFinish = (values: Values) => {
     const day = values.date.format(DATE);
     const [start, end] = values.time;
+    if (repeat) {
+      startRepeat.mutate(
+        {
+          memberId: values.memberId,
+          branchId: values.branchId as string,
+          sessionTypeId: values.sessionTypeId ?? null,
+          weekdays: values.weekdays ?? [],
+          startsTime: start.format(TIME),
+          endsTime: end.format(TIME),
+          title: values.title?.trim() || null,
+          note: values.note?.trim() || null,
+          startsOn: day,
+          traineeCount: values.traineeCount ?? 1,
+        },
+        { onSuccess: onDone },
+      );
+      return;
+    }
     save.mutate(
       {
         id: existing?.id,
@@ -386,7 +418,7 @@ export function SessionForm({
           Editable until {formatDate(latestDate)} (end of this month)
         </p>
       )}
-      {isOwner ? (
+      {assignsAnyone ? (
         <Form.Item
           name='memberId'
           label='Trainer'
@@ -465,15 +497,16 @@ export function SessionForm({
 
       <Form.Item
         name='date'
-        label='Date'
+        label={repeat ? "Starts on" : "Date"}
         rules={[{ required: true }]}
-        extra={`Sessions can be booked from ${formatDate(earliestDate)} to ${formatDate(latestDate)} (this month).`}
       >
         <DatePicker
           className='w-full'
           format={DAY_FORMAT}
           allowClear={false}
-          disabledDate={disabledDate}
+          disabledDate={(d) =>
+            repeat ? d.format(DATE) < today : disabledDate(d)
+          }
         />
       </Form.Item>
 
@@ -487,7 +520,7 @@ export function SessionForm({
               {hours.close === "24:00" ? "midnight" : hours.close}.
             </div>
 
-            {conflict && !readOnly && (
+            {conflict && !readOnly && !repeat && (
               <Alert
                 type='warning'
                 showIcon
@@ -538,6 +571,42 @@ export function SessionForm({
         />
       </Form.Item>
 
+      {/* New sessions: one time (default) or repeat every week. */}
+      {!existing && (
+        <div className='mb-4 flex items-center justify-between gap-3'>
+          <span className='flex items-center gap-2 text-sm text-foreground'>
+            Repeat
+          </span>
+          <Form.Item name='repeat' valuePropName='checked' noStyle>
+            <Switch
+              aria-label='Repeat every week'
+              onChange={(on) => {
+                const current = form.getFieldValue("weekdays") as
+                  number[] | undefined;
+                if (on && !current?.length && date)
+                  form.setFieldValue("weekdays", [date.day()]);
+              }}
+            />
+          </Form.Item>
+        </div>
+      )}
+
+      {repeat && (
+        <Form.Item
+          name='weekdays'
+          rules={[
+            {
+              validator: (_rule, value: number[] | undefined) =>
+                value?.length
+                  ? Promise.resolve()
+                  : Promise.reject(new Error("Pick at least one day")),
+            },
+          ]}
+        >
+          <WeekdayPicker weekStart={center.week_start} />
+        </Form.Item>
+      )}
+
       <Form.Item name='title' label='Title' rules={[{ max: 120 }]}>
         <Input
           maxLength={120}
@@ -564,8 +633,8 @@ export function SessionForm({
           <Button
             type='primary'
             htmlType='submit'
-            loading={save.isPending}
-            disabled={!!conflict}
+            loading={save.isPending || startRepeat.isPending}
+            disabled={!!conflict && !repeat}
           >
             Save
           </Button>

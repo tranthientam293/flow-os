@@ -10,6 +10,7 @@ import {
   memberBranchesQueryOptions,
 } from "../../apis/branches";
 import { directoryQueryOptions } from "../../apis/centers";
+import { repeatsQueryOptions } from "../../apis/repeats";
 import { trainerRatesQueryOptions } from "../../apis/trainer-rates";
 import { membersQueryOptions } from "../../apis/members";
 import {
@@ -38,6 +39,7 @@ import { ScheduleView } from "./ScheduleView";
 import { SessionDrawer } from "./SessionDrawer";
 import { SessionTypesView } from "./SessionTypesView";
 import { SettingsView } from "./SettingsView";
+import { CenterRepeatsView } from "./RepeatsView";
 import { TrainersView } from "./TrainersView";
 
 export function CenterShell({
@@ -86,6 +88,7 @@ export function CenterShell({
     () =>
       buildRosterContext({
         membership,
+        section,
         directory: directory.data,
         branches: branches.data,
         memberBranches: memberBranches.data,
@@ -118,7 +121,15 @@ export function CenterShell({
     ],
   );
 
-  const tabs = sectionOf(section).tabs;
+  // Repeats only shows while the center has active repeats (or is open).
+  const repeats = useQuery({
+    ...repeatsQueryOptions(center.id),
+    enabled:
+      isOwner && sectionOf(section).tabs.some((t) => t.key === "repeats"),
+  });
+  const tabs = sectionOf(section).tabs.filter(
+    (t) => t.key !== "repeats" || tab === "repeats" || !!repeats.data?.length,
+  );
   // The phone bottom bar's + creates a session from the schedules.
   useRegisterAddAction(
     () => value.openBooking(),
@@ -175,6 +186,7 @@ export function CenterShell({
               {tab === "trainers" && <TrainersView />}
               {tab === "branches" && <BranchesView />}
               {tab === "types" && <SessionTypesView />}
+              {tab === "repeats" && <CenterRepeatsView />}
               {tab === "settings" && <SettingsView />}
             </>
           )}

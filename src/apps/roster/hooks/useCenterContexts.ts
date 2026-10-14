@@ -64,6 +64,7 @@ export function useCenterContexts(
       membership.center.id,
       buildRosterContext({
         membership,
+        section,
         directory: directories[i]?.data,
         branches: branches[i]?.data,
         memberBranches: memberBranches[i]?.data,

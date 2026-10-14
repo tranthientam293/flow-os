@@ -13,7 +13,7 @@ import {
   todayIn,
 } from "../../utils/time";
 import { BranchTag, MemberAvatar, SessionStatusBadge } from "../atoms";
-import { SessionActions, SessionHistory } from "../molecules";
+import { RepeatNotice, SessionActions, SessionHistory } from "../molecules";
 
 // An existing session, read-only, with its actions. Edit switches the drawer
 // to the session form.
@@ -110,6 +110,8 @@ export function SessionView({
           this month)
         </p>
       )}
+
+      <RepeatNotice session={session} onStopped={onDone} />
 
       <SessionHistory sessionId={session.id} />
 

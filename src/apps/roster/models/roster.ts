@@ -33,6 +33,8 @@ export type SessionType = Tables<"roster_session_types">;
 export type MemberSessionType = Tables<"roster_member_session_types">;
 // A trainer's own salary per hour for a session type (theirs to manage).
 export type TrainerRate = Tables<"roster_trainer_rates">;
+// A weekly repeat: books the same time on chosen weekdays, week by week.
+export type Repeat = Tables<"roster_repeats">;
 
 export type Session = Tables<"roster_sessions">;
 export type SessionInsert = TablesInsert<"roster_sessions">;

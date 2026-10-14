@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { ALL_STATUSES } from "../constants/options";
-import type { RosterTab } from "../constants/routes";
+import type { RosterSection, RosterTab } from "../constants/routes";
 import type {
   Branch,
   Center,
@@ -35,6 +35,8 @@ export type BookingRequest = {
 
 export type RosterContextValue = {
   center: Center;
+  // Manage centers or My schedule; My schedule only ever books yourself.
+  section: RosterSection;
   membership: Membership;
   meId: string;
   isOwner: boolean;
@@ -75,6 +77,7 @@ const byId = <T extends { id: string }>(items: readonly T[]) =>
 
 export function buildRosterContext({
   membership,
+  section,
   directory = [],
   branches = [],
   memberBranches = [],
@@ -88,6 +91,7 @@ export function buildRosterContext({
   openBooking,
 }: {
   membership: Membership;
+  section: RosterSection;
   directory?: DirectoryMember[];
   branches?: Branch[];
   memberBranches?: MemberBranch[];
@@ -103,6 +107,7 @@ export function buildRosterContext({
   const isOwner = membership.role === "owner";
   return {
     center: membership.center,
+    section,
     membership,
     meId: membership.id,
     isOwner,
