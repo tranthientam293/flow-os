@@ -10,7 +10,7 @@ import { CategoryIcon } from "../atoms";
 
 // Expenses grouped by day, newest first, each day with its total. Each
 // expense has Edit and Delete buttons (Delete is confirmed by the caller);
-// clicking the rest of the row edits it.
+// the row itself isn't clickable.
 // Expects expenses already sorted by spent_on descending.
 export function ExpenseList({
   expenses,
@@ -51,15 +51,8 @@ export function ExpenseList({
             {items.map((e) => {
               const category = CATEGORY_BY_ID.get(e.category_id);
               return (
-                <li
-                  key={e.id}
-                  className='flex items-center gap-1 pe-2 hover:bg-accent'
-                >
-                  <button
-                    type='button'
-                    className='flex min-w-0 flex-1 cursor-pointer items-center gap-3 py-3 ps-4 text-start outline-none focus-visible:bg-accent'
-                    onClick={() => onEdit(e)}
-                  >
+                <li key={e.id} className='flex items-center gap-1 pe-2'>
+                  <div className='flex min-w-0 flex-1 items-center gap-3 py-3 ps-4'>
                     {category && <CategoryIcon category={category} size='lg' />}
                     <span className='flex min-w-0 flex-1 flex-col'>
                       <span className='truncate text-sm font-medium text-foreground'>
@@ -74,7 +67,7 @@ export function ExpenseList({
                     <span className='shrink-0 text-sm font-medium text-foreground tabular-nums'>
                       {formatAmount(e.amount)}
                     </span>
-                  </button>
+                  </div>
                   <Button
                     type='text'
                     size='small'
