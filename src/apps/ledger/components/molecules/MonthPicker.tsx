@@ -2,6 +2,7 @@ import dayjs, { type Dayjs } from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, DatePicker } from "antd";
 import { MONTH_FORMAT } from "@/constants";
+import { PICKER_SHEET } from "../../constants/modal";
 
 // Picks a month (its first day): previous / next buttons around a month
 // picker, and Today for the current month. Future months are disabled, so
@@ -34,6 +35,7 @@ export function MonthPicker({
         allowClear={false}
         // No keyboard on phones; pick from the calendar.
         inputReadOnly
+        classNames={{ popup: { root: PICKER_SHEET } }}
         className='w-28'
         aria-label='Month'
       />

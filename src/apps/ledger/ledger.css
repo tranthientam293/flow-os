@@ -2,7 +2,8 @@
  * Ledger's dialogs (transitionName MODAL_TRANSITION, constants/modal.ts).
  * Desktop: fade in and scale up from 96% at the center, instead of antd's
  * zoom from the click point. Below md: the slide-up bottom sheet, like the
- * rest of flowOS (styles/antd.css). Reduced motion: a plain fade.
+ * rest of flowOS (styles/antd.css). Reduced motion: a plain fade. Below md
+ * the date and month pickers open as a bottom sheet too (PICKER_SHEET).
  */
 @layer components {
   .ledger-modal-enter,
@@ -56,6 +57,66 @@
     }
   }
 
+  /* Date and month pickers (PICKER_SHEET): on phones the calendar opens as a
+     bottom sheet like the dialogs: docked to the bottom at full width with
+     rounded top corners, the page dimmed behind it, sliding up. Tapping
+     outside closes it, as before. */
+  @media (max-width: 767.98px) {
+    /* antd positions the popup inline; pin it to the bottom instead. */
+    .ledger-picker-sheet.ant-picker-dropdown {
+      position: fixed !important;
+      inset: auto 0 0 0 !important;
+      padding: 0;
+      box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.45);
+    }
+
+    .ledger-picker-sheet .ant-picker-panel-container {
+      border-radius: 16px 16px 0 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: none;
+    }
+
+    /* The calendar fills the width, with taller, easier-to-tap cells. */
+    .ledger-picker-sheet .ant-picker-panel-layout,
+    .ledger-picker-sheet .ant-picker-panel,
+    .ledger-picker-sheet .ant-picker-date-panel,
+    .ledger-picker-sheet .ant-picker-month-panel,
+    .ledger-picker-sheet .ant-picker-year-panel,
+    .ledger-picker-sheet .ant-picker-decade-panel,
+    .ledger-picker-sheet .ant-picker-content {
+      width: 100%;
+    }
+
+    .ledger-picker-sheet .ant-picker-date-panel .ant-picker-content td {
+      height: 44px;
+    }
+
+    .ledger-picker-sheet .ant-picker-range-arrow {
+      display: none;
+    }
+
+    .ledger-picker-sheet.ant-slide-up-enter,
+    .ledger-picker-sheet.ant-slide-up-appear,
+    .ledger-picker-sheet.ant-slide-down-enter,
+    .ledger-picker-sheet.ant-slide-down-appear {
+      opacity: 1;
+      transform: translateY(100%);
+      animation-duration: 250ms;
+    }
+
+    .ledger-picker-sheet.ant-slide-up-enter.ant-slide-up-enter-active,
+    .ledger-picker-sheet.ant-slide-up-appear.ant-slide-up-appear-active,
+    .ledger-picker-sheet.ant-slide-down-enter.ant-slide-down-enter-active,
+    .ledger-picker-sheet.ant-slide-down-appear.ant-slide-down-appear-active {
+      animation-name: flow-sheet-up;
+    }
+
+    .ledger-picker-sheet.ant-slide-up-leave.ant-slide-up-leave-active,
+    .ledger-picker-sheet.ant-slide-down-leave.ant-slide-down-leave-active {
+      animation-name: flow-sheet-down;
+      animation-duration: 200ms;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .ledger-modal-enter,
     .ledger-modal-appear {

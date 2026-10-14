@@ -3,7 +3,11 @@ import dayjs from "dayjs";
 import { Trash2 } from "lucide-react";
 import { Button, DatePicker, Form, Input, Modal } from "antd";
 import { DATE_FORMAT } from "@/constants";
-import { MODAL_TRANSITION, MODAL_WIDTH } from "../../constants/modal";
+import {
+  MODAL_TRANSITION,
+  MODAL_WIDTH,
+  PICKER_SHEET,
+} from "../../constants/modal";
 import type { Expense, ExpenseDraft } from "../../models/ledger";
 import { AmountInput, CategoryPicker } from "../molecules";
 
@@ -107,6 +111,7 @@ export function ExpenseModal({
             allowClear={false}
             // No keyboard on phones; pick from the calendar.
             inputReadOnly
+            classNames={{ popup: { root: PICKER_SHEET } }}
           />
         </Form.Item>
         {/* Phones: Cancel and the main action share the row at a taller,

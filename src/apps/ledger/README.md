@@ -92,3 +92,4 @@ None yet.
 - **0.27.4** (Oct 14, 2026): **Last 12 months** labels months MM/YY (“09/26”) on the axis and in the tooltip, short enough for every label to fit more often on phones.
 - **0.27.5** (Oct 14, 2026): **Last 12 months** is back to MM/YYYY (“09/2026”) on the axis and in the tooltip, matching Compared with last month.
 - **0.27.6** (Oct 14, 2026): **Add expense** always opens empty (today's date, nothing else filled in) instead of keeping the last expense's amount, category and note. The expense modal starts fresh on every open.
+- **0.27.7** (Oct 14, 2026): on phones the calendar of the **date** (expense modal) and **month** (Dashboard, Expenses) pickers opens like the dialogs: a bottom sheet at full width with rounded top corners, the page dimmed behind it, sliding up and down, with taller day cells. Tapping outside still closes it. Desktop keeps the dropdown (`PICKER_SHEET` in `constants/modal.ts`, styles in `ledger.css`).
