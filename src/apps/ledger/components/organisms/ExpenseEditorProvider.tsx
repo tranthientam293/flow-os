@@ -14,6 +14,8 @@ import type { Expense, ExpenseDraft } from "../../models/ledger";
 import { ExpenseModal } from "./ExpenseModal";
 
 type Target = {
+  // Bumped on every open, so the modal (and its form) starts fresh each time.
+  session?: number;
   expense?: Expense;
   onSaved?: (draft: ExpenseDraft) => void;
 };
@@ -40,7 +42,11 @@ export function ExpenseEditorProvider({ children }: { children: ReactNode }) {
   const value = useMemo<ExpenseEditorContextValue>(
     () => ({
       openEditor: (expense, onSaved) => {
-        setTarget({ expense, onSaved });
+        setTarget((prev) => ({
+          expense,
+          onSaved,
+          session: (prev.session ?? 0) + 1,
+        }));
         setOpen(true);
       },
       deleteExpense: (expense) => confirmDelete(() => deleteAsync(expense.id)),
@@ -50,14 +56,15 @@ export function ExpenseEditorProvider({ children }: { children: ReactNode }) {
     [confirmDelete, deleteAsync, headerAdd, setHeaderAdd],
   );
 
-  const { expense, onSaved } = target;
+  const { expense, onSaved, session } = target;
 
   return (
     <ExpenseEditorContext.Provider value={value}>
       {holder}
       {children}
       <ExpenseModal
-        key={expense?.id ?? "new"}
+        // A new key per open: the form never shows the last expense's values.
+        key={session}
         open={open}
         expense={expense}
         saving={save.isPending}
