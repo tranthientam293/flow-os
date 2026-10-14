@@ -10,6 +10,7 @@ import {
   memberBranchesQueryOptions,
 } from "../../apis/branches";
 import { directoryQueryOptions } from "../../apis/centers";
+import { trainerRatesQueryOptions } from "../../apis/trainer-rates";
 import { membersQueryOptions } from "../../apis/members";
 import {
   memberSessionTypesQueryOptions,
@@ -59,6 +60,7 @@ export function CenterShell({
   const memberSessionTypes = useQuery(
     memberSessionTypesQueryOptions(center.id),
   );
+  const trainerRates = useQuery(trainerRatesQueryOptions(center.id));
   const members = useQuery({
     ...membersQueryOptions(center.id),
     enabled: isOwner,
@@ -88,6 +90,7 @@ export function CenterShell({
         memberBranches: memberBranches.data,
         sessionTypes: sessionTypes.data,
         memberSessionTypes: memberSessionTypes.data,
+        trainerRates: trainerRates.data,
         members: members.data,
         // My schedule only shows your own sessions, also for owners who train.
         filters:
@@ -105,6 +108,7 @@ export function CenterShell({
       memberBranches.data,
       sessionTypes.data,
       memberSessionTypes.data,
+      trainerRates.data,
       members.data,
       section,
       filters,

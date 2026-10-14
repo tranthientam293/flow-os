@@ -55,6 +55,7 @@ The id uses `a-z 0-9 -`, must be unique, and must never change once shipped: ins
 - `useFlowApp()` from `@/context`: `{ app, user, supabase }`. `supabase` is already signed in as the current user.
 - `useAppStorage(key, initial)` from `@/hooks`: persistent per-user state for this app, with no migration needed.
 - `useBackToPlatform(note?)` from `@/hooks`: `{ backToPlatform, holder }`. `backToPlatform()` asks for confirmation, then returns to the flowOS Overview; `note` adds an app-specific line to the confirmation. Render `holder` once in the component that calls it.
+- Moving to a new path scrolls the page back to the top on its own (the layouts call `useScrollTopOnNavigate`); changing only the query string (e.g. `?month=`) keeps the scroll position. Apps don't need to do anything.
 - **Dates:** show them as `YYYY/MM/DD` everywhere: `formatDate()` from `@/libs`, or `DATE_FORMAT` / `DAY_FORMAT` (`ddd, YYYY/MM/DD`) from `@/constants` with dayjs. Relative times use `fromNow()`.
 - **A way back to flowOS (required):** apps open full screen with no platform top bar or sidebar, so every screen must offer a way back to the Overview, e.g. a "Back to flowOS" action built on `useBackToPlatform()` from `@/hooks`.
 

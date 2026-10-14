@@ -9,11 +9,13 @@ import {
   Form,
   Grid,
   Input,
+  InputNumber,
   Select,
   TimePicker,
 } from "antd";
 import { EmptyState } from "@/components/molecules";
 import { DAY_FORMAT } from "@/constants";
+import { payBasisOf } from "../../utils/money";
 import { dayjs, type Dayjs } from "@/libs";
 import {
   saveSessionMutationOptions,
@@ -44,6 +46,8 @@ import { SessionView } from "./SessionView";
 type Values = {
   memberId: string;
   sessionTypeId?: string;
+  // How many trainees (at least 1); per-trainee types pay by it.
+  traineeCount: number;
   branchId?: string;
   date: Dayjs;
   time: [Dayjs, Dayjs];
@@ -163,6 +167,12 @@ export function SessionForm({
     (isOwner ? "" : meId);
   const date = Form.useWatch("date", form);
   const time = Form.useWatch("time", form);
+  const sessionTypeId = Form.useWatch("sessionTypeId", form) as
+    string | undefined;
+  // Per-trainee types need the number of trainees.
+  const perTrainee =
+    payBasisOf(sessionTypeId ? typeById.get(sessionTypeId) : undefined) ===
+    "trainee";
   const member = memberById.get(memberId);
   const memberIsOwner = member?.role === "owner";
   const anyBranch = ctx.anyBranchIds.has(memberId);
@@ -244,6 +254,7 @@ export function SessionForm({
     ? {
         memberId: existing.member_id,
         sessionTypeId: existing.session_type_id ?? undefined,
+        traineeCount: existing.trainee_count,
         branchId: existing.branch_id,
         date: dayjs(originalDate),
         time: [
@@ -272,6 +283,7 @@ export function SessionForm({
               : requested,
           ),
           time: [start, start.add(sessionLength, "minute")],
+          traineeCount: 1,
         };
       })();
 
@@ -308,6 +320,7 @@ export function SessionForm({
         member_id: values.memberId,
         branch_id: values.branchId as string,
         session_type_id: values.sessionTypeId ?? null,
+        trainee_count: values.traineeCount ?? 1,
         starts_at: zonedIso(day, start.format(TIME), tz),
         ends_at: zonedIso(day, end.format(TIME), tz),
         title: values.title?.trim() || null,
@@ -413,6 +426,25 @@ export function SessionForm({
           disabled={!typeChoices.length}
           onChange={onTypeChange}
           options={typeChoices.map((t) => ({ value: t.id, label: t.name }))}
+        />
+      </Form.Item>
+
+      <Form.Item
+        name='traineeCount'
+        label='Trainees'
+        extra={
+          perTrainee
+            ? "This session type pays per trainee: base salary × trainees."
+            : undefined
+        }
+        rules={[{ required: true, message: "Enter the number of trainees" }]}
+      >
+        <InputNumber<number>
+          min={1}
+          max={999}
+          precision={0}
+          placeholder='Number of trainees'
+          className='w-full'
         />
       </Form.Item>
 

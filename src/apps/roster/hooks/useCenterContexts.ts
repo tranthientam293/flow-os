@@ -6,6 +6,7 @@ import {
   memberBranchesQueryOptions,
 } from "../apis/branches";
 import { directoryQueryOptions } from "../apis/centers";
+import { trainerRatesQueryOptions } from "../apis/trainer-rates";
 import { membersQueryOptions } from "../apis/members";
 import {
   memberSessionTypesQueryOptions,
@@ -48,6 +49,9 @@ export function useCenterContexts(
   const memberSessionTypes = useQueries({
     queries: ids.map((id) => memberSessionTypesQueryOptions(id)),
   });
+  const trainerRates = useQueries({
+    queries: ids.map((id) => trainerRatesQueryOptions(id)),
+  });
   const members = useQueries({
     queries: memberships.map((m) => ({
       ...membersQueryOptions(m.center.id),
@@ -65,6 +69,7 @@ export function useCenterContexts(
         memberBranches: memberBranches[i]?.data,
         sessionTypes: sessionTypes[i]?.data,
         memberSessionTypes: memberSessionTypes[i]?.data,
+        trainerRates: trainerRates[i]?.data,
         members: members[i]?.data,
         filters,
         setFilters,

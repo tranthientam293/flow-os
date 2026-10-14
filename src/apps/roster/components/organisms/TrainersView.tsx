@@ -12,7 +12,7 @@ import {
 } from "../../apis/members";
 import { useRoster } from "../../context/roster-context";
 import type { Member } from "../../models/roster";
-import { formatRate } from "../../utils/money";
+import { formatRate, payBasisOf } from "../../utils/money";
 import { MemberAvatar } from "../atoms";
 import { TrainerModal } from "./TrainerModal";
 
@@ -94,6 +94,7 @@ export function TrainersView() {
           {formatRate(
             mst.hourly_rate ??
               typeById.get(mst.session_type_id)?.default_hourly_rate,
+            payBasisOf(typeById.get(mst.session_type_id)),
           )}
         </span>
       ))
@@ -227,7 +228,7 @@ export function TrainersView() {
               render: (_, m) => <div className='text-sm'>{sessionList(m)}</div>,
             },
             {
-              title: "Salary",
+              title: "Reference salary",
               align: "right",
               render: (_, m) => <div className='text-sm'>{salaryList(m)}</div>,
             },

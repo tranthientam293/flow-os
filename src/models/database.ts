@@ -115,22 +115,31 @@ export type Database = {
         ]
       }
       roster_session_types: {
-        Row: { center_id: string; created_at: string; default_hourly_rate: number | null; id: string; name: string }
-        Insert: { center_id: string; created_at?: string; default_hourly_rate?: number | null; id?: string; name: string }
-        Update: { center_id?: string; created_at?: string; default_hourly_rate?: number | null; id?: string; name?: string }
+        Row: { center_id: string; created_at: string; default_hourly_rate: number | null; id: string; name: string; pay_basis: string }
+        Insert: { center_id: string; created_at?: string; default_hourly_rate?: number | null; id?: string; name: string; pay_basis?: string }
+        Update: { center_id?: string; created_at?: string; default_hourly_rate?: number | null; id?: string; name?: string; pay_basis?: string }
         Relationships: [
           { foreignKeyName: "roster_session_types_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
         ]
       }
       roster_sessions: {
-        Row: { branch_id: string; center_id: string; completed_at: string | null; created_at: string; created_by: string | null; ends_at: string; id: string; member_id: string; note: string | null; repeat_id: string | null; salary: number | null; session_type_id: string | null; starts_at: string; status: string; title: string | null; updated_at: string; updated_by: string | null }
-        Insert: { branch_id: string; center_id: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at: string; id?: string; member_id: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at: string; status?: string; title?: string | null; updated_at?: string; updated_by?: string | null }
-        Update: { branch_id?: string; center_id?: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at?: string; id?: string; member_id?: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at?: string; status?: string; title?: string | null; updated_at?: string; updated_by?: string | null }
+        Row: { branch_id: string; center_id: string; completed_at: string | null; created_at: string; created_by: string | null; ends_at: string; id: string; member_id: string; note: string | null; repeat_id: string | null; salary: number | null; session_type_id: string | null; starts_at: string; status: string; title: string | null; trainee_count: number; updated_at: string; updated_by: string | null }
+        Insert: { branch_id: string; center_id: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at: string; id?: string; member_id: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at: string; status?: string; title?: string | null; trainee_count?: number; updated_at?: string; updated_by?: string | null }
+        Update: { branch_id?: string; center_id?: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at?: string; id?: string; member_id?: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at?: string; status?: string; title?: string | null; trainee_count?: number; updated_at?: string; updated_by?: string | null }
         Relationships: [
           { foreignKeyName: "roster_sessions_center_id_branch_id_fkey"; columns: ["center_id", "branch_id"]; isOneToOne: false; referencedRelation: "roster_branches"; referencedColumns: ["center_id", "id"] },
           { foreignKeyName: "roster_sessions_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
           { foreignKeyName: "roster_sessions_center_id_member_id_fkey"; columns: ["center_id", "member_id"]; isOneToOne: false; referencedRelation: "roster_members"; referencedColumns: ["center_id", "id"] },
           { foreignKeyName: "roster_sessions_center_id_session_type_id_fkey"; columns: ["center_id", "session_type_id"]; isOneToOne: false; referencedRelation: "roster_session_types"; referencedColumns: ["center_id", "id"] },
+        ]
+      }
+      roster_trainer_rates: {
+        Row: { center_id: string; created_at: string; hourly_rate: number; member_id: string; session_type_id: string; updated_at: string }
+        Insert: { center_id: string; created_at?: string; hourly_rate: number; member_id: string; session_type_id: string; updated_at?: string }
+        Update: { center_id?: string; created_at?: string; hourly_rate?: number; member_id?: string; session_type_id?: string; updated_at?: string }
+        Relationships: [
+          { foreignKeyName: "roster_trainer_rates_center_id_member_id_fkey"; columns: ["center_id", "member_id"]; isOneToOne: false; referencedRelation: "roster_members"; referencedColumns: ["center_id", "id"] },
+          { foreignKeyName: "roster_trainer_rates_center_id_session_type_id_fkey"; columns: ["center_id", "session_type_id"]; isOneToOne: false; referencedRelation: "roster_session_types"; referencedColumns: ["center_id", "id"] },
         ]
       }
       tasks: {

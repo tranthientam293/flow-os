@@ -15,7 +15,7 @@ import { saveTrainerMutationOptions } from "../../apis/members";
 import { useRoster } from "../../context/roster-context";
 import type { Member } from "../../models/roster";
 import { nextColor } from "../../utils/colors";
-import { moneyInputProps } from "../../utils/money";
+import { moneyInputProps, payBasisOf, rateSuffix } from "../../utils/money";
 import { BranchTag } from "../atoms";
 
 type SessionRow = { sessionTypeId?: string; hourlyRate?: number | null };
@@ -179,7 +179,7 @@ function TrainerModalContent({
           <p className='text-xs text-muted-foreground'>
             {!sessionTypes.length
               ? "Add session types in the Session types tab first."
-              : "Session types this trainer teaches, with their salary per hour. Each salary starts at the type’s default from the Session types tab and can be changed for this trainer; it won’t change when the default does. Leave the list empty to allow every type at its default salary."}
+              : "Session types this trainer teaches, with their salary (per hour or per trainee, as the type pays). Each salary starts at the type’s default from the Session types tab and can be changed for this trainer; it won’t change when the default does. Leave the list empty to allow every type at its default salary. These are references: trainers set their own salary per hour in My settings, and theirs is what counts."}
           </p>
         </div>
         <Form.List name='sessions'>
@@ -190,6 +190,11 @@ function TrainerModalContent({
                   rows
                     .filter((_, i) => i !== field.name)
                     .map((r) => r?.sessionTypeId),
+                );
+                // The rate is per hour or per trainee, by the chosen type.
+                const rowTypeId = rows[field.name]?.sessionTypeId;
+                const basis = payBasisOf(
+                  rowTypeId ? typeById.get(rowTypeId) : undefined,
                 );
                 return (
                   <div
@@ -225,8 +230,9 @@ function TrainerModalContent({
                       <InputNumber<number>
                         {...moneyInputProps}
                         className='w-full'
-                        placeholder='Salary / hour'
-                        aria-label='Salary per hour'
+                        suffix={rateSuffix(basis)}
+                        placeholder='Salary'
+                        aria-label='Salary'
                       />
                     </Form.Item>
                     <Button

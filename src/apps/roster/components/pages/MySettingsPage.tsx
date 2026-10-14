@@ -14,6 +14,7 @@ import {
 } from "../../apis/members";
 import { STORAGE_KEYS } from "../../constants/keys";
 import { ROSTER_LEAVE_NOTE } from "../../constants/options";
+import { MySalaryForm } from "../organisms";
 import type { Membership } from "../../models/roster";
 
 export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
@@ -50,6 +51,16 @@ export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
             />
           )}
           <ProfileForm key={membership.id} membership={membership} />
+        </SettingsPanel>
+      )}
+
+      {/* Owners aren't paid a salary. */}
+      {membership && membership.role !== "owner" && (
+        <SettingsPanel
+          title='My salary'
+          description={`Your salary at ${membership.center.name} for each session type you teach, per hour or per trainee as the type pays. It fills in your salary when you complete a session; the owner’s rate is shown as a reference.`}
+        >
+          <MySalaryForm key={membership.id} membership={membership} />
         </SettingsPanel>
       )}
 

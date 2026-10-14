@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Outlet } from "react-router";
 import {
   LaunchAppModal,
@@ -7,13 +7,15 @@ import {
   TopBar,
 } from "@/components/organisms";
 import { APP_NAME } from "@/constants";
-import { usePageTitle } from "@/hooks";
+import { usePageTitle, useScrollTopOnNavigate } from "@/hooks";
 import { useUiStore } from "@/stores";
 import { cn } from "@/utils";
 
 export function AppLayout() {
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const title = usePageTitle();
+  const mainRef = useRef<HTMLElement>(null);
+  useScrollTopOnNavigate(mainRef);
 
   useEffect(() => {
     document.title = `${title} · ${APP_NAME}`;
@@ -31,7 +33,10 @@ export function AppLayout() {
         >
           <Sidebar collapsed={collapsed} showCollapseToggle />
         </aside>
-        <main className='min-w-0 flex-1 overflow-y-auto bg-background'>
+        <main
+          ref={mainRef}
+          className='min-w-0 flex-1 overflow-y-auto bg-background'
+        >
           <Outlet />
         </main>
       </div>

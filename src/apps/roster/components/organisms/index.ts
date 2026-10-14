@@ -6,6 +6,7 @@ export * from "./CheckoutModal";
 export * from "./CheckoutProvider";
 export * from "./IncomeView";
 export * from "./InviteBell";
+export * from "./MySalaryForm";
 export * from "./MyWeekView";
 export * from "./OwnerAsTrainerPanel";
 export * from "./RegisterCenterModal";

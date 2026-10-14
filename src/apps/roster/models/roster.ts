@@ -31,6 +31,8 @@ export type MemberBranch = Tables<"roster_member_branches">;
 
 export type SessionType = Tables<"roster_session_types">;
 export type MemberSessionType = Tables<"roster_member_session_types">;
+// A trainer's own salary per hour for a session type (theirs to manage).
+export type TrainerRate = Tables<"roster_trainer_rates">;
 
 export type Session = Tables<"roster_sessions">;
 export type SessionInsert = TablesInsert<"roster_sessions">;

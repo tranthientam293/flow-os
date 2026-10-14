@@ -5,3 +5,4 @@ export * from "./useLaunchApp";
 export * from "./usePageTitle";
 export * from "./useResolvedTheme";
 export * from "./useBackToPlatform";
+export * from "./useScrollTopOnNavigate";

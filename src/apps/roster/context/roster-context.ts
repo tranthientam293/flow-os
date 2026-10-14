@@ -12,6 +12,7 @@ import type {
   Session,
   SessionStatus,
   SessionType,
+  TrainerRate,
 } from "../models/roster";
 
 export type ScheduleFilters = {
@@ -44,6 +45,8 @@ export type RosterContextValue = {
   sessionTypes: SessionType[];
   typeById: Map<string, SessionType>;
   memberSessionTypes: MemberSessionType[];
+  // Trainers' own salary per hour (yours, or everyone's for the owner).
+  trainerRates: TrainerRate[];
   memberBranches: MemberBranch[];
   anyBranchIds: Set<string>;
   filters: ScheduleFilters;
@@ -77,6 +80,7 @@ export function buildRosterContext({
   memberBranches = [],
   sessionTypes = [],
   memberSessionTypes = [],
+  trainerRates = [],
   members = [],
   filters,
   setFilters,
@@ -89,6 +93,7 @@ export function buildRosterContext({
   memberBranches?: MemberBranch[];
   sessionTypes?: SessionType[];
   memberSessionTypes?: MemberSessionType[];
+  trainerRates?: TrainerRate[];
   members?: Pick<Member, "id" | "any_branch">[];
   filters: Partial<ScheduleFilters>;
   setFilters: (next: ScheduleFilters) => void;
@@ -108,6 +113,7 @@ export function buildRosterContext({
     sessionTypes,
     typeById: byId(sessionTypes),
     memberSessionTypes,
+    trainerRates,
     memberBranches,
     anyBranchIds: new Set(
       isOwner

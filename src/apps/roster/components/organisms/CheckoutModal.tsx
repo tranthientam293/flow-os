@@ -20,10 +20,14 @@ import {
   formatAmount,
   formatNumber,
   formatRate,
+  formatUnits,
   moneyInputProps,
+  payBasisOf,
+  payUnits,
   salaryFor,
 } from "../../utils/money";
 import { sessionAccess } from "../../utils/permissions";
+import { ownerRateFor, trainerOwnRateFor } from "../../utils/rates";
 import { formatLongDay, formatRange, inTz } from "../../utils/time";
 import { BranchTag, MemberAvatar } from "../atoms";
 
@@ -33,9 +37,11 @@ type Values = { salary: number | null; fees: FeeRow[] };
 const sum = (values: (number | null | undefined)[]) =>
   values.reduce<number>((total, v) => total + (v ?? 0), 0);
 
-// extra pay (fees). The owner edits both; a trainer edits the fees, and their
-// salary comes from their rate.
-// and their salary comes from their rate.
+// Completes a session or edits its checkout: the session, its salary and any
+// extra pay (fees). The session's trainer manages their own salary (prefilled
+// from base salary × hours or × trainees); the owner sees it read-only.
+// Whoever may check it out (the owner, or its trainer within their edit
+// window) edits the fees.
 export function CheckoutModal({
   session,
   onClose,
@@ -84,7 +90,7 @@ function CheckoutForm({
   onClose: () => void;
 }) {
   const ctx = useRoster();
-  const { center, isOwner, memberById, branchById, typeById } = ctx;
+  const { center, memberById, branchById, typeById } = ctx;
   const checkout = useMutation(checkoutSessionMutationOptions(center.id));
   const reopen = useMutation(reopenSessionMutationOptions(center.id));
   const [form] = Form.useForm<Values>();
@@ -96,29 +102,40 @@ function CheckoutForm({
   const type = session.session_type_id
     ? typeById.get(session.session_type_id)
     : undefined;
-  const rate =
-    ctx.memberSessionTypes.find(
-      (mst) =>
-        mst.member_id === session.member_id &&
-        mst.session_type_id === session.session_type_id,
-    )?.hourly_rate ??
-    type?.default_hourly_rate ??
-    null;
   const hours =
     (Date.parse(session.ends_at) - Date.parse(session.starts_at)) / 36e5;
-  const defaultSalary = salaryFor(rate, session.starts_at, session.ends_at);
+  // The session's trainer manages their salary. Until it's saved it starts
+  // from base salary × units: their own rate (else the owner's rate for them,
+  // else the type's default) × hours or × trainees, by the type's pay basis.
+  const isTrainer = session.member_id === ctx.meId;
+  const basis = payBasisOf(type);
+  const units = payUnits(session, basis);
+  const unitsText = formatUnits(units, basis);
+  const trainerRate =
+    trainerOwnRateFor(
+      ctx.trainerRates,
+      session.member_id,
+      session.session_type_id,
+    ) ??
+    ownerRateFor(
+      ctx.memberSessionTypes,
+      typeById,
+      session.member_id,
+      session.session_type_id,
+    );
+  const trainerRateSalary = salaryFor(trainerRate, units);
+  const trainerSalary = session.salary ?? trainerRateSalary;
 
+  // Only the trainer edits the salary; total pay is their salary + fees.
   const salaryValue = Form.useWatch("salary", form);
   const feeRows: FeeRow[] = Form.useWatch("fees", form) ?? [];
-  const salary = isOwner
-    ? (salaryValue ?? 0)
-    : (session.salary ?? defaultSalary);
+  const salary = canEdit && isTrainer ? (salaryValue ?? 0) : trainerSalary;
   const feeTotal = canEdit
     ? sum(feeRows.map((f) => f?.amount))
     : sum(fees.map((f) => f.amount));
 
   const initialValues: Values = {
-    salary: session.salary ?? defaultSalary,
+    salary: trainerSalary,
     fees: fees.map((f) => ({ label: f.label, amount: f.amount })),
   };
 
@@ -126,7 +143,8 @@ function CheckoutForm({
     checkout.mutate(
       {
         sessionId: session.id,
-        salary: values.salary ?? 0,
+        // Only the trainer sets the salary; the server keeps it otherwise.
+        salary: isTrainer ? (values.salary ?? 0) : null,
         fees: (values.fees ?? []).flatMap((f) =>
           f?.label?.trim()
             ? [{ label: f.label.trim(), amount: f.amount ?? 0 }]
@@ -167,6 +185,10 @@ function CheckoutForm({
       />,
     ],
     ["Session type", type?.name ?? "—"],
+    // Per-trainee types are paid by this count (set on the session).
+    ...(basis === "trainee"
+      ? ([["Trainees", session.trainee_count]] as [string, React.ReactNode][])
+      : []),
   ];
 
   return (
@@ -186,26 +208,27 @@ function CheckoutForm({
         ))}
       </dl>
 
-      {isOwner ? (
+      {canEdit && isTrainer ? (
         <Form.Item
           name='salary'
-          label='Salary'
-          extra={`${formatRate(rate)} × ${formatNumber(hours)} h = ${formatAmount(defaultSalary)}`}
+          label='Your salary'
+          extra={`Your rate: ${formatRate(trainerRate, basis)} × ${unitsText} = ${formatAmount(trainerRateSalary)}`}
           rules={[{ required: true, message: "Enter the salary" }]}
         >
           <InputNumber<number> {...moneyInputProps} className='w-full' />
         </Form.Item>
       ) : (
         <div className='mb-4'>
-          <div className='mb-1.5 text-sm text-foreground-light'>Salary</div>
+          <div className='mb-1.5 text-sm text-foreground-light'>
+            {isTrainer ? "Your salary" : "Trainer’s salary"}
+          </div>
           <div className='text-sm text-foreground tabular-nums'>
-            {formatAmount(salary)}
+            {formatAmount(trainerSalary)}
           </div>
           <p className='text-xs text-muted-foreground'>
             {session.salary === null
-              ? `From your rate: ${formatRate(rate)} × ${formatNumber(hours)} h. `
-              : ""}
-            The owner sets the salary.
+              ? `From the trainer’s rate: ${formatRate(trainerRate, basis)} × ${unitsText}`
+              : "Set by the trainer"}
           </p>
         </div>
       )}

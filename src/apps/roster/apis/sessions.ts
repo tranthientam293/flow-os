@@ -94,7 +94,8 @@ export const sessionFeesQueryOptions = (centerId: string, sessionId: string) =>
 
 export type CheckoutPayload = {
   sessionId: string;
-  // Ignored for trainers: their salary comes from their rate.
+  // The trainer's salary (ignored when the owner checks out); null keeps a
+  // saved one, or uses base salary × hours or × trainees.
   salary: number | null;
   fees: { label: string; amount: number }[];
 };

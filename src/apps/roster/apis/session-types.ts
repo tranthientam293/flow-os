@@ -3,6 +3,7 @@ import { supabase } from "@/libs";
 import { ROSTER_KEYS } from "../constants/keys";
 import type { MemberSessionType, SessionType } from "../models/roster";
 import { check } from "../utils/errors";
+import type { PayBasis } from "../utils/money";
 import { refreshCenter } from "./branches";
 
 export const sessionTypesQueryOptions = (centerId: string) =>
@@ -27,6 +28,7 @@ export const saveSessionTypeMutationOptions = (centerId: string) =>
       id?: string;
       name: string;
       default_hourly_rate: number | null;
+      pay_basis: PayBasis;
     }) => {
       check(
         id

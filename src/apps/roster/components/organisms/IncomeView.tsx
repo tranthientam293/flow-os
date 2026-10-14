@@ -262,8 +262,8 @@ export function IncomeView({
                             type='text'
                             size='small'
                             icon={<Pencil />}
-                            title='Edit fees'
-                            aria-label='Edit fees'
+                            title='Edit salary and fees'
+                            aria-label='Edit salary and fees'
                             onClick={(e) => {
                               // Don't also open the row's pay.
                               e.stopPropagation();

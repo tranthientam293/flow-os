@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
-import { Button, Input, InputNumber, Popconfirm } from "antd";
+import { Button, Input, InputNumber, Popconfirm, Select } from "antd";
 import { SettingsPanel } from "@/components/molecules";
 import {
   deleteSessionTypeMutationOptions,
@@ -9,7 +9,18 @@ import {
 } from "../../apis/session-types";
 import { useRoster } from "../../context/roster-context";
 import type { SessionType } from "../../models/roster";
-import { formatRate, moneyInputProps } from "../../utils/money";
+import {
+  formatRate,
+  moneyInputProps,
+  payBasisOf,
+  rateSuffix,
+  type PayBasis,
+} from "../../utils/money";
+
+const BASIS_OPTIONS: { value: PayBasis; label: string }[] = [
+  { value: "hour", label: "Per hour" },
+  { value: "trainee", label: "Per trainee" },
+];
 
 export function SessionTypesView() {
   return (
@@ -23,16 +34,18 @@ function SessionTypesPanel() {
   const { center, sessionTypes } = useRoster();
   const save = useMutation(saveSessionTypeMutationOptions(center.id));
   const [name, setName] = useState("");
+  const [basis, setBasis] = useState<PayBasis>("hour");
   const [rate, setRate] = useState<number | null>(null);
 
   const add = () => {
     const trimmed = name.trim();
     if (!trimmed) return;
     save.mutate(
-      { name: trimmed, default_hourly_rate: rate },
+      { name: trimmed, default_hourly_rate: rate, pay_basis: basis },
       {
         onSuccess: () => {
           setName("");
+          setBasis("hour");
           setRate(null);
         },
       },
@@ -42,7 +55,7 @@ function SessionTypesPanel() {
   return (
     <SettingsPanel
       title='Session types'
-      description='Kinds of sessions your center runs, e.g. “Piano lesson” or “Group class”, with the default salary per hour. The type picked when booking becomes the session’s default title. Set each trainer’s types and salary in the Trainers tab.'
+      description='Kinds of sessions your center runs, e.g. “Piano lesson” or “Group class”. Each one pays per hour or per trainee (the number of trainees is set on each session), with a default salary. The type picked when booking becomes the session’s default title. Set each trainer’s types and salary in the Trainers tab.'
     >
       <div className='flex flex-col gap-3'>
         {sessionTypes.length > 0 && (
@@ -62,11 +75,19 @@ function SessionTypesPanel() {
             onChange={(e) => setName(e.target.value)}
             onPressEnter={add}
           />
+          <Select<PayBasis>
+            value={basis}
+            options={BASIS_OPTIONS}
+            aria-label='Pay basis'
+            className='w-32'
+            onChange={setBasis}
+          />
           <InputNumber<number>
             value={rate}
             {...moneyInputProps}
-            placeholder='Default salary / hour'
-            aria-label='Default salary per hour'
+            suffix={rateSuffix(basis)}
+            placeholder='Default salary'
+            aria-label='Default salary'
             className='w-48'
             onChange={setRate}
           />
@@ -90,10 +111,12 @@ function SessionTypeRow({ type }: { type: SessionType }) {
   const remove = useMutation(deleteSessionTypeMutationOptions(center.id));
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(type.name);
+  const [basis, setBasis] = useState<PayBasis>(payBasisOf(type));
   const [rate, setRate] = useState<number | null>(type.default_hourly_rate);
 
   const cancel = () => {
     setName(type.name);
+    setBasis(payBasisOf(type));
     setRate(type.default_hourly_rate);
     setEditing(false);
   };
@@ -102,7 +125,12 @@ function SessionTypeRow({ type }: { type: SessionType }) {
     const trimmed = name.trim();
     if (!trimmed) return;
     save.mutate(
-      { id: type.id, name: trimmed, default_hourly_rate: rate },
+      {
+        id: type.id,
+        name: trimmed,
+        default_hourly_rate: rate,
+        pay_basis: basis,
+      },
       { onSuccess: () => setEditing(false) },
     );
   };
@@ -120,12 +148,21 @@ function SessionTypeRow({ type }: { type: SessionType }) {
             onChange={(e) => setName(e.target.value)}
             onPressEnter={submit}
           />
+          <Select<PayBasis>
+            size='small'
+            value={basis}
+            options={BASIS_OPTIONS}
+            aria-label='Pay basis'
+            className='w-28'
+            onChange={setBasis}
+          />
           <InputNumber<number>
             size='small'
             value={rate}
             {...moneyInputProps}
-            placeholder='Salary / hour'
-            aria-label='Default salary per hour'
+            suffix={rateSuffix(basis)}
+            placeholder='Salary'
+            aria-label='Default salary'
             className='w-40'
             onChange={setRate}
           />
@@ -151,7 +188,7 @@ function SessionTypeRow({ type }: { type: SessionType }) {
             {type.name}
           </span>
           <span className='text-muted-foreground tabular-nums'>
-            {formatRate(type.default_hourly_rate)}
+            {formatRate(type.default_hourly_rate, payBasisOf(type))}
           </span>
           <Button
             size='small'
