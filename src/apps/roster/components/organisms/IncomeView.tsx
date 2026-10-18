@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { keepPreviousData, useQueries } from "@tanstack/react-query";
 import { Pencil, Wallet } from "lucide-react";
-import { Button, DatePicker, Modal, Spin, Table } from "antd";
-import { MONTH_FORMAT } from "@/constants";
+import { Button, Modal, Spin, Table } from "antd";
 import { EmptyState } from "@/components/molecules";
 import { dayjs } from "@/libs";
 import { cn } from "@/utils";
 import { branchesQueryOptions } from "../../apis/branches";
 import { incomeQueryOptions } from "../../apis/income";
+import { ALL_CENTERS, IncomeFilter, type IncomeFilters } from "../molecules";
 import type { RosterSection } from "../../constants/routes";
 import { useCheckout } from "../../context/checkout-context";
 import { useCenterContexts } from "../../hooks/useCenterContexts";
@@ -54,7 +54,11 @@ export function IncomeView({ section, memberships }: IncomeViewProps) {
   const [viewing, setViewing] = useState<Line | null>(null);
   const tz = memberships[0].center.timezone;
   const thisMonth = monthBounds(todayIn(tz)).first;
-  const [month, setMonth] = useState(thisMonth);
+  const [filters, setFilters] = useState<IncomeFilters>({
+    month: thisMonth,
+    centerId: ALL_CENTERS,
+  });
+  const { month, centerId } = filters;
 
   const queries = useQueries({
     queries: memberships.map((m) => {
@@ -107,6 +111,7 @@ export function IncomeView({ section, memberships }: IncomeViewProps) {
         };
       });
     })
+    .filter((l) => centerId === ALL_CENTERS || l.session.center_id === centerId)
     .sort((a, b) => a.session.starts_at.localeCompare(b.session.starts_at));
 
   const totals = {
@@ -126,18 +131,11 @@ export function IncomeView({ section, memberships }: IncomeViewProps) {
       </div>
 
       <div className='flex flex-wrap items-center gap-2'>
-        <DatePicker
-          picker='month'
-          aria-label='Month'
-          format={MONTH_FORMAT}
-          allowClear={false}
-          value={dayjs(month)}
-          disabledDate={(d) =>
-            d.startOf("month").format("YYYY-MM-DD") > thisMonth
-          }
-          onChange={(d) =>
-            d && setMonth(d.startOf("month").format("YYYY-MM-DD"))
-          }
+        <IncomeFilter
+          value={filters}
+          memberships={memberships}
+          thisMonth={thisMonth}
+          onApply={setFilters}
         />
         <span
           aria-hidden={!isSwitching}
@@ -211,7 +209,6 @@ export function IncomeView({ section, memberships }: IncomeViewProps) {
                   title: "Hours",
                   dataIndex: "hours",
                   align: "right",
-                  render: formatHours,
                 },
                 {
                   title: "Salary",

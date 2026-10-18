@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useLayoutEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
 import {
@@ -30,23 +30,15 @@ type Values = {
 };
 
 interface TrainerModalProps {
-  member: Member | "new" | null;
+  open: boolean;
+  data: Member | null;
   onClose: () => void;
   onCreated: (member: Member) => void;
 }
 
-// Each opening gets a fresh form, so the previous trainer's values never carry
-// over. (No `preserve={false}`: under StrictMode it wipes Form.List rows.)
-export function TrainerModal(props: TrainerModalProps) {
-  const [opening, setOpening] = useState({ open: false, count: 0 });
-  const open = !!props.member;
-  if (open !== opening.open)
-    setOpening({ open, count: opening.count + (open ? 1 : 0) });
-  return <TrainerModalContent key={opening.count} {...props} />;
-}
-
-function TrainerModalContent({
-  member,
+export function TrainerModal({
+  data,
+  open,
   onClose,
   onCreated,
 }: TrainerModalProps) {
@@ -61,49 +53,41 @@ function TrainerModalContent({
   } = useRoster();
   const [form] = Form.useForm<Values>();
   const save = useMutation(saveTrainerMutationOptions(center.id));
-  const existing = member && member !== "new" ? member : null;
   const anyBranch = Form.useWatch("any_branch", form);
   const rows: SessionRow[] = Form.useWatch("sessions", form) ?? [];
 
-  const currentBranchIds = memberBranches
-    .filter((mb) => mb.member_id === existing?.id)
-    .map((mb) => mb.branch_id);
-  const activeBranches = branches.filter(
-    (b) => !b.archived_at || currentBranchIds.includes(b.id),
-  );
-  const defaultRate = (typeId?: string) =>
-    typeId ? (typeById.get(typeId)?.default_hourly_rate ?? null) : null;
+  const currentBranchIds = useMemo(() => {
+    const result: string[] = [];
+    if (data) {
+      memberBranches.forEach((mb) => {
+        if (mb.member_id === data.id) {
+          result.push(mb.branch_id);
+        }
+      });
+    }
+    return result;
+  }, [data, memberBranches]);
 
-  const initialValues: Values = existing
-    ? {
-        display_name: existing.display_name,
-        email: existing.email,
-        phone: existing.phone ?? undefined,
-        any_branch: existing.any_branch,
-        branchIds: currentBranchIds,
-        sessions: memberSessionTypes
-          .filter((mst) => mst.member_id === existing.id)
-          .map((mst) => ({
-            sessionTypeId: mst.session_type_id,
-            hourlyRate: mst.hourly_rate ?? defaultRate(mst.session_type_id),
-          })),
-      }
-    : {
-        display_name: "",
-        email: "",
-        any_branch: true,
-        branchIds: [],
-        sessions: [],
-      };
+  const activeBranches = useMemo(
+    () =>
+      branches.filter((b) => !b.archived_at || currentBranchIds.includes(b.id)),
+    [branches, currentBranchIds],
+  );
+
+  const defaultRate = useCallback(
+    (typeId?: string) =>
+      typeId ? (typeById.get(typeId)?.default_hourly_rate ?? null) : null,
+    [typeById],
+  );
 
   const submit = (values: Values) =>
     save.mutate(
       {
-        id: existing?.id,
+        id: data?.id,
         display_name: values.display_name.trim(),
         email: values.email.trim().toLowerCase(),
         phone: values.phone?.trim() || null,
-        color: existing?.color ?? nextColor(directory.map((m) => m.color)),
+        color: data?.color ?? nextColor(directory.map((m) => m.color)),
         any_branch: values.any_branch,
         branchIds: values.any_branch
           ? currentBranchIds
@@ -122,28 +106,52 @@ function TrainerModalContent({
       {
         onSuccess: (saved) => {
           onClose();
-          if (!existing) onCreated(saved);
+          if (!data) onCreated(saved);
         },
       },
     );
 
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    const initialValues: Values = data
+      ? {
+          display_name: data.display_name,
+          email: data.email,
+          phone: data.phone ?? undefined,
+          any_branch: data.any_branch,
+          branchIds: currentBranchIds,
+          sessions: memberSessionTypes
+            .filter((mst) => mst.member_id === data.id)
+            .map((mst) => ({
+              sessionTypeId: mst.session_type_id,
+              hourlyRate: mst.hourly_rate ?? defaultRate(mst.session_type_id),
+            })),
+        }
+      : {
+          display_name: "",
+          email: "",
+          phone: "",
+          any_branch: true,
+          branchIds: [],
+          sessions: [],
+        };
+
+    form.setFieldsValue(initialValues);
+  }, [data, open, currentBranchIds, memberSessionTypes, form, defaultRate]);
+
   return (
     <Modal
-      open={!!member}
-      title={existing ? `Edit ${existing.display_name}` : "Invite a trainer"}
+      open={open}
+      title={data ? `Edit Trainer` : "Invite a trainer"}
       onCancel={onClose}
       onOk={() => form.submit()}
-      okText={existing ? "Save" : "Invite"}
+      okText={data ? "Save" : "Invite"}
       confirmLoading={save.isPending}
       width={600}
       destroyOnHidden
     >
-      <Form
-        form={form}
-        layout='vertical'
-        initialValues={initialValues}
-        onFinish={submit}
-      >
+      <Form form={form} layout='vertical' onFinish={submit}>
         <div className='grid gap-x-3 sm:grid-cols-2'>
           <Form.Item
             name='display_name'
@@ -156,13 +164,13 @@ function TrainerModalContent({
             name='email'
             label='Email'
             extra={
-              existing?.user_id
+              data?.user_id
                 ? "Already joined with this email."
                 : "They join by signing in to flowOS with this email."
             }
             rules={[{ required: true, type: "email" }]}
           >
-            <Input type='email' disabled={!!existing?.user_id} />
+            <Input type='email' disabled={!!data?.user_id} />
           </Form.Item>
           <Form.Item name='phone' label='Phone' rules={[{ max: 40 }]}>
             <Input maxLength={40} />
@@ -173,11 +181,11 @@ function TrainerModalContent({
           <div className='text-sm font-medium text-foreground'>
             Sessions and salary
           </div>
-          <p className='text-xs text-muted-foreground'>
-            {!sessionTypes.length
-              ? "Add session types in the Session types tab first."
-              : "Session types this trainer teaches, with their salary (per hour or per trainee, as the type pays). Each salary starts at the type’s default from the Session types tab and can be changed for this trainer; it won’t change when the default does. Leave the list empty to allow every type at its default salary. These are references: trainers set their own salary per hour in My settings, and theirs is what counts."}
-          </p>
+          {!sessionTypes.length && (
+            <p className='text-xs text-muted-foreground'>
+              Add session types in the Session types tab first.
+            </p>
+          )}
         </div>
         <Form.List name='sessions'>
           {(fields, { add, remove }) => (

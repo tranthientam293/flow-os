@@ -80,22 +80,28 @@
   }
 
   /* ---------- Input ---------- */
-  /* shadcn: shadow-xs at rest; antd's activeShadow takes over on focus. */
-  .ant-input-outlined:not(:focus):not(:focus-within) {
+  /* shadcn: shadow-xs at rest; the focus ring takes over on focus. */
+  .ant-input-outlined:not(:focus):not(:focus-within),
+  .ant-input-number-outlined:not(:focus-within),
+  .ant-select-outlined:not(.ant-select-focused) {
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
 
-  .ant-input-outlined {
+  .ant-input-outlined,
+  .ant-input-number-outlined,
+  .ant-select-outlined {
     transition-property: color, border-color, box-shadow;
   }
 
   .ant-input-outlined.ant-input-disabled,
-  .ant-input-outlined.ant-input-affix-wrapper-disabled {
+  .ant-input-outlined.ant-input-affix-wrapper-disabled,
+  .ant-input-number-outlined.ant-input-number-disabled {
     opacity: 0.5;
   }
 
   .ant-input::placeholder,
-  .ant-input-affix-wrapper input::placeholder {
+  .ant-input-affix-wrapper input::placeholder,
+  .ant-input-number-input::placeholder {
     color: var(--muted-foreground);
   }
 

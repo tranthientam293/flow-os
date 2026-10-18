@@ -51,6 +51,23 @@ const palette = {
 
 export function getAntdTheme(mode: ResolvedTheme): ThemeConfig {
   const c = palette[mode];
+  const focusRing = "color-mix(in oklab, var(--ring) 50%, transparent)";
+  // shadcn input: h-9, border-input, no hover change, focus = ring border
+  // + 3px --ring shadow. The resting shadow-xs lives in antd.css.
+  const inputField = {
+    controlHeight: 36,
+    colorBgContainer: c.surfaceMuted,
+    colorBorder: c.borderStrong,
+    hoverBorderColor: c.borderStrong,
+    activeBorderColor: "var(--ring)",
+    activeShadow: `0 0 0 3px ${focusRing}`,
+    paddingInline: 12,
+    paddingInlineSM: 10,
+    inputFontSize: 14,
+    inputFontSizeSM: 12,
+    colorBgContainerDisabled: c.surfaceMuted,
+    colorTextDisabled: c.foreground,
+  };
 
   return {
     algorithm: mode === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
@@ -140,22 +157,19 @@ export function getAntdTheme(mode: ResolvedTheme): ThemeConfig {
         borderColorDisabled: c.border,
         defaultBgDisabled: c.surfaceMuted,
       },
-      // shadcn input: h-9, border-input, no hover change, focus = ring border
-      // + 3px --ring shadow. The resting shadow-xs lives in antd.css.
-      Input: {
-        controlHeight: 36,
-        colorBgContainer: c.surfaceMuted,
-        colorBorder: c.borderStrong,
+      Input: inputField,
+      InputNumber: {
+        ...inputField,
+        handleBg: c.surfaceMuted,
+        handleBorderColor: c.borderStrong,
+        handleHoverColor: c.foreground,
+        handleActiveBg: c.accent,
+      },
+      Select: {
         hoverBorderColor: c.borderStrong,
         activeBorderColor: "var(--ring)",
-        activeShadow:
-          "0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent)",
-        paddingInline: 12,
-        paddingInlineSM: 10,
-        inputFontSize: 14,
-        inputFontSizeSM: 12,
-        colorBgContainerDisabled: c.surfaceMuted,
-        colorTextDisabled: c.foreground,
+        activeOutlineColor: focusRing,
+        controlOutlineWidth: 3,
       },
       Segmented: {
         controlHeight: 34,

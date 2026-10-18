@@ -44,7 +44,7 @@ export function WorkShell({ section, view, memberships }: WorkShellProps) {
       <div className='flex h-11 shrink-0 items-stretch border-b px-2 sm:px-4'>
         <nav
           aria-label='My schedule sections'
-          className='flex min-w-0 flex-1 [scrollbar-width:none] items-stretch gap-1 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden'
+          className='flex min-w-0 flex-1 scrollbar-none items-stretch gap-1 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden'
         >
           {tabs.map((t) => (
             <button

@@ -1,6 +1,5 @@
 import type { Session, SessionType } from "../models/roster";
 
-// Amounts are in Vietnamese đồng (VND), which has no minor unit.
 export const CURRENCY = "VND";
 export const CURRENCY_SYMBOL = "₫";
 
@@ -11,14 +10,10 @@ const amount = new Intl.NumberFormat("vi-VN", {
 });
 const number = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 });
 
-// An amount of money, e.g. "150.000 ₫".
 export const formatAmount = (value: number) => amount.format(value);
 
-// A plain number (hours and the like), e.g. "1,5".
 export const formatNumber = (value: number) => number.format(value);
 
-// Props for an antd InputNumber that takes an amount in đồng: whole đồng,
-// grouped with dots like "150.000", and the ₫ sign after it.
 export const moneyInputProps = {
   min: 0,
   step: 1000,
@@ -30,34 +25,67 @@ export const moneyInputProps = {
     Number((value ?? "").replace(/\D/g, "")),
 };
 
-// How a session type pays: per hour, or per trainee in the session. No type
-// means per hour.
-export type PayBasis = "hour" | "trainee";
+export type PayBasis = "shift" | "hour" | "trainee";
+
+export const DEFAULT_PAY_BASIS: PayBasis = "shift";
+
+const PAY_BASES: Record<
+  PayBasis,
+  { label: string; unit: string; unitPlural: string; unitShort: string }
+> = {
+  shift: {
+    label: "Per shift",
+    unit: "shift",
+    unitPlural: "shifts",
+    unitShort: "shift",
+  },
+  hour: {
+    label: "Per hour",
+    unit: "hour",
+    unitPlural: "hours",
+    unitShort: "h",
+  },
+  trainee: {
+    label: "Per trainee",
+    unit: "trainee",
+    unitPlural: "trainees",
+    unitShort: "trainee",
+  },
+};
+
+export const PAY_BASIS_OPTIONS = (Object.keys(PAY_BASES) as PayBasis[]).map(
+  (value) => ({ value, label: PAY_BASES[value].label }),
+);
+
+export const payBasisLabel = (basis: PayBasis) => PAY_BASES[basis].label;
+
+const isPayBasis = (value: unknown): value is PayBasis =>
+  typeof value === "string" && value in PAY_BASES;
 
 export const payBasisOf = (type: SessionType | undefined): PayBasis =>
-  type?.pay_basis === "trainee" ? "trainee" : "hour";
+  isPayBasis(type?.pay_basis) ? type.pay_basis : "hour";
 
-// "₫ / h" or "₫ / trainee", for rate inputs.
 export const rateSuffix = (basis: PayBasis) =>
-  `${CURRENCY_SYMBOL} / ${basis === "trainee" ? "trainee" : "h"}`;
+  `${CURRENCY_SYMBOL} / ${PAY_BASES[basis].unitShort}`;
 
-// What a session is paid for: base salary × hours (per-hour types) or base
-// salary × its number of trainees (per-trainee types; at least 1).
+const sessionHours = (session: Pick<Session, "starts_at" | "ends_at">) =>
+  (Date.parse(session.ends_at) - Date.parse(session.starts_at)) / 36e5;
+
 export const payUnits = (
   session: Pick<Session, "starts_at" | "ends_at" | "trainee_count">,
   basis: PayBasis,
-) =>
-  basis === "trainee"
-    ? session.trainee_count
-    : (Date.parse(session.ends_at) - Date.parse(session.starts_at)) / 36e5;
+) => {
+  if (basis === "shift") return 1;
+  if (basis === "trainee") return session.trainee_count;
+  return sessionHours(session);
+};
 
-// "1,5 h" or "8 trainees".
-export const formatUnits = (units: number, basis: PayBasis) =>
-  basis === "trainee"
-    ? `${units} ${units === 1 ? "trainee" : "trainees"}`
-    : `${formatNumber(units)} h`;
+export const formatUnits = (units: number, basis: PayBasis) => {
+  if (basis === "hour") return `${formatNumber(units)} h`;
+  const { unit, unitPlural } = PAY_BASES[basis];
+  return `${units} ${units === 1 ? unit : unitPlural}`;
+};
 
-// Salary at a rate for a number of units, rounded to whole đồng.
 export const salaryFor = (rate: number | null | undefined, units: number) =>
   Math.round((rate ?? 0) * units);
 
@@ -67,4 +95,4 @@ export const formatRate = (
 ) =>
   value === null || value === undefined
     ? "No salary set"
-    : `${formatAmount(value)} / ${basis === "trainee" ? "trainee" : "h"}`;
+    : `${formatAmount(value)} / ${PAY_BASES[basis].unitShort}`;

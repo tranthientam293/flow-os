@@ -16,6 +16,11 @@ import { formatRate, payBasisOf } from "../../utils/money";
 import { MemberAvatar } from "../atoms";
 import { TrainerModal } from "./TrainerModal";
 
+type TrainerModalState = {
+  isOpen: boolean;
+  data: Member | null;
+};
+
 const inviteMessage = (name: string, email: string, center: string) =>
   `Hi ${name}, sign in to flowOS with ${email}, install Roster from the App Store and open it to join ${center}.`;
 
@@ -46,7 +51,12 @@ export function TrainersView() {
   const setStatus = useMutation(setMemberStatusMutationOptions(center.id));
   const remove = useMutation(removeMemberMutationOptions(center.id));
   const [modal, modalHolder] = Modal.useModal();
-  const [editing, setEditing] = useState<Member | "new" | null>(null);
+  const [trainerModalState, setTrainerModalState] = useState<TrainerModalState>(
+    {
+      isOpen: false,
+      data: null,
+    },
+  );
   const [invited, setInvited] = useState<Member | null>(null);
 
   const list = (members.data ?? []).filter((m) => m.role === "trainer");
@@ -76,7 +86,7 @@ export function TrainersView() {
         </span>
       ))
     ) : (
-      <span className='leading-6 text-muted-foreground'>All session types</span>
+      <span className='leading-6 text-muted-foreground'>—</span>
     );
   };
 
@@ -114,8 +124,12 @@ export function TrainersView() {
 
   const actions = (m: Member) => {
     const items = [
-      { key: "edit", label: "Edit", onClick: () => setEditing(m) },
-      { key: "week", label: "View week", onClick: () => viewWeek(m) },
+      {
+        key: "edit",
+        label: "Edit",
+        onClick: () => setTrainerModalState({ isOpen: true, data: m }),
+      },
+      // { key: "week", label: "View week", onClick: () => viewWeek(m) },
       ...(m.status === "invited"
         ? [
             {
@@ -159,6 +173,10 @@ export function TrainersView() {
     );
   };
 
+  const closeTrainerModal = () => {
+    setTrainerModalState((prev) => ({ ...prev, isOpen: false }));
+  };
+
   return (
     <div className='flex flex-col gap-4 px-4 py-4 sm:px-6'>
       {modalHolder}
@@ -166,7 +184,7 @@ export function TrainersView() {
         <Button
           type='primary'
           icon={<Plus />}
-          onClick={() => setEditing("new")}
+          onClick={() => setTrainerModalState({ isOpen: true, data: null })}
         >
           Invite trainer
         </Button>
@@ -265,8 +283,9 @@ export function TrainersView() {
       )}
 
       <TrainerModal
-        member={editing}
-        onClose={() => setEditing(null)}
+        data={trainerModalState.data}
+        open={trainerModalState.isOpen}
+        onClose={closeTrainerModal}
         onCreated={setInvited}
       />
       <Modal

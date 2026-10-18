@@ -23,17 +23,15 @@ import {
 import { useRoster } from "../../context/roster-context";
 import type { SessionType } from "../../models/roster";
 import {
+  DEFAULT_PAY_BASIS,
+  PAY_BASIS_OPTIONS,
   formatAmount,
   moneyInputProps,
+  payBasisLabel,
   payBasisOf,
   rateSuffix,
   type PayBasis,
 } from "../../utils/money";
-
-const BASIS_OPTIONS: { value: PayBasis; label: string }[] = [
-  { value: "hour", label: "Per hour" },
-  { value: "trainee", label: "Per trainee" },
-];
 
 type Values = {
   name: string;
@@ -66,7 +64,7 @@ function SessionTypesPanel() {
   return (
     <SettingsPanel
       title='Session types'
-      description='Kinds of sessions your center runs, e.g. “Piano lesson” or “Group class”. Each one pays per hour or per trainee (the number of trainees is set on each session), with a default salary and a minimum session length. The type picked when booking becomes the session’s default title. Set each trainer’s types and salary in the Trainers tab.'
+      description='Kinds of sessions your center runs, e.g. “Piano lesson” or “Group class”. Each one pays per shift, per hour or per trainee (the number of trainees is set on each session), with a default salary and a minimum session length. The type picked when booking becomes the session’s default title. Set each trainer’s types and salary in the Trainers tab.'
     >
       <div className='flex flex-col gap-3'>
         <div className='flex justify-end'>
@@ -89,8 +87,7 @@ function SessionTypesPanel() {
               { title: "Name", dataIndex: "name" },
               {
                 title: "Pays",
-                render: (_, t) =>
-                  BASIS_OPTIONS.find((o) => o.value === payBasisOf(t))?.label,
+                render: (_, t) => payBasisLabel(payBasisOf(t)),
               },
               {
                 title: "Default salary",
@@ -163,7 +160,7 @@ function SessionTypeModal({ open, data, onClose }: SessionTypeModalProps) {
   const { center } = useRoster();
   const [form] = Form.useForm<Values>();
   const save = useMutation(saveSessionTypeMutationOptions(center.id));
-  const basis = Form.useWatch("pay_basis", form) ?? "hour";
+  const basis = Form.useWatch("pay_basis", form) ?? DEFAULT_PAY_BASIS;
 
   useEffect(() => {
     if (!open) return;
@@ -176,7 +173,7 @@ function SessionTypeModal({ open, data, onClose }: SessionTypeModalProps) {
         }
       : {
           name: "",
-          pay_basis: "hour",
+          pay_basis: DEFAULT_PAY_BASIS,
           default_hourly_rate: null,
           min_session_min: center.default_session_min,
         };
@@ -215,7 +212,7 @@ function SessionTypeModal({ open, data, onClose }: SessionTypeModalProps) {
         </Form.Item>
         <div className='grid grid-cols-2 gap-3'>
           <Form.Item name='pay_basis' label='Pays'>
-            <Select<PayBasis> options={BASIS_OPTIONS} />
+            <Select<PayBasis> options={PAY_BASIS_OPTIONS} />
           </Form.Item>
           <Form.Item name='default_hourly_rate' label='Default salary'>
             <InputNumber<number>

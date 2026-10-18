@@ -61,7 +61,7 @@ export function MySettingsPage({ memberships }: MySettingsPageProps) {
       {membership && membership.role !== "owner" && (
         <SettingsPanel
           title='My salary'
-          description={`Your salary at ${membership.center.name} for each session type you teach, per hour or per trainee as the type pays. It fills in your salary when you complete a session; the owner’s rate is shown as a reference.`}
+          description={`Your salary at ${membership.center.name} for each session type you teach, per shift, per hour or per trainee as the type pays. It fills in your salary when you complete a session; the owner’s rate is shown as a reference.`}
         >
           <MySalaryForm key={membership.id} membership={membership} />
         </SettingsPanel>
