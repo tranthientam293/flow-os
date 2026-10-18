@@ -38,7 +38,40 @@ export function ExpenseModal({
       open={open}
       title={expense ? "Edit expense" : "Add expense"}
       onCancel={onClose}
-      footer={null}
+      footer={
+        <div className='flex items-center gap-2 border-t pt-4'>
+          {expense && onDelete && (
+            <Button
+              danger
+              type='text'
+              icon={<Trash2 />}
+              disabled={saving}
+              onClick={onDelete}
+              className='max-sm:h-11'
+            >
+              Delete
+            </Button>
+          )}
+          <div className='flex flex-1 gap-2 sm:ms-auto sm:flex-none'>
+            <Button
+              disabled={saving}
+              onClick={onClose}
+              className='flex-1 max-sm:h-11 sm:flex-none'
+            >
+              Cancel
+            </Button>
+            <Button
+              type='primary'
+              onClick={() => form.submit()}
+              loading={saving}
+              disabled={!!expense && !changed}
+              className='flex-1 max-sm:h-11 sm:flex-none'
+            >
+              {expense ? "Save changes" : "Add expense"}
+            </Button>
+          </div>
+        </div>
+      }
       width={MODAL_WIDTH}
       destroyOnHidden
       transitionName={MODAL_TRANSITION}
@@ -110,38 +143,6 @@ export function ExpenseModal({
             classNames={{ popup: { root: PICKER_SHEET } }}
           />
         </Form.Item>
-        <div className='mt-6 flex items-center gap-2 border-t pt-4'>
-          {expense && onDelete && (
-            <Button
-              danger
-              type='text'
-              icon={<Trash2 />}
-              disabled={saving}
-              onClick={onDelete}
-              className='max-sm:h-11'
-            >
-              Delete
-            </Button>
-          )}
-          <div className='flex flex-1 gap-2 sm:ms-auto sm:flex-none'>
-            <Button
-              disabled={saving}
-              onClick={onClose}
-              className='flex-1 max-sm:h-11 sm:flex-none'
-            >
-              Cancel
-            </Button>
-            <Button
-              type='primary'
-              htmlType='submit'
-              loading={saving}
-              disabled={!!expense && !changed}
-              className='flex-1 max-sm:h-11 sm:flex-none'
-            >
-              {expense ? "Save changes" : "Add expense"}
-            </Button>
-          </div>
-        </div>
       </Form>
     </Modal>
   );

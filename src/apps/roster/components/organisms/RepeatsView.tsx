@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
-import { CircleStop, Pencil, Repeat as RepeatIcon } from "lucide-react";
+import {
+  CalendarPlus,
+  CircleStop,
+  Pencil,
+  Repeat as RepeatIcon,
+} from "lucide-react";
 import { Button, Popconfirm, Spin } from "antd";
 import { EmptyState } from "@/components/molecules";
 import {
+  applyRepeatMutationOptions,
   repeatsQueryOptions,
   stopRepeatMutationOptions,
 } from "../../apis/repeats";
+import { repeatPeriodOf } from "../../constants/options";
 import type { RosterSection } from "../../constants/routes";
 import { RosterContext, useRoster } from "../../context/roster-context";
 import { useCenterContexts } from "../../hooks/useCenterContexts";
@@ -20,7 +27,7 @@ const EMPTY = (
   <EmptyState
     icon={RepeatIcon}
     title='No repeats'
-    description='Turn on “Repeat every week” when creating a session to book it every week.'
+    description='Turn on “Repeat” when creating a session to book it every week or every month.'
   />
 );
 
@@ -90,9 +97,11 @@ function RepeatsIntro() {
     <div>
       <h2 className='text-base font-medium text-foreground'>Repeats</h2>
       <p className='text-sm text-muted-foreground'>
-        Sessions booked every week. Each week is added on the last day of the
-        week before. Editing or stopping a repeat changes its sessions from now
-        on; sessions already held and ones edited by hand stay.
+        Sessions booked every week or every month. A weekly repeat adds the next
+        week on the week’s last day; a monthly one adds the next month on the
+        month’s last day. Apply now books the whole current month right away.
+        Editing or stopping a repeat changes its sessions from now on; sessions
+        already held and ones edited by hand stay.
       </p>
     </div>
   );
@@ -121,6 +130,8 @@ interface RepeatRowProps {
 function RepeatRow({ repeat, showTrainer }: RepeatRowProps) {
   const { center, memberById, branchById, typeById } = useRoster();
   const stop = useMutation(stopRepeatMutationOptions(center.id));
+  const apply = useMutation(applyRepeatMutationOptions(center.id));
+  const period = repeatPeriodOf(repeat);
   const [editing, setEditing] = useState(false);
   const member = memberById.get(repeat.member_id);
   const type = repeat.session_type_id
@@ -152,10 +163,27 @@ function RepeatRow({ repeat, showTrainer }: RepeatRowProps) {
             {repeat.title || type?.name || "Session"} · {repeat.trainee_count}{" "}
             {repeat.trainee_count === 1 ? "trainee" : "trainees"}
           </span>
-          <span>Since {formatDate(repeat.starts_on)}</span>
+          <span>
+            Every {period} · since {formatDate(repeat.starts_on)}
+          </span>
+          <span>Booked through {formatDate(repeat.generated_through)}</span>
         </p>
       </div>
       <div className='flex shrink-0 gap-1'>
+        <Popconfirm
+          title='Apply this repeat now?'
+          description='Books its days for the whole current month, days already past included, and removes its untouched sessions in later months.'
+          okText='Apply now'
+          onConfirm={() => apply.mutate(repeat.id)}
+        >
+          <Button
+            type='text'
+            icon={<CalendarPlus />}
+            title='Apply now: book this month'
+            aria-label='Apply now: book this month'
+            loading={apply.isPending}
+          />
+        </Popconfirm>
         <Button
           type='text'
           icon={<Pencil />}
@@ -165,7 +193,7 @@ function RepeatRow({ repeat, showTrainer }: RepeatRowProps) {
         />
         <Popconfirm
           title='Stop this repeat?'
-          description='No new weeks are booked, and its upcoming sessions are removed. Sessions already held, and upcoming ones edited by hand, stay.'
+          description='No new weeks or months are booked, and its upcoming sessions are removed. Sessions already held, and upcoming ones edited by hand, stay.'
           okText='Stop repeat'
           okButtonProps={{ danger: true }}
           onConfirm={() => stop.mutate(repeat.id)}

@@ -292,7 +292,18 @@ export function TrainersView() {
         open={!!invited}
         title='Next step'
         onCancel={() => setInvited(null)}
-        footer={null}
+        footer={
+          invited && (
+            <CopyButton
+              value={inviteMessage(
+                invited.display_name,
+                invited.email,
+                center.name,
+              )}
+              label='Copy message'
+            />
+          )
+        }
       >
         {invited && (
           <div className='flex flex-col gap-3'>
@@ -305,16 +316,6 @@ export function TrainersView() {
             </p>
             <div className='rounded-md border bg-surface-muted p-3 text-sm'>
               {inviteMessage(invited.display_name, invited.email, center.name)}
-            </div>
-            <div className='flex justify-end'>
-              <CopyButton
-                value={inviteMessage(
-                  invited.display_name,
-                  invited.email,
-                  center.name,
-                )}
-                label='Copy message'
-              />
             </div>
           </div>
         )}

@@ -24,11 +24,13 @@ import {
 } from "../../apis/sessions";
 import { startRepeatMutationOptions } from "../../apis/repeats";
 import {
+  DEFAULT_REPEAT_PERIOD,
   MAX_SESSION_HOURS,
   MIN_SESSION_MINUTES,
+  REPEAT_PERIOD_OPTIONS,
 } from "../../constants/options";
 import { useRoster, type BookingRequest } from "../../context/roster-context";
-import type { Session, SessionStatus } from "../../models/roster";
+import type { RepeatPeriod, Session, SessionStatus } from "../../models/roster";
 import { sessionAccess } from "../../utils/permissions";
 import { isTrainer } from "../../utils/trainers";
 import {
@@ -57,6 +59,7 @@ type Values = {
   title?: string;
   note?: string;
   repeat?: boolean;
+  period?: RepeatPeriod;
   weekdays?: number[];
 };
 
@@ -167,6 +170,7 @@ export function SessionForm({ request, onDone, onBack }: SessionFormProps) {
   const time = Form.useWatch("time", form);
   const repeatOn = Form.useWatch("repeat", form);
   const repeat = !existing && !!repeatOn;
+  const period = Form.useWatch("period", form);
   const sessionTypeId = Form.useWatch("sessionTypeId", form) as
     string | undefined;
   const perTrainee =
@@ -347,6 +351,7 @@ export function SessionForm({ request, onDone, onBack }: SessionFormProps) {
           note: values.note?.trim() || null,
           startsOn: day,
           traineeCount: values.traineeCount ?? 1,
+          period: values.period ?? DEFAULT_REPEAT_PERIOD,
         },
         { onSuccess: onDone },
       );
@@ -588,7 +593,7 @@ export function SessionForm({ request, onDone, onBack }: SessionFormProps) {
           </span>
           <Form.Item name='repeat' valuePropName='checked' noStyle>
             <Switch
-              aria-label='Repeat every week'
+              aria-label='Repeat'
               onChange={(on) => {
                 const current = form.getFieldValue("weekdays") as
                   number[] | undefined;
@@ -598,6 +603,23 @@ export function SessionForm({ request, onDone, onBack }: SessionFormProps) {
             />
           </Form.Item>
         </div>
+      )}
+
+      {repeat && (
+        <Form.Item
+          name='period'
+          initialValue={DEFAULT_REPEAT_PERIOD}
+          extra={
+            period === "month"
+              ? "Books this month now; each next month is added on the month's last day."
+              : "Books this week now; each next week is added on the week's last day."
+          }
+        >
+          <Select<RepeatPeriod>
+            aria-label='Repeat'
+            options={REPEAT_PERIOD_OPTIONS}
+          />
+        </Form.Item>
       )}
 
       {repeat && (

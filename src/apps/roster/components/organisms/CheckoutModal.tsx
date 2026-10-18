@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import {
   Button,
   Form,
+  type FormInstance,
   Input,
   InputNumber,
   Modal,
@@ -43,23 +44,72 @@ interface CheckoutModalProps {
 }
 
 export function CheckoutModal({ session, onClose }: CheckoutModalProps) {
-  const { center } = useRoster();
+  const ctx = useRoster();
+  const { center } = ctx;
   const completed = session.status === "completed";
   const fees = useQuery({
     ...sessionFeesQueryOptions(center.id, session.id),
     enabled: completed,
   });
+  const checkout = useMutation(checkoutSessionMutationOptions(center.id));
+  const reopen = useMutation(reopenSessionMutationOptions(center.id));
+  const [form] = Form.useForm<Values>();
+  const canEdit = sessionAccess(session, ctx).canEdit;
+  const isLoadingFees = completed && fees.isLoading;
+  const isTrainer = session.member_id === ctx.meId;
+
+  const submit = (values: Values) =>
+    checkout.mutate(
+      {
+        sessionId: session.id,
+        salary: isTrainer ? (values.salary ?? 0) : null,
+        fees: (values.fees ?? []).flatMap((f) =>
+          f?.label?.trim()
+            ? [{ label: f.label.trim(), amount: f.amount ?? 0 }]
+            : [],
+        ),
+      },
+      { onSuccess: onClose },
+    );
 
   return (
     <Modal
       open
       title={completed ? "Checkout" : "Complete session"}
       onCancel={onClose}
-      footer={null}
+      footer={
+        <div className='flex items-center gap-2'>
+          {completed && canEdit && (
+            <Popconfirm
+              title='Undo completion?'
+              description='It goes back to scheduled and its salary and fees are cleared.'
+              okText='Undo completion'
+              onConfirm={() =>
+                reopen.mutate(session.id, { onSuccess: onClose })
+              }
+            >
+              <Button loading={reopen.isPending}>Undo completion</Button>
+            </Popconfirm>
+          )}
+          <div className='ms-auto flex gap-2'>
+            <Button onClick={onClose}>{canEdit ? "Cancel" : "Close"}</Button>
+            {canEdit && (
+              <Button
+                type='primary'
+                loading={checkout.isPending}
+                disabled={isLoadingFees}
+                onClick={() => form.submit()}
+              >
+                {completed ? "Save" : "Complete"}
+              </Button>
+            )}
+          </div>
+        </div>
+      }
       width={520}
       destroyOnHidden
     >
-      {completed && fees.isLoading ? (
+      {isLoadingFees ? (
         <div className='flex justify-center py-8'>
           <Spin />
         </div>
@@ -67,7 +117,8 @@ export function CheckoutModal({ session, onClose }: CheckoutModalProps) {
         <CheckoutForm
           session={session}
           fees={fees.data ?? []}
-          onClose={onClose}
+          form={form}
+          onSubmit={submit}
         />
       )}
     </Modal>
@@ -77,16 +128,13 @@ export function CheckoutModal({ session, onClose }: CheckoutModalProps) {
 interface CheckoutFormProps {
   session: Session;
   fees: SessionFee[];
-  onClose: () => void;
+  form: FormInstance<Values>;
+  onSubmit: (values: Values) => void;
 }
 
-function CheckoutForm({ session, fees, onClose }: CheckoutFormProps) {
+function CheckoutForm({ session, fees, form, onSubmit }: CheckoutFormProps) {
   const ctx = useRoster();
   const { center, memberById, branchById, typeById } = ctx;
-  const checkout = useMutation(checkoutSessionMutationOptions(center.id));
-  const reopen = useMutation(reopenSessionMutationOptions(center.id));
-  const [form] = Form.useForm<Values>();
-  const completed = session.status === "completed";
   const canEdit = sessionAccess(session, ctx).canEdit;
 
   const tz = center.timezone;
@@ -126,20 +174,6 @@ function CheckoutForm({ session, fees, onClose }: CheckoutFormProps) {
     salary: trainerSalary,
     fees: fees.map((f) => ({ label: f.label, amount: f.amount })),
   };
-
-  const submit = (values: Values) =>
-    checkout.mutate(
-      {
-        sessionId: session.id,
-        salary: isTrainer ? (values.salary ?? 0) : null,
-        fees: (values.fees ?? []).flatMap((f) =>
-          f?.label?.trim()
-            ? [{ label: f.label.trim(), amount: f.amount ?? 0 }]
-            : [],
-        ),
-      },
-      { onSuccess: onClose },
-    );
 
   const date = inTz(session.starts_at, tz).format("YYYY-MM-DD");
   const details: [string, React.ReactNode][] = [
@@ -182,7 +216,7 @@ function CheckoutForm({ session, fees, onClose }: CheckoutFormProps) {
       form={form}
       layout='vertical'
       initialValues={initialValues}
-      onFinish={submit}
+      onFinish={onSubmit}
       disabled={!canEdit}
     >
       <dl className='mb-4 grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 rounded-md border bg-surface-muted p-3 text-sm'>
@@ -288,41 +322,11 @@ function CheckoutForm({ session, fees, onClose }: CheckoutFormProps) {
         <p className='mb-4 text-sm text-muted-foreground'>None</p>
       )}
 
-      <div className='mb-4 flex items-center justify-between border-t pt-3 text-sm'>
+      <div className='flex items-center justify-between border-t pt-3 text-sm'>
         <span className='text-foreground-light'>Total pay</span>
         <span className='font-medium text-foreground tabular-nums'>
           {formatAmount(salary + feeTotal)}
         </span>
-      </div>
-
-      <div className='flex items-center gap-2'>
-        {completed && canEdit && (
-          <Popconfirm
-            title='Undo completion?'
-            description='It goes back to scheduled and its salary and fees are cleared.'
-            okText='Undo completion'
-            onConfirm={() => reopen.mutate(session.id, { onSuccess: onClose })}
-          >
-            <Button disabled={false} loading={reopen.isPending}>
-              Undo completion
-            </Button>
-          </Popconfirm>
-        )}
-        <div className='ms-auto flex gap-2'>
-          <Button disabled={false} onClick={onClose}>
-            {canEdit ? "Cancel" : "Close"}
-          </Button>
-          {canEdit && (
-            <Button
-              type='primary'
-              disabled={false}
-              loading={checkout.isPending}
-              onClick={() => form.submit()}
-            >
-              {completed ? "Save" : "Complete"}
-            </Button>
-          )}
-        </div>
       </div>
     </Form>
   );

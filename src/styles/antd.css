@@ -263,15 +263,67 @@
     inset-inline-end: 12px;
   }
 
-  /* ---------- Modal: bottom sheet on phones ---------- */
+  /* ---------- Modal: always fits the screen ---------- */
+  /* Every dialog keeps a margin on all four sides and never grows taller than
+     the screen: the header and footer stay put and the body scrolls. */
+  .ant-modal-root {
+    --modal-gap: 24px;
+    --modal-top: clamp(var(--modal-gap), 10dvh, 100px);
+  }
+
+  .ant-modal {
+    top: var(--modal-top);
+    max-width: calc(100vw - 2 * var(--modal-gap));
+    padding-bottom: var(--modal-gap);
+  }
+
+  .ant-modal-wrap.ant-modal-centered .ant-modal {
+    top: 0;
+    padding-block: var(--modal-gap);
+  }
+
+  .ant-modal .ant-modal-container {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - var(--modal-top) - var(--modal-gap));
+  }
+
+  .ant-modal-wrap.ant-modal-centered .ant-modal .ant-modal-container {
+    max-height: calc(100dvh - 2 * var(--modal-gap));
+  }
+
+  .ant-modal .ant-modal-header,
+  .ant-modal .ant-modal-footer {
+    flex-shrink: 0;
+  }
+
+  .ant-modal .ant-modal-body {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Room for the 3px focus ring, which the scroll area would clip. */
+    margin: -4px;
+    padding: 4px;
+  }
+
+  /* ---------- Modal: sheet on phones ---------- */
   /* Below md (768px, where session drawers also open from the bottom) every
-     dialog, including Modal.confirm, docks to the bottom at full width and
-     slides up instead of zooming. */
+     dialog, including Modal.confirm, sits at the bottom with a 12px margin on
+     every side (plus the safe areas) and slides up instead of zooming. */
   @media (max-width: 767.98px) {
+    .ant-modal-root {
+      --modal-gap: 12px;
+    }
+
     .ant-modal-wrap {
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
+      padding: max(var(--modal-gap), env(safe-area-inset-top))
+        max(var(--modal-gap), env(safe-area-inset-right))
+        max(var(--modal-gap), env(safe-area-inset-bottom))
+        max(var(--modal-gap), env(safe-area-inset-left));
     }
 
     /* `centered` modals align with a ::before strut; not needed here. */
@@ -279,25 +331,28 @@
       display: none;
     }
 
-    .ant-modal {
+    .ant-modal,
+    .ant-modal-wrap.ant-modal-centered .ant-modal {
       top: 0;
       /* antd sets the width inline. */
       width: 100% !important;
       max-width: 100%;
       margin: 0;
-      padding-bottom: 0;
+      padding: 0;
     }
 
-    .ant-modal .ant-modal-container {
-      max-height: 90dvh;
-      overflow-y: auto;
-      border-radius: 16px 16px 0 0;
-      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    .ant-modal .ant-modal-container,
+    .ant-modal-wrap.ant-modal-centered .ant-modal .ant-modal-container {
+      max-height: calc(
+        100dvh - max(var(--modal-gap), env(safe-area-inset-top)) -
+          max(var(--modal-gap), env(safe-area-inset-bottom))
+      );
+      border-radius: 16px;
     }
 
     .ant-modal.ant-zoom-enter,
     .ant-modal.ant-zoom-appear {
-      transform: translateY(100%);
+      transform: translateY(calc(100% + var(--modal-gap)));
       opacity: 1;
     }
 

@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import dayjs, { type Dayjs } from "dayjs";
 import {
   Alert,
-  Button,
   Form,
   Input,
   InputNumber,
@@ -11,9 +10,13 @@ import {
   TimePicker,
 } from "antd";
 import { updateRepeatMutationOptions } from "../../apis/repeats";
-import { MAX_SESSION_HOURS } from "../../constants/options";
+import {
+  MAX_SESSION_HOURS,
+  REPEAT_PERIOD_OPTIONS,
+  repeatPeriodOf,
+} from "../../constants/options";
 import { useRoster } from "../../context/roster-context";
-import type { Repeat } from "../../models/roster";
+import type { Repeat, RepeatPeriod } from "../../models/roster";
 import { hhmm, minSessionMinutes, openingHours } from "../../utils/time";
 import { WeekdayPicker } from "../molecules";
 
@@ -22,6 +25,7 @@ const TIME = "HH:mm";
 type Values = {
   branchId: string;
   sessionTypeId?: string;
+  period: RepeatPeriod;
   weekdays: number[];
   time: [Dayjs, Dayjs];
   traineeCount: number;
@@ -87,6 +91,7 @@ export function RepeatModal({ repeat, onClose }: RepeatModalProps) {
         title: values.title?.trim() || null,
         note: values.note?.trim() || null,
         traineeCount: values.traineeCount,
+        period: values.period,
       },
       { onSuccess: onClose },
     );
@@ -96,7 +101,9 @@ export function RepeatModal({ repeat, onClose }: RepeatModalProps) {
       open
       title='Edit repeat'
       onCancel={onClose}
-      footer={null}
+      onOk={() => form.submit()}
+      okText='Save changes'
+      confirmLoading={update.isPending}
       width={520}
       destroyOnHidden
     >
@@ -114,6 +121,7 @@ export function RepeatModal({ repeat, onClose }: RepeatModalProps) {
         initialValues={{
           branchId: repeat.branch_id,
           sessionTypeId: repeat.session_type_id ?? undefined,
+          period: repeatPeriodOf(repeat),
           weekdays: repeat.weekdays,
           time: [asTime(repeat.starts_time), asTime(repeat.ends_time)],
           traineeCount: repeat.trainee_count,
@@ -124,6 +132,12 @@ export function RepeatModal({ repeat, onClose }: RepeatModalProps) {
       >
         <Form.Item label='Trainer'>
           <Input value={member?.display_name ?? "—"} disabled />
+        </Form.Item>
+        <Form.Item name='period' label='Repeat'>
+          <Select<RepeatPeriod>
+            aria-label='Repeat'
+            options={REPEAT_PERIOD_OPTIONS}
+          />
         </Form.Item>
         <Form.Item
           name='weekdays'
@@ -222,12 +236,6 @@ export function RepeatModal({ repeat, onClose }: RepeatModalProps) {
             autoSize={{ minRows: 2, maxRows: 6 }}
           />
         </Form.Item>
-        <div className='flex justify-end gap-2'>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button type='primary' htmlType='submit' loading={update.isPending}>
-            Save changes
-          </Button>
-        </div>
       </Form>
     </Modal>
   );

@@ -1,4 +1,4 @@
-import type { SessionStatus } from "../models/roster";
+import type { Repeat, RepeatPeriod, SessionStatus } from "../models/roster";
 
 export const DEFAULT_TIMEZONE = "Asia/Ho_Chi_Minh";
 
@@ -43,3 +43,13 @@ export const MAX_SESSION_HOURS = 12;
 export const OVERLAP_CONSTRAINT = "roster_sessions_no_overlap";
 
 export const ROSTER_LEAVE_NOTE = "Your centers and sessions stay as they are.";
+
+export const DEFAULT_REPEAT_PERIOD: RepeatPeriod = "week";
+
+export const REPEAT_PERIOD_OPTIONS: { value: RepeatPeriod; label: string }[] = [
+  { value: "week", label: "Every week" },
+  { value: "month", label: "Every month" },
+];
+
+export const repeatPeriodOf = (repeat: Pick<Repeat, "period">): RepeatPeriod =>
+  repeat.period === "month" ? "month" : "week";
