@@ -17,6 +17,11 @@ function NotificationBridge() {
   return contextHolder;
 }
 
+// Popups opened in a modal render into it, so antd.css can show them as
+// bottom sheets on phones.
+const popupContainer = (trigger?: HTMLElement) =>
+  trigger?.closest<HTMLElement>(".ant-modal-wrap") ?? document.body;
+
 interface AntdProviderProps {
   children: ReactNode;
 }
@@ -28,6 +33,7 @@ export function AntdProvider({ children }: AntdProviderProps) {
     <StyleProvider layer>
       <ConfigProvider
         theme={theme}
+        getPopupContainer={popupContainer}
         wave={{ disabled: true }}
         spin={{ indicator: <SpinnerIcon /> }}
         tooltip={{ arrow: false }}

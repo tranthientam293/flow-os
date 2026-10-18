@@ -105,6 +105,25 @@
     color: var(--muted-foreground);
   }
 
+  /* iOS Safari zooms into any focused field under 16px. On touch screens
+     text fields use 16px so focusing one never zooms the page. */
+  @media (pointer: coarse) {
+    .ant-input,
+    .ant-input-affix-wrapper,
+    .ant-input-number,
+    .ant-input-number-input,
+    .ant-select,
+    .ant-select input,
+    .ant-picker,
+    .ant-picker input,
+    .ant-mentions,
+    input:not([type="checkbox"], [type="radio"], [type="range"]),
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
+
   /* ---------- Form: 12px error + hint text under fields ---------- */
   .ant-form-item .ant-form-item-explain,
   .ant-form-item .ant-form-item-extra {
@@ -284,11 +303,124 @@
 
     .ant-modal.ant-zoom-enter.ant-zoom-enter-active,
     .ant-modal.ant-zoom-appear.ant-zoom-appear-active {
-      animation-name: flow-sheet-up;
+      animation: sheet-up var(--sheet-duration) var(--sheet-ease) both;
     }
 
     .ant-modal.ant-zoom-leave.ant-zoom-leave-active {
-      animation-name: flow-sheet-down;
+      animation: sheet-down var(--sheet-duration) var(--sheet-ease) both;
+    }
+  }
+
+  /* ---------- Popups in a modal: bottom sheets on phones ---------- */
+  /* Popups opened inside a modal render into its .ant-modal-wrap (the global
+     getPopupContainer in AntdProvider). Below md, Select, DatePicker and
+     TimePicker popups there dock to the bottom at full width over a dim
+     backdrop and slide up like the modal sheets. antd positions popups
+     inline, hence the !important. */
+  @media (max-width: 767.98px) {
+    .ant-modal-wrap :is(.ant-select-dropdown, .ant-picker-dropdown) {
+      position: fixed !important;
+      inset: auto 0 0 0 !important;
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none;
+      border-radius: 16px 16px 0 0;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom));
+      box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.45);
+    }
+
+    .ant-modal-wrap
+      :is(.ant-select-dropdown, .ant-picker-dropdown):is(
+        .ant-slide-up-enter,
+        .ant-slide-up-appear,
+        .ant-slide-down-enter,
+        .ant-slide-down-appear
+      ) {
+      transform: translateY(100%);
+      opacity: 1;
+    }
+
+    .ant-modal-wrap
+      :is(.ant-select-dropdown, .ant-picker-dropdown):is(
+        .ant-slide-up-enter-active,
+        .ant-slide-up-appear-active,
+        .ant-slide-down-enter-active,
+        .ant-slide-down-appear-active
+      ) {
+      animation: sheet-up var(--sheet-duration) var(--sheet-ease) both;
+    }
+
+    .ant-modal-wrap
+      :is(.ant-select-dropdown, .ant-picker-dropdown):is(
+        .ant-slide-up-leave-active,
+        .ant-slide-down-leave-active
+      ) {
+      animation: sheet-down var(--sheet-duration) var(--sheet-ease) both;
+    }
+
+    .ant-modal-wrap .ant-select-dropdown {
+      padding: 8px;
+    }
+
+    .ant-modal-wrap .ant-select-dropdown .ant-select-item {
+      min-height: 44px;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+
+    .ant-modal-wrap .ant-picker-dropdown {
+      padding: 0;
+      background: var(--popover);
+    }
+
+    .ant-modal-wrap
+      .ant-picker-dropdown
+      :is(.ant-picker-arrow, .ant-picker-range-arrow) {
+      display: none;
+    }
+
+    /* Range pickers offset the panel inline to sit under the active input. */
+    .ant-modal-wrap .ant-picker-dropdown .ant-picker-panel-container {
+      margin: 0 !important;
+    }
+
+    .ant-modal-wrap
+      .ant-picker-dropdown
+      .ant-picker-time-panel
+      .ant-picker-content {
+      width: 100%;
+    }
+
+    .ant-modal-wrap .ant-picker-dropdown .ant-picker-time-panel-column {
+      flex: 1;
+    }
+
+    .ant-modal-wrap .ant-picker-dropdown .ant-picker-time-panel-cell-inner {
+      width: auto !important;
+      margin-inline: 4px !important;
+      padding-inline: 0 !important;
+      text-align: center;
+    }
+
+    .ant-modal-wrap .ant-picker-dropdown .ant-picker-panel-container {
+      border-radius: 16px 16px 0 0;
+      box-shadow: none;
+    }
+
+    .ant-modal-wrap
+      .ant-picker-dropdown
+      :is(
+        .ant-picker-panel-layout,
+        .ant-picker-panel,
+        .ant-picker-date-panel,
+        .ant-picker-month-panel,
+        .ant-picker-time-panel
+      ) {
+      width: 100%;
+    }
+
+    .ant-modal-wrap .ant-picker-dropdown .ant-picker-panel-layout > div {
+      flex: 1;
     }
   }
 
@@ -297,23 +429,5 @@
   .ant-drawer-left .ant-drawer-section {
     border-inline-end: 1px solid var(--border);
     box-shadow: none;
-  }
-}
-
-@keyframes flow-sheet-up {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes flow-sheet-down {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(100%);
   }
 }

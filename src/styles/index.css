@@ -54,6 +54,9 @@
   --color-warning-border: var(--warning-border);
   --color-destructive-soft: var(--destructive-soft);
   --color-destructive-border: var(--destructive-border);
+
+  --animate-sheet-up: sheet-up var(--sheet-duration) var(--sheet-ease) both;
+  --animate-sheet-down: sheet-down var(--sheet-duration) var(--sheet-ease) both;
 }
 
 @layer base {
@@ -100,6 +103,25 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+
+/* Bottom sheets: slide up from below the screen, and back down. */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
 }
 
 @keyframes fade-up {
