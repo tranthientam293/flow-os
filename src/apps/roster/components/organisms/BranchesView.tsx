@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Archive, ArchiveRestore, MapPin, Pencil, Plus } from "lucide-react";
 import { Button, Form, Grid, Input, Modal, Switch, Table } from "antd";
@@ -17,12 +17,17 @@ import { todayIn, weekStartOf } from "../../utils/time";
 import { BranchTag } from "../atoms";
 
 type Values = Pick<Branch, "name" | "code"> & { address?: string };
+type BranchModalState = { isOpen: boolean; data: Branch | null };
 
 export function BranchesView() {
   const { center, branches, memberBranches, anyBranchIds } = useRoster();
   const screens = Grid.useBreakpoint();
   const [showArchived, setShowArchived] = useState(false);
-  const [editing, setEditing] = useState<Branch | "new" | null>(null);
+  const [branchModalState, setBranchModalState] = useState<BranchModalState>({
+    isOpen: false,
+    data: null,
+  });
+
   const archive = useMutation(archiveBranchMutationOptions(center.id));
   const { all: weekSessions } = useSessions(
     weekStartOf(todayIn(center.timezone), center.week_start),
@@ -30,7 +35,11 @@ export function BranchesView() {
     { applyFilters: false },
   );
 
-  const visible = branches.filter((b) => showArchived || !b.archived_at);
+  const visible = useMemo(
+    () => branches.filter((b) => showArchived || !b.archived_at),
+    [branches, showArchived],
+  );
+
   const trainersAt = (id: string) =>
     new Set([
       ...memberBranches
@@ -52,7 +61,7 @@ export function BranchesView() {
           title='Edit'
           aria-label={`Edit ${branch.name}`}
           className='text-foreground-light!'
-          onClick={() => setEditing(branch)}
+          onClick={() => setBranchModalState({ isOpen: true, data: branch })}
         />
         <Button
           type='text'
@@ -65,6 +74,10 @@ export function BranchesView() {
         />
       </div>
     );
+  };
+
+  const closeBranchModal = () => {
+    setBranchModalState((prev) => ({ ...prev, isOpen: false }));
   };
 
   return (
@@ -82,7 +95,7 @@ export function BranchesView() {
         <Button
           type='primary'
           icon={<Plus />}
-          onClick={() => setEditing("new")}
+          onClick={() => setBranchModalState({ isOpen: true, data: null })}
         >
           Add branch
         </Button>
@@ -158,57 +171,62 @@ export function BranchesView() {
         </ul>
       )}
 
-      <BranchModal branch={editing} onClose={() => setEditing(null)} />
+      <BranchModal
+        open={branchModalState.isOpen}
+        data={branchModalState.data}
+        onClose={closeBranchModal}
+      />
     </div>
   );
 }
 
-function BranchModal({
-  branch,
-  onClose,
-}: {
-  branch: Branch | "new" | null;
+type BranchModalProps = {
+  open: boolean;
+  data: Branch | null;
   onClose: () => void;
-}) {
+};
+
+function BranchModal({ data, open, onClose }: BranchModalProps) {
   const { center, branches } = useRoster();
   const [form] = Form.useForm<Values>();
   const save = useMutation(saveBranchMutationOptions(center.id));
-  const existing = branch && branch !== "new" ? branch : null;
 
   const onFinish = (values: Values) =>
     save.mutate(
       {
-        id: existing?.id,
+        id: data?.id,
         name: values.name.trim(),
         code: values.code.trim(),
-        // Colors are picked automatically: the most distinct unused one.
-        color: existing?.color ?? nextColor(branches.map((b) => b.color)),
+        color: data?.color ?? nextColor(branches.map((b) => b.color)),
         address: values.address?.trim() || null,
       },
       { onSuccess: onClose },
     );
 
+  useLayoutEffect(() => {
+    if (!open) return;
+    if (data) {
+      form.setFieldsValue({
+        address: data.address ?? undefined,
+        code: data.code,
+        name: data.name,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [open, data, form]);
+
   return (
     <Modal
-      open={!!branch}
-      title={existing ? "Edit branch" : "Add branch"}
+      open={open}
+      title={data ? "Edit branch" : "Add branch"}
       onCancel={onClose}
       onOk={() => form.submit()}
       okText='Save'
       confirmLoading={save.isPending}
       destroyOnHidden
     >
-      <Form
-        form={form}
-        layout='vertical'
-        preserve={false}
-        onFinish={onFinish}
-        initialValues={
-          existing
-            ? { ...existing, address: existing.address ?? undefined }
-            : undefined
-        }
-      >
+      <Form form={form} layout='vertical' onFinish={onFinish}>
         <div className='grid grid-cols-[1fr_7rem] gap-3'>
           <Form.Item
             name='name'

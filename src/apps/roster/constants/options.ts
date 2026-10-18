@@ -42,7 +42,7 @@ export const SESSION_STATUS_COLOR: Record<string, string> = {
 export const statusColor = (status: string) =>
   SESSION_STATUS_COLOR[status] ?? SESSION_STATUS_COLOR.scheduled;
 
-export const MIN_SESSION_MINUTES = 60;
+export const MIN_SESSION_MINUTES = 1;
 export const MAX_SESSION_HOURS = 12;
 
 export const OVERLAP_CONSTRAINT = "roster_sessions_no_overlap";

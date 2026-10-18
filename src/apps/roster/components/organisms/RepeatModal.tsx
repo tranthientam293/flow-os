@@ -149,7 +149,7 @@ export function RepeatModal({
         <Form.Item
           name='time'
           label='Time'
-          extra={`At least 1 hour. Open ${hours.open}–${hours.close === "24:00" ? "midnight" : hours.close}.`}
+          extra={`Open ${hours.open}–${hours.close === "24:00" ? "midnight" : hours.close}.`}
           rules={[
             { required: true, message: "Choose a start and end time" },
             {
@@ -162,7 +162,9 @@ export function RepeatModal({
                 if (e.format(TIME) > hours.close)
                   return Promise.reject(new Error(`Closes at ${hours.close}`));
                 if (minutes < MIN_SESSION_MINUTES)
-                  return Promise.reject(new Error("At least 1 hour"));
+                  return Promise.reject(
+                    new Error(`At least ${MIN_SESSION_MINUTES} minute(s)`),
+                  );
                 if (minutes > MAX_SESSION_HOURS * 60)
                   return Promise.reject(
                     new Error(`At most ${MAX_SESSION_HOURS} hours`),
@@ -175,7 +177,7 @@ export function RepeatModal({
           <TimePicker.RangePicker
             className='w-full'
             format={TIME}
-            minuteStep={5}
+            minuteStep={1}
             needConfirm={false}
             allowClear={false}
             order
