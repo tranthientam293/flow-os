@@ -17,6 +17,7 @@ import {
   RosterHeader,
 } from "./components/organisms";
 import {
+  DELETED_PATH,
   INCOME_PATH,
   REPEATS_PATH,
   SECTIONS,
@@ -91,6 +92,18 @@ export default function RosterApp() {
                         <SectionPage
                           section={s.key}
                           view='repeats'
+                          {...sectionProps}
+                        />
+                      }
+                    />
+                  )}
+                  {s.key === "work" && (
+                    <Route
+                      path={DELETED_PATH}
+                      element={
+                        <SectionPage
+                          section={s.key}
+                          view='deleted'
                           {...sectionProps}
                         />
                       }

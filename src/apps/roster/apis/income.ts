@@ -26,6 +26,7 @@ export const incomeQueryOptions = (
           .eq("center_id", centerId)
           .eq("member_id", memberId)
           .eq("status", "completed")
+          .is("deleted_at", null)
           .gte("starts_at", from)
           .lt("starts_at", to < now ? to : now)
           .order("starts_at"),

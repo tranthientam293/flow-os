@@ -25,6 +25,7 @@ export const sessionsQueryOptions = (
         .from("roster_sessions")
         .select("*")
         .eq("center_id", centerId)
+        .is("deleted_at", null)
         .lt("starts_at", to)
         .gt("ends_at", from);
       if (memberId) query = query.eq("member_id", memberId);
@@ -162,5 +163,59 @@ export const setSessionStatusMutationOptions = (centerId: string) =>
             ? "Session restored"
             : "Session updated",
       errorMessage: "Could not update session",
+    },
+  });
+
+// Deletes one session (roster_delete_session): a soft delete, so its trainer
+// can restore it from the Deleted tab. A repeat keeps running without that day.
+export const deleteSessionMutationOptions = (centerId: string) =>
+  mutationOptions({
+    mutationFn: async (sessionId: string) => {
+      check(
+        await supabase.rpc("roster_delete_session", {
+          p_session_id: sessionId,
+        }),
+      );
+    },
+    onSuccess: () => refreshCenter(centerId),
+    meta: {
+      successMessage: "Session deleted",
+      errorMessage: "Could not delete session",
+    },
+  });
+
+// One trainer's deleted sessions at a center, most recently deleted first.
+export const deletedSessionsQueryOptions = (
+  centerId: string,
+  memberId: string,
+) =>
+  queryOptions({
+    queryKey: ROSTER_KEYS.deletedSessions(centerId, memberId),
+    queryFn: async (): Promise<Session[]> =>
+      check(
+        await supabase
+          .from("roster_sessions")
+          .select("*")
+          .eq("center_id", centerId)
+          .eq("member_id", memberId)
+          .not("deleted_at", "is", null)
+          .order("deleted_at", { ascending: false }),
+      ),
+  });
+
+// Brings a deleted session back (roster_restore_session).
+export const restoreSessionMutationOptions = (centerId: string) =>
+  mutationOptions({
+    mutationFn: async (sessionId: string) => {
+      check(
+        await supabase.rpc("roster_restore_session", {
+          p_session_id: sessionId,
+        }),
+      );
+    },
+    onSuccess: () => refreshCenter(centerId),
+    meta: {
+      successMessage: "Session restored",
+      errorMessage: "Could not restore session",
     },
   });

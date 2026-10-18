@@ -123,9 +123,9 @@ export type Database = {
         ]
       }
       roster_sessions: {
-        Row: { branch_id: string; center_id: string; completed_at: string | null; created_at: string; created_by: string | null; ends_at: string; id: string; member_id: string; note: string | null; repeat_id: string | null; salary: number | null; session_type_id: string | null; starts_at: string; status: string; title: string | null; trainee_count: number; updated_at: string; updated_by: string | null }
-        Insert: { branch_id: string; center_id: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at: string; id?: string; member_id: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at: string; status?: string; title?: string | null; trainee_count?: number; updated_at?: string; updated_by?: string | null }
-        Update: { branch_id?: string; center_id?: string; completed_at?: string | null; created_at?: string; created_by?: string | null; ends_at?: string; id?: string; member_id?: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at?: string; status?: string; title?: string | null; trainee_count?: number; updated_at?: string; updated_by?: string | null }
+        Row: { branch_id: string; center_id: string; completed_at: string | null; created_at: string; created_by: string | null; deleted_at: string | null; deleted_by: string | null; ends_at: string; id: string; member_id: string; note: string | null; repeat_id: string | null; salary: number | null; session_type_id: string | null; starts_at: string; status: string; title: string | null; trainee_count: number; updated_at: string; updated_by: string | null }
+        Insert: { branch_id: string; center_id: string; completed_at?: string | null; created_at?: string; created_by?: string | null; deleted_at?: string | null; deleted_by?: string | null; ends_at: string; id?: string; member_id: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at: string; status?: string; title?: string | null; trainee_count?: number; updated_at?: string; updated_by?: string | null }
+        Update: { branch_id?: string; center_id?: string; completed_at?: string | null; created_at?: string; created_by?: string | null; deleted_at?: string | null; deleted_by?: string | null; ends_at?: string; id?: string; member_id?: string; note?: string | null; repeat_id?: string | null; salary?: number | null; session_type_id?: string | null; starts_at?: string; status?: string; title?: string | null; trainee_count?: number; updated_at?: string; updated_by?: string | null }
         Relationships: [
           { foreignKeyName: "roster_sessions_center_id_branch_id_fkey"; columns: ["center_id", "branch_id"]; isOneToOne: false; referencedRelation: "roster_branches"; referencedColumns: ["center_id", "id"] },
           { foreignKeyName: "roster_sessions_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
@@ -157,6 +157,7 @@ export type Database = {
         Args: { p_color: string; p_display_name: string; p_name: string; p_timezone: string }
         Returns: string
       }
+      roster_delete_session: { Args: { p_session_id: string }; Returns: undefined }
       roster_in_current_month: { Args: { p_center_id: string; p_ts: string }; Returns: boolean }
       roster_is_owner: { Args: { p_center_id: string }; Returns: boolean }
       roster_leave_center: { Args: { p_center_id: string }; Returns: undefined }
@@ -175,6 +176,7 @@ export type Database = {
         Returns: undefined
       }
       roster_reopen_session: { Args: { p_session_id: string }; Returns: undefined }
+      roster_restore_session: { Args: { p_session_id: string }; Returns: undefined }
       roster_stop_repeat: { Args: { p_repeat_id: string }; Returns: number }
       roster_start_repeat: {
         Args: { p_branch_id: string; p_center_id: string; p_ends_time: string; p_member_id: string; p_note: string | null; p_session_type_id: string | null; p_starts_on: string; p_starts_time: string; p_title: string | null; p_trainee_count?: number; p_weekdays: number[] }

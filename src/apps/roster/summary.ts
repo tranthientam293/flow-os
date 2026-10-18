@@ -41,6 +41,7 @@ export async function getSummary({
     .select("id", { count: "exact", head: true })
     .eq("member_id", membership.id)
     .in("status", ["scheduled", "completed"])
+    .is("deleted_at", null)
     .gte("starts_at", dayStartIso(today, center.timezone))
     .lt("starts_at", dayStartIso(addDays(today, 1), center.timezone));
 

@@ -13,6 +13,8 @@ const ACTION_LABEL: Record<string, string> = {
   cancelled: "Cancelled",
   missed: "Marked missed",
   restored: "Restored",
+  deleted: "Deleted",
+  undeleted: "Restored from Deleted",
 };
 
 // A session's history, newest first, and a "Completed by you" style label.

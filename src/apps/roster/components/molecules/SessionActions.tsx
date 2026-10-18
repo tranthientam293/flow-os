@@ -1,9 +1,10 @@
 import type { ComponentProps } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Ban, CircleCheck, Eye, Pencil, RotateCcw } from "lucide-react";
+import { Ban, CircleCheck, Eye, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import { Button, Grid, Popconfirm } from "antd";
 import { cn } from "@/utils";
 import {
+  deleteSessionMutationOptions,
   reopenSessionMutationOptions,
   setSessionStatusMutationOptions,
 } from "../../apis/sessions";
@@ -16,29 +17,36 @@ import { sessionAccess } from "../../utils/permissions";
 type Tone = "neutral" | "danger" | "primary";
 type ButtonProps = ComponentProps<typeof Button>;
 
-// A session's actions: Cancel, Edit, Restore and Complete. The session drawer
-// shows them with labels (Cancel on the left, the rest on the right); the
-// calendar popup shows them as text icon buttons on the right, named by their
-// title, plus View to open the drawer.
+interface Props {
+  session: Session;
+  onEdit: () => void;
+  /**
+   * After an action, e.g. to close the drawer or popup.
+   */
+  onDone: () => void;
+  onView?: () => void;
+  iconOnly?: boolean;
+}
+
+/**
+ * A session's actions: Delete, Cancel, Edit, Restore and Complete. The session
+ * drawer shows them with labels (Delete as an icon, then Cancel, on the left;
+ * the rest on the right); the calendar popup shows them as text icon buttons
+ * on the right, named by their title, plus View to open the drawer.
+ */
 export function SessionActions({
   session,
   onEdit,
   onDone,
   onView,
   iconOnly = false,
-}: {
-  session: Session;
-  onEdit: () => void;
-  // After an action, e.g. to close the drawer or popup.
-  onDone: () => void;
-  onView?: () => void;
-  iconOnly?: boolean;
-}) {
+}: Props) {
   const ctx = useRoster();
   const access = sessionAccess(session, ctx);
   const now = useNow();
   const setStatus = useMutation(setSessionStatusMutationOptions(ctx.center.id));
   const reopen = useMutation(reopenSessionMutationOptions(ctx.center.id));
+  const remove = useMutation(deleteSessionMutationOptions(ctx.center.id));
   const { openCheckout } = useCheckout();
   // Icon buttons get a finger-sized target on phones.
   const phone = Grid.useBreakpoint().md === false;
@@ -48,11 +56,8 @@ export function SessionActions({
   const started = Date.parse(session.starts_at) <= now;
   const { status } = session;
   const canEdit = access.canEdit;
-  // Completed and cancelled sessions aren't edited, only restored.
   const editable = status === "scheduled" || status === "missed";
 
-  // Labelled buttons in the drawer; plain text icon buttons in the popup (only
-  // Cancel keeps the danger color).
   const look = (text: string, tone: Tone, main = false): ButtonProps =>
     iconOnly
       ? {
@@ -77,10 +82,28 @@ export function SessionActions({
     <div
       className={cn("flex items-center gap-2", iconOnly && "justify-end gap-1")}
     >
+      {/* The owner, or the session's own trainer, while it's in this month. */}
+      {canEdit && (
+        <Popconfirm
+          title='Delete this session?'
+          okText='Delete'
+          okButtonProps={{ danger: true }}
+          onConfirm={() => remove.mutate(session.id, { onSuccess: onDone })}
+        >
+          <Button
+            type='text'
+            danger
+            size={iconOnly ? (phone ? "large" : "small") : undefined}
+            icon={<Trash2 />}
+            title='Delete'
+            aria-label='Delete session'
+            loading={remove.isPending}
+          />
+        </Popconfirm>
+      )}
       {canEdit && status === "scheduled" && (
         <Popconfirm
           title='Cancel this session?'
-          description='It stays on the schedule, marked cancelled. You can restore it later.'
           okText='Cancel session'
           okButtonProps={{ danger: true }}
           cancelText='Keep'

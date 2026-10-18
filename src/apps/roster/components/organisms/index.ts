@@ -5,6 +5,7 @@ export * from "./CenterList";
 export * from "./CenterShell";
 export * from "./CheckoutModal";
 export * from "./CheckoutProvider";
+export * from "./DeletedSessionsView";
 export * from "./IncomeView";
 export * from "./InviteBell";
 export * from "./MySalaryForm";

@@ -1,4 +1,4 @@
-import { CalendarDays, Repeat, Wallet } from "lucide-react";
+import { CalendarDays, Repeat, Trash2, Wallet } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { cn } from "@/utils";
@@ -7,16 +7,18 @@ import { repeatsQueryOptions } from "../../apis/repeats";
 import { useRosterPaths } from "../../hooks/useRosterPaths";
 import type { Membership } from "../../models/roster";
 import { AllCentersSchedule } from "./AllCentersSchedule";
+import { MyDeletedView } from "./DeletedSessionsView";
 import { IncomeView } from "./IncomeView";
 import { MyRepeatsView } from "./RepeatsView";
 
-export type WorkView = "schedule" | "income" | "repeats";
+export type WorkView = "schedule" | "income" | "repeats" | "deleted";
 
 const TABS = [
   { key: "schedule", label: "Schedule", icon: CalendarDays },
   { key: "income", label: "Income", icon: Wallet },
   // Shown only while you have active repeats (or it's open).
   { key: "repeats", label: "Repeats", icon: Repeat },
+  { key: "deleted", label: "Deleted", icon: Trash2 },
 ] as const;
 
 // My schedule across all centers, with tabs like a center's in Manage centers.
@@ -59,7 +61,9 @@ export function WorkShell({
                     ? paths.income
                     : t.key === "repeats"
                       ? paths.repeats
-                      : paths.section(section),
+                      : t.key === "deleted"
+                        ? paths.deleted
+                        : paths.section(section),
                 )
               }
               className={cn(
@@ -77,6 +81,8 @@ export function WorkShell({
       <div className='min-h-0 flex-1'>
         {view === "repeats" ? (
           <MyRepeatsView section={section} memberships={memberships} />
+        ) : view === "deleted" ? (
+          <MyDeletedView section={section} memberships={memberships} />
         ) : view === "income" ? (
           <IncomeView section={section} memberships={memberships} />
         ) : (

@@ -22,6 +22,7 @@ export type RosterTab =
 export const SETTINGS_PATH = "settings";
 export const INCOME_PATH = "income";
 export const REPEATS_PATH = "repeats";
+export const DELETED_PATH = "deleted";
 
 export const SECTIONS: {
   key: RosterSection;

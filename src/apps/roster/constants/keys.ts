@@ -27,6 +27,8 @@ export const ROSTER_KEYS = {
     ["roster", "center", centerId, "repeat", repeatId] as const,
   sessionFees: (centerId: string, sessionId: string) =>
     ["roster", "center", centerId, "session-fees", sessionId] as const,
+  deletedSessions: (centerId: string, memberId: string) =>
+    ["roster", "center", centerId, "deleted-sessions", memberId] as const,
   sessions: (centerId: string, from: string, to: string, memberId?: string) =>
     [
       "roster",
