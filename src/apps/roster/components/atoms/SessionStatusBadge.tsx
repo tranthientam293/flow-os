@@ -7,17 +7,18 @@ const STATUS = {
   missed: { label: "Missed", variant: "warning" },
 } as const;
 
-// Shown for any session that isn't simply scheduled.
+interface SessionStatusBadgeProps {
+  status: string;
+  /** Smaller, for schedule blocks. */
+  compact?: boolean;
+  className?: string;
+}
+
 export function SessionStatusBadge({
   status,
   compact = false,
   className,
-}: {
-  status: string;
-  // Smaller, for schedule blocks.
-  compact?: boolean;
-  className?: string;
-}) {
+}: SessionStatusBadgeProps) {
   const info = STATUS[status as keyof typeof STATUS];
   if (!info) return null;
   return (

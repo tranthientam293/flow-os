@@ -20,16 +20,12 @@ import {
 } from "../../utils/time";
 import { BranchTag } from "../atoms";
 
-// My schedule → Deleted: your deleted sessions at every center you train at,
-// most recently deleted first. Restore works while a session is in the
-// current month.
-export function MyDeletedView({
-  section,
-  memberships,
-}: {
+interface MyDeletedViewProps {
   section: RosterSection;
   memberships: Membership[];
-}) {
+}
+
+export function MyDeletedView({ section, memberships }: MyDeletedViewProps) {
   const { contexts } = useCenterContexts(section, memberships, () => {});
   const queries = useQueries({
     queries: memberships.map((m) =>
@@ -76,7 +72,11 @@ export function MyDeletedView({
   );
 }
 
-function DeletedTable({ sessions }: { sessions: Session[] }) {
+interface DeletedTableProps {
+  sessions: Session[];
+}
+
+function DeletedTable({ sessions }: DeletedTableProps) {
   const { center, branchById, typeById } = useRoster();
   const tz = center.timezone;
   const restore = useMutation(restoreSessionMutationOptions(center.id));
@@ -120,17 +120,17 @@ function DeletedTable({ sessions }: { sessions: Session[] }) {
           key: "actions",
           align: "right",
           render: (_, s) => {
-            const open = inCurrentMonth(center, s.starts_at);
+            const canRestore = inCurrentMonth(center, s.starts_at);
             return (
               <Button
                 size='small'
                 icon={<ArchiveRestore />}
                 title={
-                  open
+                  canRestore
                     ? undefined
                     : "Only sessions in the current month can be restored"
                 }
-                disabled={!open}
+                disabled={!canRestore}
                 loading={restore.isPending && restore.variables === s.id}
                 onClick={() => restore.mutate(s.id)}
               >

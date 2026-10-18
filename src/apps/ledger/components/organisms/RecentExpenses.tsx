@@ -11,10 +11,12 @@ import { CategoryIcon } from "../atoms";
 
 const SHOWN = 5;
 
-// The latest expenses (newest first), to look at; edit them on Expenses.
-export function RecentExpenses({ expenses }: { expenses: Expense[] }) {
+interface RecentExpensesProps {
+  expenses: Expense[];
+}
+
+export function RecentExpenses({ expenses }: RecentExpensesProps) {
   const paths = useLedgerPaths();
-  // Keep the chosen month (?month=…) on the expense list.
   const { search } = useLocation();
 
   return (

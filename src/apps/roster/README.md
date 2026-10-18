@@ -15,6 +15,7 @@ Nested under the platform's `/apps/roster/*` (see `RosterApp.tsx`, `constants/ro
 | `/apps/roster/centers/:id/:tab` | Manage a center you own. Tabs: `schedule`, `trainers`, `branches`, `types`, `settings` (Settings)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `/apps/roster/work`             | **My schedule** ("Your trainer schedule"): your sessions only (loaded by your member id) at every center you train at, in a Calendar or List view (Calendar on desktop, List on phones by default) with a center filter (All centers by default), including centers you own where you turned on "Show me in the trainer list when booking sessions"                                                                                                                                                                                                                                                              |
 | `/apps/roster/work/income`      | **My schedule → Income** tab: your own completed sessions (started and completed) in one month (month picker; future months disabled), every session numbered and listed with date, time, center, branch, title, hours, salary, fees and total; the month's totals (sessions, hours, salary, fees, total) sit in a separate section of tiles above the table. Clicking a row opens a dialog with its salary, each fee and the total; a ✏️ Edit salary and fees icon on each row opens the checkout to change them (while the session is in the current month). Owners who train see only their own sessions here |
+| `/apps/roster/work/deleted`     | **My schedule → Deleted** tab: your deleted sessions at every center you train at, most recently deleted first, with Restore                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `/apps/roster/work/:id/:tab`    | Your work at an invited center. Tabs: `week`, `schedule`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `/apps/roster/settings`         | **My settings**: profile per center, preferences, my centers, Back to flowOS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
@@ -48,6 +49,73 @@ An unknown center goes back to the section's main page; a missing or unknown tab
 | `models/`     | Types derived from `src/models/database.ts`                                     |
 | `utils/`      | Timezone helpers, permissions, overlap layout, colors, errors                   |
 | `summary.ts`  | `getSummary()` for the Overview tile, loaded lazily from the manifest           |
+
+## Business rules
+
+The current rules the code implements. The changelog says when each one changed.
+
+### Centers
+
+- Only Vietnam time (`Asia/Ho_Chi_Minh`) is supported, enforced by a check on `roster_centers.timezone`. To allow more, add zones to `TIMEZONES` in `constants/options.ts` and drop that check.
+- Everything date-based uses the center's timezone.
+
+### Who books and changes sessions
+
+- Sessions can be booked, edited, cancelled, restored, completed, deleted and restored from Deleted only while they start in the center's **current month** (1st to last day). Earlier and later months are locked for everyone.
+- Within that month the **owner** can act on any session, a **trainer** on their own sessions only.
+- Only the owner, and only in **Manage centers**, books for another trainer. **My schedule** always books the signed-in account, also for owners who train.
+- A trainer books at their assigned branches, or at any branch when they're set to "any branch". Archived branches and inactive trainers can't be booked.
+
+### Session time
+
+- A session lies within the center's opening hours and lasts at most 12 hours.
+- It lasts at least 1 minute, or at least its session type's **session length** (`min_session_min`) when it has a type.
+- A new booking starts with the center's **default session length**, stretched to the type's length if that's longer. Changing the start keeps the length; the time picker then moves on to the end time.
+- A trainer can't have two sessions at the same time: scheduled and completed sessions that aren't deleted block it (`roster_sessions_no_overlap`).
+
+### Session types and pay
+
+- A trainer with no session types assigned can teach all of them.
+- Picking a type fills in the title, unless the title was typed by hand.
+- A type pays **per hour** (base salary × hours) or **per trainee** (base salary × trainees). Every session has at least 1 trainee.
+- New types start at the center's default session length.
+- The owner, who isn't paid a salary, can still be given session types (without salaries) to appear as a trainer. Owners don't see the salary form in My settings and never show in the Trainers list; they opt into booking as a trainer in Settings.
+- A trainer's salary for a type is saved as entered when the owner sets it: it starts at the type's default but later changes to the default don't touch it. Without one, the type's default applies.
+- A trainer can set **their own** salary per type they teach (My settings). It prefills their checkouts; while it's empty, the owner's rate for them applies, else the type's default.
+
+### Status
+
+- **Cancel** keeps the session on the schedule, marked cancelled; it can be restored to scheduled.
+- **Complete** goes through the checkout, which records the salary and fees, once the session has started. The session's trainer enters the salary (prefilled from base salary × hours or × trainees); the owner sees it read-only, and the server keeps the saved salary when the owner checks out. Whoever may check out the session edits the fees. Total pay is salary + fees.
+- Completed and cancelled sessions aren't edited, only restored.
+- **Restore** a completed session back to scheduled clears its salary and fees.
+- Every change is recorded in the session's history by a database trigger, shown newest first.
+
+### Deleting
+
+- Deleting is a soft delete (`deleted_at`): the session leaves the schedule, income, today's count and the overlap check.
+- The trainer sees it in **My schedule → Deleted** (every center they train at, most recently deleted first) and can restore it while it's in the current month and its time is still free.
+- Deleted sessions can't be edited, completed or reopened. Nothing is deleted for good from the app.
+
+### Weekly repeats
+
+- A repeat books the same time on chosen weekdays; each week is added on the last day of the week before.
+- Editing or stopping a repeat applies from now on: upcoming sessions it booked that nobody has changed are rebooked or removed. Sessions already held, edited by hand, or deleted stay as they are.
+- A repeat never books a day it already has a session for, deleted ones included, so deleting one of its sessions keeps that day free.
+- A repeat's trainer can't be changed; stop it and start a new one.
+
+### Income
+
+- **My schedule → Income** shows only your own completed sessions in one month, also at centers you own, with their salary, fees and the month's totals. Months after the current one are disabled. Fees can be changed while the session is in the current month.
+
+### Schedule and filters
+
+- My schedule shows only your own sessions, also for owners who train. It opens on a weekly calendar on desktop and a day list on phones until you pick a view; the grid uses the centers' timezone when they share one.
+- A center's filters last while the center is open; every visit starts on all trainers and branches.
+- Picking no status shows every status.
+- The Repeats tab shows only while there are active repeats (or it's open).
+- New branches and trainers get the most distinct unused color automatically.
+- The Overview tile shows the center you opened last.
 
 ## Tables
 

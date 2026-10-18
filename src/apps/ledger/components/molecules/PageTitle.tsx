@@ -1,12 +1,8 @@
-// A page's heading and one-line description, at the top of each Ledger page
-// (phones have no top bar, so this is what names the page there).
-export function PageTitle({
-  title,
-  description,
-}: {
+interface PageTitleProps {
   title: string;
   description: string;
-}) {
+}
+export function PageTitle({ title, description }: PageTitleProps) {
   return (
     <div>
       <h1 className='text-base font-medium text-foreground'>{title}</h1>

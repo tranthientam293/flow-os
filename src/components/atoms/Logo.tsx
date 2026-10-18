@@ -1,12 +1,11 @@
 import { cn } from "@/utils";
 
-function LogoMark({
-  size = 20,
-  className,
-}: {
+interface LogoMarkProps {
   size?: number;
   className?: string;
-}) {
+}
+
+function LogoMark({ size = 20, className }: LogoMarkProps) {
   return (
     <svg
       width={size}
@@ -28,7 +27,11 @@ function LogoMark({
   );
 }
 
-function Wordmark({ className }: { className?: string }) {
+interface WordmarkProps {
+  className?: string;
+}
+
+function Wordmark({ className }: WordmarkProps) {
   return (
     <span
       className={cn(

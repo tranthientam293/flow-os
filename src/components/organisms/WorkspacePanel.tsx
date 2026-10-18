@@ -5,13 +5,12 @@ import { APP_NAME, BACKEND_REGION_CODE, appPath } from "@/constants";
 import { useLaunchApp } from "@/hooks";
 import type { HealthStatus, RegisteredApp } from "@/types";
 
-export function WorkspacePanel({
-  apps,
-  health,
-}: {
+interface WorkspacePanelProps {
   apps: RegisteredApp[];
   health: HealthStatus;
-}) {
+}
+
+export function WorkspacePanel({ apps, health }: WorkspacePanelProps) {
   const launchApp = useLaunchApp();
   return (
     <section

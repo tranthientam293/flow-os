@@ -2,14 +2,14 @@ import type { MouseEvent, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 
-type StatTileProps = {
+interface StatTileProps {
   label: string;
   value: ReactNode;
   icon?: LucideIcon;
   iconSlot?: ReactNode;
   to?: string;
   onClick?: (event: MouseEvent) => void;
-};
+}
 
 export function StatTile({
   label,

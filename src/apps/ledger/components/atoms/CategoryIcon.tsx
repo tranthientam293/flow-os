@@ -4,14 +4,12 @@ import {
   type ExpenseCategory,
 } from "../../constants/categories";
 
-// A category's icon in a round badge in its own color, like Money Lover.
-export function CategoryIcon({
-  category,
-  size = "md",
-}: {
+interface CategoryIconProps {
   category: ExpenseCategory;
   size?: "md" | "lg";
-}) {
+}
+
+export function CategoryIcon({ category, size = "md" }: CategoryIconProps) {
   const Icon = category.icon;
   return (
     <span

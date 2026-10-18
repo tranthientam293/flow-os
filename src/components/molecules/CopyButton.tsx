@@ -4,13 +4,12 @@ import { Button } from "antd";
 import { notify } from "@/libs";
 import { copyText } from "@/utils";
 
-export function CopyButton({
-  value,
-  label,
-}: {
+interface CopyButtonProps {
   value: string;
   label?: string;
-}) {
+}
+
+export function CopyButton({ value, label }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {

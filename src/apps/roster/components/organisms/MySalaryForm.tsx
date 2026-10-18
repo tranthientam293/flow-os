@@ -20,11 +20,11 @@ import { ownerRateFor, trainerOwnRateFor } from "../../utils/rates";
 
 type Values = { rates: Record<string, number | null> };
 
-// A trainer's own salary (per hour or per trainee, by the session type) for
-// each session type they teach, at one center. It prefills their checkouts;
-// the owner's rate is shown next to each as a reference and applies while
-// theirs is empty.
-export function MySalaryForm({ membership }: { membership: Membership }) {
+interface MySalaryFormProps {
+  membership: Membership;
+}
+
+export function MySalaryForm({ membership }: MySalaryFormProps) {
   const centerId = membership.center.id;
   const meId = membership.id;
   const types = useQuery(sessionTypesQueryOptions(centerId));
@@ -37,7 +37,6 @@ export function MySalaryForm({ membership }: { membership: Membership }) {
     const all = types.data ?? [];
     const typeById = new Map(all.map((t) => [t.id, t]));
     const mine = (ownerRates.data ?? []).filter((r) => r.member_id === meId);
-    // The types you teach; none set means every type.
     const taught = mine.length
       ? all.filter((t) => mine.some((r) => r.session_type_id === t.id))
       : all;

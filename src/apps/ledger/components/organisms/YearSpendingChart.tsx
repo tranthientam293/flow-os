@@ -21,23 +21,20 @@ type Row = { key: string; label: string; month: Dayjs; total: number };
 const SELECTED_COLOR = "var(--brand)";
 const OTHER_COLOR = "var(--muted-foreground)";
 const AXIS_TICK = { fill: "var(--muted-foreground)", fontSize: 11 };
-// Months on the axis and in the tooltip, e.g. "09/2026".
 const LABEL_FORMAT = "MM/YYYY";
 
-// Spending per month over the 12 months ending with the chosen one
-// (Recharts): one column per month, the chosen month in brand green and the
-// rest in a light gray, a dashed line at the monthly average, and a tooltip.
-// Clicking a column opens that month.
+interface YearSpendingChartProps {
+  month: Dayjs;
+  /** Oldest first, ending with `month` (see monthlyTotals). */
+  totals: { month: Dayjs; total: number }[];
+  onSelect: (month: Dayjs) => void;
+}
+
 export function YearSpendingChart({
   month,
   totals,
   onSelect,
-}: {
-  month: Dayjs;
-  // Oldest first, ending with `month` (see monthlyTotals).
-  totals: { month: Dayjs; total: number }[];
-  onSelect: (month: Dayjs) => void;
-}) {
+}: YearSpendingChartProps) {
   const data = useMemo<Row[]>(
     () =>
       totals.map((t) => ({
@@ -52,7 +49,6 @@ export function YearSpendingChart({
     () => niceMax(Math.max(...totals.map((t) => t.total))),
     [totals],
   );
-  // Average over the months that had spending.
   const spent = totals.filter((t) => t.total > 0);
   const average = spent.length
     ? spent.reduce((sum, t) => sum + t.total, 0) / spent.length
@@ -65,7 +61,6 @@ export function YearSpendingChart({
         <h2 className='text-sm font-medium text-foreground'>Last 12 months</h2>
         {spent.length > 0 && (
           <p className='flex items-center gap-1.5 text-xs text-muted-foreground'>
-            {/* Key for the dashed average line. */}
             <span
               aria-hidden
               className='w-4 border-t border-dashed border-foreground-light'
@@ -96,8 +91,6 @@ export function YearSpendingChart({
               <CartesianGrid vertical={false} stroke='var(--border)' />
               <XAxis
                 dataKey='label'
-                // Hides labels that would overlap on narrow screens, keeping
-                // the first and last.
                 interval='preserveStartEnd'
                 minTickGap={6}
                 tick={AXIS_TICK}
@@ -148,13 +141,12 @@ export function YearSpendingChart({
   );
 }
 
-function MonthTooltip({
-  active,
-  payload,
-}: {
+interface MonthTooltipProps {
   active?: boolean;
   payload?: readonly { payload?: Row }[];
-}) {
+}
+
+function MonthTooltip({ active, payload }: MonthTooltipProps) {
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
   return (

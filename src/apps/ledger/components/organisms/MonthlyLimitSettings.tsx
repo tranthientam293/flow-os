@@ -11,8 +11,6 @@ import { AmountInput } from "../molecules";
 
 type LimitValues = { monthlyLimit?: number };
 
-// How much the user means to spend each month; the Dashboard compares the
-// month's spending with it. Empty means no limit.
 export function MonthlyLimitSettings() {
   const { user } = useFlowApp();
   const settings = useQuery(settingsQueryOptions(user.id));
@@ -35,13 +33,12 @@ export function MonthlyLimitSettings() {
   );
 }
 
-function LimitForm({
-  saved,
-  onCancel,
-}: {
+interface LimitFormProps {
   saved?: number;
   onCancel: () => void;
-}) {
+}
+
+function LimitForm({ saved, onCancel }: LimitFormProps) {
   const { app, user } = useFlowApp();
   const save = useMutation(saveMonthlyLimitMutationOptions(user.id));
   const [form] = Form.useForm<LimitValues>();
@@ -54,7 +51,6 @@ function LimitForm({
       layout='vertical'
       requiredMark={false}
       initialValues={{ monthlyLimit: saved }}
-      // Enter never submits; only Save does.
       onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
       onFinish={({ monthlyLimit }) => save.mutate(monthlyLimit ?? null)}
     >

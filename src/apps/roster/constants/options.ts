@@ -1,7 +1,5 @@
 import type { SessionStatus } from "../models/roster";
 
-// Only Vietnam time is supported for now (enforced by a check on
-// roster_centers.timezone). Add zones here and drop that check to allow more.
 export const DEFAULT_TIMEZONE = "Asia/Ho_Chi_Minh";
 
 export const TIMEZONES = [
@@ -13,7 +11,6 @@ export const timezoneLabel = (timezone: string) =>
 
 export const HOUR_HEIGHT_PX = 48;
 
-// Schedule items are colored by status (border and tint).
 export const SESSION_STATUS_OPTIONS: { value: SessionStatus; label: string }[] =
   [
     { value: "scheduled", label: "Scheduled" },
@@ -22,10 +19,8 @@ export const SESSION_STATUS_OPTIONS: { value: SessionStatus; label: string }[] =
     { value: "missed", label: "Missed" },
   ];
 
-// Every status: the status filter's default.
 export const ALL_STATUSES = SESSION_STATUS_OPTIONS.map((o) => o.value);
 
-// No status picked counts as every status.
 export const statusesOrAll = (statuses: SessionStatus[]) =>
   statuses.length ? statuses : ALL_STATUSES;
 
@@ -47,5 +42,4 @@ export const MAX_SESSION_HOURS = 12;
 
 export const OVERLAP_CONSTRAINT = "roster_sessions_no_overlap";
 
-// Extra line in the Back to flowOS confirmation.
 export const ROSTER_LEAVE_NOTE = "Your centers and sessions stay as they are.";

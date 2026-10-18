@@ -56,7 +56,6 @@ export function ScheduleView() {
   const { start, days } = periodRange(anchor, view, center.week_start);
   const { sessions, shown, isSwitching } = useSessions(start, days, {
     prefetchAdjacent: true,
-    // Day and week views prefetch each other.
     prefetch: [
       view === "week"
         ? { fromDate: anchor, days: 1 }

@@ -80,8 +80,6 @@ export const memberSessionTypesQueryOptions = (centerId: string) =>
       ),
   });
 
-// Sets which session types a member teaches (none = all) without salaries;
-// used for the owner, who isn't paid a salary.
 export const setMemberSessionTypesMutationOptions = (centerId: string) =>
   mutationOptions({
     mutationFn: async ({

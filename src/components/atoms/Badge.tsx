@@ -9,15 +9,13 @@ const variants = {
   destructive: "border-destructive-border bg-destructive-soft text-destructive",
 };
 
-function Badge({
-  variant = "status",
-  className,
-  children,
-}: {
+interface BadgeProps {
   variant?: keyof typeof variants;
   className?: string;
   children: ReactNode;
-}) {
+}
+
+function Badge({ variant = "status", className, children }: BadgeProps) {
   return (
     <Tag
       variant='outlined'

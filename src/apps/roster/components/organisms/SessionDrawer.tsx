@@ -50,14 +50,12 @@ import { SessionView } from "./SessionView";
 type Values = {
   memberId: string;
   sessionTypeId?: string;
-  // How many trainees (at least 1); per-trainee types pay by it.
   traineeCount: number;
   branchId?: string;
   date: Dayjs;
   time: [Dayjs, Dayjs];
   title?: string;
   note?: string;
-  // New sessions only: repeat every week on these days (0 = Sunday).
   repeat?: boolean;
   weekdays?: number[];
 };
@@ -71,21 +69,19 @@ const TIME = "HH:mm";
 type RangePickerFocus = { focus: (index?: number) => void };
 const asTime = (hhmm: string) => dayjs(`2000-01-01 ${hhmm}`);
 
-// Sessions that occupy a trainer's time.
-const occupies = (s: Session) =>
+const blocksTrainerTime = (s: Session) =>
   s.status === "scheduled" || s.status === "completed";
 
 const overlaps = (s: Session, startsAt: string, endsAt: string) =>
   Date.parse(s.starts_at) < Date.parse(endsAt) &&
   Date.parse(s.ends_at) > Date.parse(startsAt);
 
-export function SessionDrawer({
-  request,
-  onClose,
-}: {
+interface SessionDrawerProps {
   request: BookingRequest | null;
   onClose: () => void;
-}) {
+}
+
+export function SessionDrawer({ request, onClose }: SessionDrawerProps) {
   const screens = Grid.useBreakpoint();
 
   return (
@@ -104,15 +100,12 @@ export function SessionDrawer({
   );
 }
 
-// An existing session opens on its details; Edit switches to the form. A new
-// booking goes straight to the form.
-export function SessionPanel({
-  request,
-  onDone,
-}: {
+interface SessionPanelProps {
   request: BookingRequest;
   onDone: () => void;
-}) {
+}
+
+export function SessionPanel({ request, onDone }: SessionPanelProps) {
   const [editing, setEditing] = useState(!!request.edit);
   const session = request.session;
   if (session && !editing)
@@ -132,16 +125,14 @@ export function SessionPanel({
   );
 }
 
-export function SessionForm({
-  request,
-  onDone,
-  onBack,
-}: {
+interface SessionFormProps {
   request: BookingRequest;
   onDone: () => void;
-  // Editing an existing session: back to its details instead of closing.
+  /** Editing an existing session: go back to its details instead of closing. */
   onBack?: () => void;
-}) {
+}
+
+export function SessionForm({ request, onDone, onBack }: SessionFormProps) {
   const ctx = useRoster();
   const {
     center,
@@ -165,25 +156,19 @@ export function SessionForm({
   const startRepeat = useMutation(startRepeatMutationOptions(center.id));
   const [form] = Form.useForm<Values>();
   const timeRef = useRef<ComponentRef<typeof TimePicker.RangePicker>>(null);
-  // The start time last shown in the open picker, to tell an hour click from
-  // a minute click.
-  const pickingStart = useRef<Dayjs | null>(null);
+  const startShownInPicker = useRef<Dayjs | null>(null);
 
-  // Only the owner, and only in Manage centers, books for other trainers; My
-  // schedule always books yourself.
-  const assignsAnyone = isOwner && ctx.section === "centers";
+  const booksForAnyTrainer = isOwner && ctx.section === "centers";
   const memberId =
     Form.useWatch("memberId", form) ??
     existing?.member_id ??
-    (assignsAnyone ? "" : meId);
+    (booksForAnyTrainer ? "" : meId);
   const date = Form.useWatch("date", form);
   const time = Form.useWatch("time", form);
-  // One time by default; the switch turns on a weekly repeat.
   const repeatOn = Form.useWatch("repeat", form);
   const repeat = !existing && !!repeatOn;
   const sessionTypeId = Form.useWatch("sessionTypeId", form) as
     string | undefined;
-  // Per-trainee types need the number of trainees.
   const perTrainee =
     payBasisOf(sessionTypeId ? typeById.get(sessionTypeId) : undefined) ===
     "trainee";
@@ -207,7 +192,6 @@ export function SessionForm({
           assignedBranchIds.has(b.id) ||
           b.id === existing?.branch_id,
       );
-  // A trainer with no session types assigned can teach all of them.
   const assignedTypeIds = new Set(
     memberSessionTypes
       .filter((mst) => mst.member_id === memberId)
@@ -249,7 +233,7 @@ export function SessionForm({
           (s) =>
             s.id !== existing?.id &&
             s.member_id === memberId &&
-            occupies(s) &&
+            blocksTrainerTime(s) &&
             overlaps(s, startsAt, endsAt),
         )
       : undefined;
@@ -283,7 +267,7 @@ export function SessionForm({
         const requested = request.date ?? today;
         const onlyType = typeChoices.length === 1 ? typeChoices[0] : null;
         return {
-          memberId: assignsAnyone
+          memberId: booksForAnyTrainer
             ? (request.memberId ??
               (memberById.get(meId)?.also_trainer ? meId : undefined))
             : meId,
@@ -321,23 +305,30 @@ export function SessionForm({
   const typeMinutes = (typeId: string | undefined) =>
     minSessionMinutes(typeId ? typeById.get(typeId) : undefined);
 
-  // A session type fills in the title, unless the title was typed by hand,
-  // and stretches a new booking to the type's minimum length.
-  const onTypeChange = (typeId: string | undefined) => {
+  const stretchToTypeMinimum = (typeId: string | undefined) => {
     const [start, end] = (form.getFieldValue("time") ?? []) as Dayjs[];
     const minimum = typeMinutes(typeId);
     if (!existing && start && end && end.diff(start, "minute") < minimum)
       form.setFieldValue("time", [start, start.add(minimum, "minute")]);
+  };
+
+  const fillTitleFromType = (typeId: string | undefined) => {
     const previous = form.getFieldValue("sessionTypeId") as string | undefined;
     const title = (
       (form.getFieldValue("title") as string | undefined) ?? ""
     ).trim();
     const previousName = previous ? typeById.get(previous)?.name : undefined;
-    if (!title || title === previousName)
+    const typedByHand = !!title && title !== previousName;
+    if (!typedByHand)
       form.setFieldValue(
         "title",
         typeId ? typeById.get(typeId)?.name : undefined,
       );
+  };
+
+  const onTypeChange = (typeId: string | undefined) => {
+    stretchToTypeMinimum(typeId);
+    fillTitleFromType(typeId);
   };
 
   const onFinish = (values: Values) => {
@@ -372,7 +363,6 @@ export function SessionForm({
         ends_at: zonedIso(day, end.format(TIME), tz),
         title: values.title?.trim() || null,
         note: values.note?.trim() || null,
-        // Completing goes through the checkout, which records the pay.
         status:
           inactiveStatus ??
           (existing?.status === "completed" ? "completed" : "scheduled"),
@@ -381,16 +371,14 @@ export function SessionForm({
     );
   };
 
-  // Picking the start minute moves straight on to the end time, which is
-  // prefilled to keep the session length.
-  const onTimeCalendarChange = (
+  const keepLengthWhenStartPicked = (
     dates: TimeRange,
     _text: unknown,
     info: { range?: "start" | "end" },
   ) => {
     const next = dates?.[0] ?? null;
-    const previous = pickingStart.current;
-    pickingStart.current = next;
+    const previous = startShownInPicker.current;
+    startShownInPicker.current = next;
     if (info.range !== "start" || !next || !previous) return;
     if (next.minute() === previous.minute()) return;
     const [oldStart, oldEnd] = (form.getFieldValue("time") ?? []) as Dayjs[];
@@ -436,7 +424,7 @@ export function SessionForm({
           Editable until {formatDate(latestDate)} (end of this month)
         </p>
       )}
-      {assignsAnyone ? (
+      {booksForAnyTrainer ? (
         <Form.Item
           name='memberId'
           label='Trainer'
@@ -579,12 +567,12 @@ export function SessionForm({
           ref={timeRef}
           className='w-full'
           onOpenChange={(open) => {
-            pickingStart.current = open
+            startShownInPicker.current = open
               ? ((form.getFieldValue("time") as Dayjs[] | undefined)?.[0] ??
                 null)
               : null;
           }}
-          onCalendarChange={onTimeCalendarChange}
+          onCalendarChange={keepLengthWhenStartPicked}
           format={TIME}
           minuteStep={MIN_SESSION_MINUTES}
           needConfirm={false}
@@ -593,7 +581,6 @@ export function SessionForm({
         />
       </Form.Item>
 
-      {/* New sessions: one time (default) or repeat every week. */}
       {!existing && (
         <div className='mb-4 flex items-center justify-between gap-3'>
           <span className='flex items-center gap-2 text-sm text-foreground'>

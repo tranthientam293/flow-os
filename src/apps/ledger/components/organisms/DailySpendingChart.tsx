@@ -17,24 +17,19 @@ import { niceMax } from "../../utils/stats";
 
 type Row = { day: number; total: number };
 
-// Theme tokens, so the chart follows light and dark mode.
 const AXIS_TICK = { fill: "var(--muted-foreground)", fontSize: 11 };
 
-// Days with an x-axis label: the 1st, every 5th and the last.
 const dayTicks = (last: number) =>
   Array.from({ length: last }, (_, i) => i + 1).filter(
     (day) => day === 1 || day === last || (day % 5 === 0 && last - day >= 2),
   );
 
-// One column per day of the month (Recharts; single series, brand color),
-// with a tooltip on hover, keyboard focus or tap.
-export function DailySpendingChart({
-  month,
-  totals,
-}: {
+interface DailySpendingChartProps {
   month: Dayjs;
   totals: number[];
-}) {
+}
+
+export function DailySpendingChart({ month, totals }: DailySpendingChartProps) {
   const data = useMemo<Row[]>(
     () => totals.map((total, i) => ({ day: i + 1, total })),
     [totals],
@@ -60,7 +55,6 @@ export function DailySpendingChart({
               margin={{ top: 4, right: 0, bottom: 0, left: 0 }}
               barCategoryGap={1}
             >
-              {/* Hairline horizontal grid only. */}
               <CartesianGrid vertical={false} stroke='var(--border)' />
               <XAxis
                 dataKey='day'
@@ -89,7 +83,6 @@ export function DailySpendingChart({
                 name='Spent'
                 fill='var(--brand)'
                 activeBar={{ fill: "var(--brand-strong)" }}
-                // 4px rounded data-end, square at the baseline; thin bars.
                 radius={[4, 4, 0, 0]}
                 maxBarSize={12}
                 isAnimationActive={false}
@@ -102,15 +95,13 @@ export function DailySpendingChart({
   );
 }
 
-function DayTooltip({
-  active,
-  payload,
-  month,
-}: {
+interface DayTooltipProps {
   active?: boolean;
   payload?: readonly { payload?: Row }[];
   month: Dayjs;
-}) {
+}
+
+function DayTooltip({ active, payload, month }: DayTooltipProps) {
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
   return (

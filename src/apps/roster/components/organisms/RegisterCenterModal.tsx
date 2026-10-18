@@ -10,15 +10,17 @@ type Values = {
   displayName: string;
 };
 
+interface RegisterCenterModalProps {
+  open: boolean;
+  onClose: () => void;
+  onCreated: (centerId: string) => void;
+}
+
 export function RegisterCenterModal({
   open,
   onClose,
   onCreated,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onCreated: (centerId: string) => void;
-}) {
+}: RegisterCenterModalProps) {
   const { user } = useFlowApp();
   const [form] = Form.useForm<Values>();
   const create = useMutation(createCenterMutationOptions());

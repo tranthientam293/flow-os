@@ -13,20 +13,22 @@ import { SessionDetails } from "./SessionDetails";
 // antd's popup layer; the backdrop sits just under it.
 const POPUP_Z_INDEX = 1030;
 
+interface SessionBlockProps {
+  session: Session;
+  style?: CSSProperties;
+  compact?: boolean;
+  /** My schedule: name the center instead of the trainer (always me). */
+  showCenter?: boolean;
+  className?: string;
+}
+
 export function SessionBlock({
   session,
   style,
   compact = false,
   showCenter = false,
   className,
-}: {
-  session: Session;
-  style?: CSSProperties;
-  compact?: boolean;
-  // My schedule: name the center instead of the trainer (always me).
-  showCenter?: boolean;
-  className?: string;
-}) {
+}: SessionBlockProps) {
   const { center, meId, memberById, branchById, openBooking } = useRoster();
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<PopupPlacement>("right");
@@ -53,8 +55,6 @@ export function SessionBlock({
 
   return (
     <>
-      {/* Transparent backdrop under the popup: blocks the rest of the page
-          while it's open; clicking it closes the popup. */}
       {open &&
         createPortal(
           <div
@@ -68,14 +68,12 @@ export function SessionBlock({
       <Popover
         open={open}
         onOpenChange={(next) => {
-          // Open on the side with room, so the card stays on screen.
           if (next && ref.current)
             setPlacement(
               popupPlacement(ref.current.getBoundingClientRect(), 290, 270),
             );
           setOpen(next);
         }}
-        // Clicking shows the details with the actions; hovering does nothing.
         trigger='click'
         placement={placement}
         zIndex={POPUP_Z_INDEX}
@@ -105,20 +103,17 @@ export function SessionBlock({
           style={{
             ...style,
             borderLeftColor: color,
-            // My own sessions get a stronger tint.
             backgroundColor: `color-mix(in srgb, ${color} ${mine ? 22 : 12}%, var(--card))`,
           }}
           className={cn(
             "flex flex-col overflow-hidden rounded-sm border border-l-[3px] border-border-strong px-1.5 py-1 text-left text-[11px] leading-tight text-foreground transition-shadow focus-visible:z-50!",
             session.status === "missed" && "border-dashed",
             className,
-            // The selected block comes to the front, even when stacked under others.
             open && "z-50! shadow-md",
           )}
         >
           <span className='flex items-center gap-1 truncate font-medium'>
             <span className='font-mono'>{branch?.code}</span>
-            {/* My schedule (all mine): the center. A center schedule: the trainer. */}
             <span className='truncate'>
               {showCenter ? center.name : member?.display_name}
             </span>

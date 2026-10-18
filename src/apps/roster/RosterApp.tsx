@@ -26,12 +26,6 @@ import {
 } from "./constants/routes";
 import { useRosterPaths } from "./hooks/useRosterPaths";
 
-// Routes, relative to /apps/roster:
-//   centers[/:centerId/:tab]  centers the user owns (schedule, trainers, branches, settings)
-//   work[/:centerId/:tab]     the user's trainer schedule (week, schedule)
-//   work/income               the user's completed sessions in a month, with their pay
-//   work/repeats              the user's weekly repeats: edit or stop them
-//   settings                  the user's profile, preferences, centers and the way back to flowOS
 export default function RosterApp() {
   const { user } = useFlowApp();
   const navigate = useNavigate();
@@ -56,7 +50,6 @@ export default function RosterApp() {
   return (
     <AddActionProvider>
       <CheckoutProvider>
-        {/* On phones the navigation moves to the bottom bar; leave room for it. */}
         <div className='flex min-h-full flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0'>
           <RosterHeader
             invites={inviteList}

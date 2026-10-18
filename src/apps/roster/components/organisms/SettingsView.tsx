@@ -173,7 +173,11 @@ function CenterSettings() {
   );
 }
 
-function DangerZone({ centerName }: { centerName: string }) {
+interface DangerZoneProps {
+  centerName: string;
+}
+
+function DangerZone({ centerName }: DangerZoneProps) {
   const { center } = useRoster();
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState("");

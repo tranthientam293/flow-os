@@ -3,10 +3,11 @@ import { Plus } from "lucide-react";
 import { Button } from "antd";
 import { useExpenseEditor } from "../../context/expense-editor-context";
 
-// "Add expense" on computers, placed by the caller. While it's scrolled out
-// of view, the header shows its own Add expense (LedgerHeader) that does the
-// same. Phones use the round + in the bottom bar (LedgerBottomBar) instead.
-export function AddExpenseButton({ onClick }: { onClick: () => void }) {
+interface AddExpenseButtonProps {
+  onClick: () => void;
+}
+
+export function AddExpenseButton({ onClick }: AddExpenseButtonProps) {
   const ref = useRef<HTMLButtonElement>(null);
   const { setHeaderAdd } = useExpenseEditor();
   // The latest onClick, so the header's copy never runs a stale one.

@@ -13,8 +13,15 @@ import { AmountInput, CategoryPicker } from "../molecules";
 
 const NOTE_MAX_LENGTH = 200;
 
-// Adds an expense, or edits `expense` when given (with Delete, which the
-// caller confirms).
+interface ExpenseModalProps {
+  open: boolean;
+  expense?: Expense;
+  saving?: boolean;
+  onClose: () => void;
+  onSubmit: (draft: ExpenseDraft) => void;
+  onDelete?: () => void;
+}
+
 export function ExpenseModal({
   open,
   expense,
@@ -22,16 +29,8 @@ export function ExpenseModal({
   onClose,
   onSubmit,
   onDelete,
-}: {
-  open: boolean;
-  expense?: Expense;
-  saving?: boolean;
-  onClose: () => void;
-  onSubmit: (draft: ExpenseDraft) => void;
-  onDelete?: () => void;
-}) {
+}: ExpenseModalProps) {
   const [form] = Form.useForm<ExpenseDraft>();
-  // Whether the user has changed anything since the modal opened.
   const [changed, setChanged] = useState(false);
 
   return (
@@ -50,8 +49,6 @@ export function ExpenseModal({
         layout='vertical'
         requiredMark={false}
         onValuesChange={() => setChanged(true)}
-        // Enter never submits; only the Save button does. Textareas still get
-        // new lines.
         onKeyDown={(e) => {
           if (e.key === "Enter" && !(e.target instanceof HTMLTextAreaElement))
             e.preventDefault();
@@ -109,14 +106,10 @@ export function ExpenseModal({
             className='w-full'
             format={DATE_FORMAT}
             allowClear={false}
-            // No keyboard on phones; pick from the calendar.
             inputReadOnly
             classNames={{ popup: { root: PICKER_SHEET } }}
           />
         </Form.Item>
-        {/* Phones: Cancel and the main action share the row at a taller,
-            easier-to-tap size. Desktop: right-aligned. Delete stays apart
-            on the left. */}
         <div className='mt-6 flex items-center gap-2 border-t pt-4'>
           {expense && onDelete && (
             <Button
@@ -142,7 +135,6 @@ export function ExpenseModal({
               type='primary'
               htmlType='submit'
               loading={saving}
-              // Editing: nothing to save until something changes.
               disabled={!!expense && !changed}
               className='flex-1 max-sm:h-11 sm:flex-none'
             >

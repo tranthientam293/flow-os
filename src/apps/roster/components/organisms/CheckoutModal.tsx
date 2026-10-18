@@ -37,18 +37,12 @@ type Values = { salary: number | null; fees: FeeRow[] };
 const sum = (values: (number | null | undefined)[]) =>
   values.reduce<number>((total, v) => total + (v ?? 0), 0);
 
-// Completes a session or edits its checkout: the session, its salary and any
-// extra pay (fees). The session's trainer manages their own salary (prefilled
-// from base salary × hours or × trainees); the owner sees it read-only.
-// Whoever may check it out (the owner, or its trainer within their edit
-// window) edits the fees.
-export function CheckoutModal({
-  session,
-  onClose,
-}: {
+interface CheckoutModalProps {
   session: Session;
   onClose: () => void;
-}) {
+}
+
+export function CheckoutModal({ session, onClose }: CheckoutModalProps) {
   const { center } = useRoster();
   const completed = session.status === "completed";
   const fees = useQuery({
@@ -80,15 +74,13 @@ export function CheckoutModal({
   );
 }
 
-function CheckoutForm({
-  session,
-  fees,
-  onClose,
-}: {
+interface CheckoutFormProps {
   session: Session;
   fees: SessionFee[];
   onClose: () => void;
-}) {
+}
+
+function CheckoutForm({ session, fees, onClose }: CheckoutFormProps) {
   const ctx = useRoster();
   const { center, memberById, branchById, typeById } = ctx;
   const checkout = useMutation(checkoutSessionMutationOptions(center.id));
@@ -104,9 +96,6 @@ function CheckoutForm({
     : undefined;
   const hours =
     (Date.parse(session.ends_at) - Date.parse(session.starts_at)) / 36e5;
-  // The session's trainer manages their salary. Until it's saved it starts
-  // from base salary × units: their own rate (else the owner's rate for them,
-  // else the type's default) × hours or × trainees, by the type's pay basis.
   const isTrainer = session.member_id === ctx.meId;
   const basis = payBasisOf(type);
   const units = payUnits(session, basis);
@@ -126,7 +115,6 @@ function CheckoutForm({
   const trainerRateSalary = salaryFor(trainerRate, units);
   const trainerSalary = session.salary ?? trainerRateSalary;
 
-  // Only the trainer edits the salary; total pay is their salary + fees.
   const salaryValue = Form.useWatch("salary", form);
   const feeRows: FeeRow[] = Form.useWatch("fees", form) ?? [];
   const salary = canEdit && isTrainer ? (salaryValue ?? 0) : trainerSalary;
@@ -143,7 +131,6 @@ function CheckoutForm({
     checkout.mutate(
       {
         sessionId: session.id,
-        // Only the trainer sets the salary; the server keeps it otherwise.
         salary: isTrainer ? (values.salary ?? 0) : null,
         fees: (values.fees ?? []).flatMap((f) =>
           f?.label?.trim()
@@ -185,7 +172,6 @@ function CheckoutForm({
       />,
     ],
     ["Session type", type?.name ?? "—"],
-    // Per-trainee types are paid by this count (set on the session).
     ...(basis === "trainee"
       ? ([["Trainees", session.trainee_count]] as [string, React.ReactNode][])
       : []),

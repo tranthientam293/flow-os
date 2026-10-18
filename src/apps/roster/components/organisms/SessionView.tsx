@@ -15,17 +15,13 @@ import {
 import { BranchTag, MemberAvatar, SessionStatusBadge } from "../atoms";
 import { RepeatNotice, SessionActions, SessionHistory } from "../molecules";
 
-// An existing session, read-only, with its actions. Edit switches the drawer
-// to the session form.
-export function SessionView({
-  session,
-  onEdit,
-  onDone,
-}: {
+interface SessionViewProps {
   session: Session;
   onEdit: () => void;
   onDone: () => void;
-}) {
+}
+
+export function SessionView({ session, onEdit, onDone }: SessionViewProps) {
   const ctx = useRoster();
   const { center, memberById, branchById, typeById } = ctx;
   const tz = center.timezone;
@@ -35,7 +31,6 @@ export function SessionView({
   const type = session.session_type_id
     ? typeById.get(session.session_type_id)
     : undefined;
-  // Completed and cancelled sessions aren't edited, only restored.
   const editable =
     session.status === "scheduled" || session.status === "missed";
 
@@ -115,7 +110,6 @@ export function SessionView({
 
       <SessionHistory sessionId={session.id} />
 
-      {/* Cancelled shows only its badge. */}
       {session.status === "missed" && (
         <Alert
           type='info'

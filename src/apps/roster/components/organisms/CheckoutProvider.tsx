@@ -10,9 +10,11 @@ import {
 import type { Session } from "../../models/roster";
 import { CheckoutModal } from "./CheckoutModal";
 
-// One checkout modal for the whole app. It lives outside session popovers so
-// it stays open after they close, and renders in the session's own center.
-export function CheckoutProvider({ children }: { children: ReactNode }) {
+interface CheckoutProviderProps {
+  children: ReactNode;
+}
+
+export function CheckoutProvider({ children }: CheckoutProviderProps) {
   const [target, setTarget] = useState<{
     session: Session;
     ctx: RosterContextValue;

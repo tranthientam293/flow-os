@@ -5,13 +5,12 @@ import { useMutation } from "@tanstack/react-query";
 import { claimInviteMutationOptions } from "../../apis/centers";
 import type { PendingInvite } from "../../models/roster";
 
-export function InviteBell({
-  invites,
-  onJoined,
-}: {
+interface InviteBellProps {
   invites: PendingInvite[];
   onJoined: (centerId: string) => void;
-}) {
+}
+
+export function InviteBell({ invites, onJoined }: InviteBellProps) {
   const [open, setOpen] = useState(false);
   const claim = useMutation(claimInviteMutationOptions());
   const label = invites.length

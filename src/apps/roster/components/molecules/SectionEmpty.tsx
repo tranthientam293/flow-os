@@ -3,19 +3,21 @@ import { Button } from "antd";
 import { EmptyState } from "@/components/molecules";
 import type { RosterSection } from "../../constants/routes";
 
+interface SectionEmptyProps {
+  section: RosterSection;
+  email: string;
+  inviteCount: number;
+  ownsCenter: boolean;
+  onCreate: () => void;
+}
+
 export function SectionEmpty({
   section,
   email,
   inviteCount,
   ownsCenter,
   onCreate,
-}: {
-  section: RosterSection;
-  email: string;
-  inviteCount: number;
-  ownsCenter: boolean;
-  onCreate: () => void;
-}) {
+}: SectionEmptyProps) {
   if (section === "centers")
     return (
       <EmptyState

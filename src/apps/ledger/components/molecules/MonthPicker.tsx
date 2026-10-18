@@ -4,16 +4,12 @@ import { Button, DatePicker } from "antd";
 import { MONTH_FORMAT } from "@/constants";
 import { PICKER_SHEET } from "../../constants/modal";
 
-// Picks a month (its first day): previous / next buttons around a month
-// picker, and Today for the current month. Future months are disabled, so
-// next and Today are off on the current month.
-export function MonthPicker({
-  value,
-  onChange,
-}: {
+interface MonthPickerProps {
   value: Dayjs;
   onChange: (month: Dayjs) => void;
-}) {
+}
+
+export function MonthPicker({ value, onChange }: MonthPickerProps) {
   const thisMonth = dayjs().startOf("month");
   const isThisMonth = value.isSame(thisMonth, "month");
 
@@ -33,7 +29,6 @@ export function MonthPicker({
         onChange={(month) => month && onChange(month.startOf("month"))}
         disabledDate={(d) => d.isAfter(dayjs(), "month")}
         allowClear={false}
-        // No keyboard on phones; pick from the calendar.
         inputReadOnly
         classNames={{ popup: { root: PICKER_SHEET } }}
         className='w-28'

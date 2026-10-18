@@ -1,6 +1,10 @@
 import { cn } from "@/utils";
 
-function BreadcrumbSlash({ className }: { className?: string }) {
+interface BreadcrumbSlashProps {
+  className?: string;
+}
+
+function BreadcrumbSlash({ className }: BreadcrumbSlashProps) {
   return (
     <svg
       width='16'

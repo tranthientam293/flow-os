@@ -8,20 +8,13 @@ import type { Expense } from "../../models/ledger";
 import { formatAmount } from "../../utils/money";
 import { CategoryIcon } from "../atoms";
 
-// Expenses grouped by day, newest first, each day with its total. Each
-// expense has Edit and Delete buttons (Delete is confirmed by the caller);
-// the row itself isn't clickable.
-// Expects expenses already sorted by spent_on descending.
-export function ExpenseList({
-  expenses,
-  onEdit,
-  onDelete,
-}: {
+interface ExpenseListProps {
   expenses: Expense[];
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
-}) {
-  // [day, its expenses, their total], in the order given.
+}
+
+export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   const days = useMemo(() => {
     const byDay = new Map<string, Expense[]>();
     for (const e of expenses)

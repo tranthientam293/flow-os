@@ -5,25 +5,24 @@ import { cn } from "@/utils";
 import { formatAmount } from "../../utils/money";
 import { LimitProgress } from "../molecules";
 
-// The month's total as the dashboard's headline, compared with last month,
-// the monthly limit, the daily average and how many expenses there were.
+interface SpendingSummaryProps {
+  month: Dayjs;
+  total: number;
+  count: number;
+  /** Last month's total over the same span (see DashboardPage). */
+  previousTotal: number;
+  /** From Settings; null when none is set. */
+  limit: number | null;
+}
+
 export function SpendingSummary({
   month,
   total,
   count,
   previousTotal,
   limit,
-}: {
-  month: Dayjs;
-  total: number;
-  count: number;
-  // Last month's total over the same span (see DashboardPage).
-  previousTotal: number;
-  // From Settings; null when none is set.
-  limit: number | null;
-}) {
+}: SpendingSummaryProps) {
   const current = month.isSame(dayjs(), "month");
-  // Days so far this month, or every day of a past month.
   const days = current ? dayjs().date() : month.daysInMonth();
   const comparedWith = current
     ? "the same days last month"

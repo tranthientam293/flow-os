@@ -27,6 +27,18 @@ Any other path goes back to the Dashboard.
 
 **Back to flowOS** (account menu and Settings) asks for confirmation, then returns to the flowOS Overview (you stay signed in to flowOS).
 
+## Business rules
+
+- **Comparing with last month:** the current month is compared with the same days of last month (1st to today's date); a past month with the whole previous month. The comparison chart always shows last month's whole total.
+- **Per day left:** what's left of the limit divided by the days left in the month, today included. The daily average uses the days so far (current month) or every day (past month).
+- **Last 12 months:** the dashed average is over the months that had spending.
+- **Top categories:** spending per top-level category; after the top five, the rest fold into "Everything else".
+- **Category search:** a parent stays when it or any of its children match; its children narrow to the matching ones (all of them when the parent matches).
+- **Expense lists** are grouped by day, newest first, each day with its total.
+- **After saving** an expense, the app shows the month it's in. Tabs and links keep the chosen month (`?month=`).
+- **Forms:** Enter never submits the expense modal or the monthly limit; only Save does. Editing an expense keeps Save off until something changes.
+- **Monthly limit:** empty means no limit.
+
 ## Tables
 
 Migrations: `supabase/migrations/20261014000000_app_ledger_init.sql`, `20261014010000_app_ledger_settings.sql`.

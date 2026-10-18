@@ -24,8 +24,6 @@ const EMPTY = (
   />
 );
 
-// A center's active repeats (Manage centers → Repeats): every trainer's for
-// the owner.
 export function CenterRepeatsView() {
   const { center } = useRoster();
   const repeats = useQuery(repeatsQueryOptions(center.id));
@@ -44,15 +42,12 @@ export function CenterRepeatsView() {
   );
 }
 
-// Your own active repeats at every center you train at (My schedule →
-// Repeats), grouped by center.
-export function MyRepeatsView({
-  section,
-  memberships,
-}: {
+interface MyRepeatsViewProps {
   section: RosterSection;
   memberships: Membership[];
-}) {
+}
+
+export function MyRepeatsView({ section, memberships }: MyRepeatsViewProps) {
   const { contexts } = useCenterContexts(section, memberships, () => {});
   const queries = useQueries({
     queries: memberships.map((m) => repeatsQueryOptions(m.center.id)),
@@ -103,13 +98,12 @@ function RepeatsIntro() {
   );
 }
 
-function RepeatList({
-  repeats,
-  showTrainer = false,
-}: {
+interface RepeatListProps {
   repeats: Repeat[];
   showTrainer?: boolean;
-}) {
+}
+
+function RepeatList({ repeats, showTrainer = false }: RepeatListProps) {
   return (
     <ul className='divide-y rounded-lg border bg-card'>
       {repeats.map((r) => (
@@ -119,13 +113,12 @@ function RepeatList({
   );
 }
 
-function RepeatRow({
-  repeat,
-  showTrainer,
-}: {
+interface RepeatRowProps {
   repeat: Repeat;
   showTrainer: boolean;
-}) {
+}
+
+function RepeatRow({ repeat, showTrainer }: RepeatRowProps) {
   const { center, memberById, branchById, typeById } = useRoster();
   const stop = useMutation(stopRepeatMutationOptions(center.id));
   const [editing, setEditing] = useState(false);

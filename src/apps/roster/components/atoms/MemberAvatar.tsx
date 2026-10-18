@@ -8,15 +8,13 @@ const initials = (name: string) =>
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
-export function MemberAvatar({
-  name,
-  color,
-  size = "md",
-}: {
+interface MemberAvatarProps {
   name: string;
   color: string;
   size?: "sm" | "md";
-}) {
+}
+
+export function MemberAvatar({ name, color, size = "md" }: MemberAvatarProps) {
   return (
     <span
       aria-hidden='true'

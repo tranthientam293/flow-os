@@ -8,7 +8,11 @@ import { useInstalledApps, useLaunchApp } from "@/hooks";
 import type { RegisteredApp } from "@/types";
 import { fromNow } from "@/libs";
 
-export function AppStoreCard({ app }: { app: RegisteredApp }) {
+interface AppStoreCardProps {
+  app: RegisteredApp;
+}
+
+export function AppStoreCard({ app }: AppStoreCardProps) {
   const launchApp = useLaunchApp();
   const { isInstalled, recordOf } = useInstalledApps();
   const user = useRequiredUser();

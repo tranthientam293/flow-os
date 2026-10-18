@@ -27,8 +27,6 @@ import {
   YearSpendingChart,
 } from "../organisms";
 
-// The month at a glance, like Money Lover's home: total vs last month, daily
-// spending, top categories and the latest expenses.
 export function DashboardPage() {
   const { user } = useFlowApp();
   const [month, setMonth] = useMonthParam();
@@ -54,13 +52,10 @@ export function DashboardPage() {
     }),
     [list, month],
   );
-  // The whole previous month, for the comparison chart.
   const previousMonthTotal = useMemo(
     () => sumAmounts(previous.data ?? []),
     [previous.data],
   );
-  // The current month is compared with the same days of last month (1st to
-  // today's date); a past month with the whole previous month.
   const previousTotal = useMemo(() => {
     const rows = previous.data ?? [];
     if (!month.isSame(dayjs(), "month")) return sumAmounts(rows);

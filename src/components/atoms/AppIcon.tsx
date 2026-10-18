@@ -7,15 +7,13 @@ const sizes = {
   lg: { box: "size-12 rounded-lg", icon: "size-[22px]" },
 };
 
-function AppIcon({
-  icon: Icon,
-  size = "md",
-  className,
-}: {
+interface AppIconProps {
   icon: LucideIcon;
   size?: keyof typeof sizes;
   className?: string;
-}) {
+}
+
+function AppIcon({ icon: Icon, size = "md", className }: AppIconProps) {
   return (
     <div
       className={cn(

@@ -16,12 +16,8 @@ import { useExpenseEditor } from "../../context/expense-editor-context";
 import { useLedgerPaths } from "../../hooks/useLedgerPaths";
 import { useMonthParam } from "../../hooks/useMonthParam";
 
-// Phones only: the header's navigation as a bar fixed to the bottom of the
-// screen, with Add expense in the middle as a round button. Dashboard,
-// Expenses | + | Settings, flowOS. LedgerApp leaves room for it.
 export function LedgerBottomBar() {
   const paths = useLedgerPaths();
-  // Tabs keep the chosen month (?month=…).
   const { search } = useLocation();
   const [, setMonth] = useMonthParam();
   const { openEditor } = useExpenseEditor();
@@ -49,14 +45,12 @@ export function LedgerBottomBar() {
         >
           <div className='size-18 rounded-full border bg-card' />
         </div>
-        {/* Centered in the bulge, with a soft brand-green ring. */}
         <Button
           type='primary'
           shape='circle'
           aria-label='Add expense'
           title='Add expense'
           icon={<Plus className='size-6!' strokeWidth={2.5} />}
-          // After saving, show the month the expense is in.
           onClick={() =>
             openEditor(undefined, (draft) =>
               setMonth(draft.date.startOf("month")),
@@ -79,15 +73,13 @@ export function LedgerBottomBar() {
 const TAB_CLASS =
   "flex h-16 cursor-pointer flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground outline-none focus-visible:bg-accent";
 
-function Tab({
-  to,
-  icon: Icon,
-  children,
-}: {
+interface TabProps {
   to: string | { pathname: string; search: string };
   icon: LucideIcon;
   children: ReactNode;
-}) {
+}
+
+function Tab({ to, icon: Icon, children }: TabProps) {
   return (
     <NavLink
       to={to}

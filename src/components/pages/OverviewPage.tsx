@@ -68,13 +68,12 @@ export function OverviewPage() {
   );
 }
 
-function AppSummaryTile({
-  app,
-  userId,
-}: {
+interface AppSummaryTileProps {
   app: RegisteredApp;
   userId: string;
-}) {
+}
+
+function AppSummaryTile({ app, userId }: AppSummaryTileProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const launchApp = useLaunchApp();
 

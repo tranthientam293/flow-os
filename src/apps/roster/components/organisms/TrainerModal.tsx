@@ -29,11 +29,11 @@ type Values = {
   sessions: SessionRow[];
 };
 
-type TrainerModalProps = {
+interface TrainerModalProps {
   member: Member | "new" | null;
   onClose: () => void;
   onCreated: (member: Member) => void;
-};
+}
 
 // Each opening gets a fresh form, so the previous trainer's values never carry
 // over. (No `preserve={false}`: under StrictMode it wipes Form.List rows.)
@@ -103,14 +103,11 @@ function TrainerModalContent({
         display_name: values.display_name.trim(),
         email: values.email.trim().toLowerCase(),
         phone: values.phone?.trim() || null,
-        // Colors are picked automatically: the most distinct unused one.
         color: existing?.color ?? nextColor(directory.map((m) => m.color)),
         any_branch: values.any_branch,
         branchIds: values.any_branch
           ? currentBranchIds
           : (values.branchIds ?? []),
-        // The salary is saved as entered: it starts at the type's default but
-        // belongs to this trainer, so later changes to the default don't touch it.
         sessions: (values.sessions ?? []).flatMap((row) =>
           row?.sessionTypeId
             ? [
@@ -191,7 +188,6 @@ function TrainerModalContent({
                     .filter((_, i) => i !== field.name)
                     .map((r) => r?.sessionTypeId),
                 );
-                // The rate is per hour or per trainee, by the chosen type.
                 const rowTypeId = rows[field.name]?.sessionTypeId;
                 const basis = payBasisOf(
                   rowTypeId ? typeById.get(rowTypeId) : undefined,

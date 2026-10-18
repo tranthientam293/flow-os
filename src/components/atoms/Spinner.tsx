@@ -2,8 +2,11 @@ import { Loader2 } from "lucide-react";
 import { Spin } from "antd";
 import { cn } from "@/utils";
 
-// Global Spin indicator, set on ConfigProvider so every <Spin /> matches.
-function SpinnerIcon({ className }: { className?: string }) {
+interface SpinnerIconProps {
+  className?: string;
+}
+
+function SpinnerIcon({ className }: SpinnerIconProps) {
   return (
     <Loader2
       aria-label='Loading'
@@ -12,7 +15,11 @@ function SpinnerIcon({ className }: { className?: string }) {
   );
 }
 
-function CenteredSpinner({ className }: { className?: string }) {
+interface CenteredSpinnerProps {
+  className?: string;
+}
+
+function CenteredSpinner({ className }: CenteredSpinnerProps) {
   return (
     <div
       className={cn(

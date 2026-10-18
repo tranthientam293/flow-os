@@ -21,22 +21,20 @@ const CURRENT_COLOR = "var(--brand)";
 const PREVIOUS_COLOR = "var(--muted-foreground)";
 const AXIS_TICK = { fill: "var(--muted-foreground)", fontSize: 12 };
 
-// The month as MM/YYYY, e.g. "09/2026" (as in Last 12 months).
 const monthLabel = (m: Dayjs) => m.format("MM/YYYY");
 
-// Like Money Lover's monthly report: two columns, last month's whole total
-// (gray) next to the chosen month's (brand green, so far for the current
-// month), each labelled with its amount. Recharts.
+interface MonthComparisonChartProps {
+  month: Dayjs;
+  total: number;
+  /** The whole previous month. */
+  previousTotal: number;
+}
+
 export function MonthComparisonChart({
   month,
   total,
   previousTotal,
-}: {
-  month: Dayjs;
-  total: number;
-  // The whole previous month.
-  previousTotal: number;
-}) {
+}: MonthComparisonChartProps) {
   const data = useMemo<Row[]>(
     () => [
       {
@@ -72,7 +70,6 @@ export function MonthComparisonChart({
           <ResponsiveContainer width='100%' height='100%'>
             <BarChart
               data={data}
-              // Room above the columns for their labels.
               margin={{ top: 20, right: 8, bottom: 0, left: 0 }}
             >
               <CartesianGrid vertical={false} stroke='var(--border)' />

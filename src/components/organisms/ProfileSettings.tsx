@@ -15,7 +15,11 @@ export function ProfileSettings() {
   return <ProfileForm key={saved} saved={saved} />;
 }
 
-function ProfileForm({ saved }: { saved: string }) {
+interface ProfileFormProps {
+  saved: string;
+}
+
+function ProfileForm({ saved }: ProfileFormProps) {
   const user = useRequiredUser();
   const update = useMutation(updateProfileMutationOptions(user.id));
   const [form] = Form.useForm<ProfileValues>();

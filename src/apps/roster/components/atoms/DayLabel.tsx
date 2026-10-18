@@ -1,15 +1,12 @@
 import { dayjs } from "@/libs";
 import { cn } from "@/utils";
 
-// A calendar column header: the weekday over the day of the month. Today's
-// number sits in a filled circle.
-export function DayLabel({
-  date,
-  today = false,
-}: {
+interface DayLabelProps {
   date: string;
   today?: boolean;
-}) {
+}
+
+export function DayLabel({ date, today = false }: DayLabelProps) {
   const d = dayjs(date);
   return (
     <span className='flex flex-col items-center gap-0.5 leading-tight'>

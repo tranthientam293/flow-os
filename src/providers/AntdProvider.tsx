@@ -17,9 +17,11 @@ function NotificationBridge() {
   return contextHolder;
 }
 
-// `layer` puts antd styles in `@layer antd`, which index.css orders before
-// Tailwind utilities, so a className always wins over antd's own styles.
-export function AntdProvider({ children }: { children: ReactNode }) {
+interface AntdProviderProps {
+  children: ReactNode;
+}
+
+export function AntdProvider({ children }: AntdProviderProps) {
   const mode = useResolvedTheme();
   const theme = useMemo(() => getAntdTheme(mode), [mode]);
   return (

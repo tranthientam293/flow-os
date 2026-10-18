@@ -13,20 +13,14 @@ import { CategoryIcon } from "../atoms";
 const matches = (category: ExpenseCategory, query: string) =>
   category.name.toLowerCase().includes(query);
 
-// A field that shows the chosen category; clicking it opens a modal with
-// every category, subcategories indented under their parent, like Money
-// Lover. antd Form passes id/value/onChange.
-export function CategoryPicker({
-  id,
-  value,
-  onChange,
-}: {
+interface CategoryPickerProps {
   id?: string;
   value?: string;
   onChange?: (id: string) => void;
-}) {
+}
+
+export function CategoryPicker({ id, value, onChange }: CategoryPickerProps) {
   const [open, setOpen] = useState(false);
-  // Height of the dialog the field sits in, measured on open.
   const [height, setHeight] = useState<number>();
   const { status } = Form.Item.useStatus();
   const selected = value ? CATEGORY_BY_ID.get(value) : undefined;
@@ -69,7 +63,6 @@ export function CategoryPicker({
         width={MODAL_WIDTH}
         destroyOnHidden
         transitionName={MODAL_TRANSITION}
-        // As tall as the dialog it opened from; the list fills the rest.
         classNames={{
           container: "flex flex-col",
           body: "flex min-h-0 flex-1 flex-col",
@@ -89,21 +82,15 @@ export function CategoryPicker({
   );
 }
 
-// `fill`: the list grows to the dialog's fixed height instead of capping at
-// 60vh.
-function CategoryList({
-  fill,
-  value,
-  onSelect,
-}: {
+interface CategoryListProps {
   fill: boolean;
   value?: string;
   onSelect: (id: string) => void;
-}) {
+}
+
+function CategoryList({ fill, value, onSelect }: CategoryListProps) {
   const [query, setQuery] = useState("");
 
-  // A parent stays when it or any of its children match; children are
-  // narrowed to the matching ones (all of them when the parent matches).
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return EXPENSE_CATEGORIES;
@@ -167,15 +154,13 @@ function CategoryList({
   );
 }
 
-function CategoryRow({
-  category,
-  selected,
-  onSelect,
-}: {
+interface CategoryRowProps {
   category: ExpenseCategory;
   selected: boolean;
   onSelect: (id: string) => void;
-}) {
+}
+
+function CategoryRow({ category, selected, onSelect }: CategoryRowProps) {
   return (
     <button
       type='button'

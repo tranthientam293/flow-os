@@ -16,21 +16,17 @@ export type WorkView = "schedule" | "income" | "repeats" | "deleted";
 const TABS = [
   { key: "schedule", label: "Schedule", icon: CalendarDays },
   { key: "income", label: "Income", icon: Wallet },
-  // Shown only while you have active repeats (or it's open).
   { key: "repeats", label: "Repeats", icon: Repeat },
   { key: "deleted", label: "Deleted", icon: Trash2 },
 ] as const;
 
-// My schedule across all centers, with tabs like a center's in Manage centers.
-export function WorkShell({
-  section,
-  view,
-  memberships,
-}: {
+interface WorkShellProps {
   section: RosterSection;
   view: WorkView;
   memberships: Membership[];
-}) {
+}
+
+export function WorkShell({ section, view, memberships }: WorkShellProps) {
   const navigate = useNavigate();
   const paths = useRosterPaths();
   const repeats = useQueries({

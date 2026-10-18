@@ -2,22 +2,22 @@ import { useState, type ReactNode } from "react";
 import { ListFilter } from "lucide-react";
 import { Badge, Button, Modal } from "antd";
 
-// An icon button that opens the filters in a modal. Changes are a draft until
-// Apply; closing the modal drops them. The badge shows how many are active.
+interface FilterButtonProps<T> {
+  value: T;
+  /** The filters with nothing selected, for Clear all. */
+  empty: T;
+  count: (filters: T) => number;
+  onApply: (filters: T) => void;
+  children: (draft: T, change: (patch: Partial<T>) => void) => ReactNode;
+}
+
 export function FilterButton<T>({
   value,
   empty,
   count,
   onApply,
   children,
-}: {
-  value: T;
-  // The filters with nothing selected, for Clear all.
-  empty: T;
-  count: (filters: T) => number;
-  onApply: (filters: T) => void;
-  children: (draft: T, change: (patch: Partial<T>) => void) => ReactNode;
-}) {
+}: FilterButtonProps<T>) {
   const [draft, setDraft] = useState<T | null>(null);
   const active = count(value);
   const change = (patch: Partial<T>) =>
@@ -75,14 +75,12 @@ export function FilterButton<T>({
   );
 }
 
-// One labelled filter inside the modal.
-export function FilterField({
-  label,
-  children,
-}: {
+interface FilterFieldProps {
   label: string;
   children: ReactNode;
-}) {
+}
+
+export function FilterField({ label, children }: FilterFieldProps) {
   return (
     <div className='flex flex-col gap-1.5'>
       <span className='text-sm text-foreground'>{label}</span>

@@ -5,18 +5,13 @@ import { cn } from "@/utils";
 import { useLedgerPaths } from "../../hooks/useLedgerPaths";
 import { formatAmount } from "../../utils/money";
 
-// The month's spending against the monthly limit: what's left (or how much
-// over), a bar, and for the current month how much a day is left to spend.
-// Without a limit, a link to set one in Settings.
-export function LimitProgress({
-  month,
-  total,
-  limit,
-}: {
+interface LimitProgressProps {
   month: Dayjs;
   total: number;
   limit: number | null;
-}) {
+}
+
+export function LimitProgress({ month, total, limit }: LimitProgressProps) {
   const paths = useLedgerPaths();
 
   if (limit === null)
@@ -32,7 +27,6 @@ export function LimitProgress({
   const over = total > limit;
   const share = Math.min(total / limit, 1);
   const current = month.isSame(dayjs(), "month");
-  // Today included.
   const daysLeft = month.daysInMonth() - dayjs().date() + 1;
 
   return (
@@ -52,7 +46,6 @@ export function LimitProgress({
             : `${formatAmount(limit - total)} left`}
         </span>
       </div>
-      {/* The text above says it all; the bar is only a picture of it. */}
       <div aria-hidden className='h-2 overflow-hidden rounded-full bg-muted'>
         <div
           className={cn(

@@ -17,7 +17,11 @@ import { ROSTER_LEAVE_NOTE } from "../../constants/options";
 import { MySalaryForm } from "../organisms";
 import type { Membership } from "../../models/roster";
 
-export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
+interface MySettingsPageProps {
+  memberships: Membership[];
+}
+
+export function MySettingsPage({ memberships }: MySettingsPageProps) {
   const [centerId, setCenterId] = useState(memberships[0]?.center.id);
   const membership =
     memberships.find((m) => m.center.id === centerId) ?? memberships[0];
@@ -54,7 +58,6 @@ export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
         </SettingsPanel>
       )}
 
-      {/* Owners aren't paid a salary. */}
       {membership && membership.role !== "owner" && (
         <SettingsPanel
           title='My salary'
@@ -90,7 +93,11 @@ export function MySettingsPage({ memberships }: { memberships: Membership[] }) {
   );
 }
 
-function ProfileForm({ membership }: { membership: Membership }) {
+interface ProfileFormProps {
+  membership: Membership;
+}
+
+function ProfileForm({ membership }: ProfileFormProps) {
   const centerId = membership.center.id;
   const me = useQuery(memberQueryOptions(centerId, membership.id));
   const save = useMutation(updateMyProfileMutationOptions(centerId));
@@ -157,7 +164,11 @@ function Preferences() {
   );
 }
 
-function MyCenters({ memberships }: { memberships: Membership[] }) {
+interface MyCentersProps {
+  memberships: Membership[];
+}
+
+function MyCenters({ memberships }: MyCentersProps) {
   const leave = useMutation(leaveCenterMutationOptions());
 
   if (!memberships.length)

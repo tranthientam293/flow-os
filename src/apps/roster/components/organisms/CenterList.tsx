@@ -6,16 +6,17 @@ import { useRosterPaths } from "../../hooks/useRosterPaths";
 import type { Membership } from "../../models/roster";
 import { hhmm } from "../../utils/time";
 
-// One card per center; each center is viewed and managed on its own.
+interface CenterListProps {
+  section: RosterSection;
+  memberships: Membership[];
+  onCreateCenter?: () => void;
+}
+
 export function CenterList({
   section,
   memberships,
   onCreateCenter,
-}: {
-  section: RosterSection;
-  memberships: Membership[];
-  onCreateCenter?: () => void;
-}) {
+}: CenterListProps) {
   const paths = useRosterPaths();
   const { tabs, title, description } = sectionOf(section);
 

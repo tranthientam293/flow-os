@@ -42,15 +42,13 @@ import { SettingsView } from "./SettingsView";
 import { CenterRepeatsView } from "./RepeatsView";
 import { TrainersView } from "./TrainersView";
 
-export function CenterShell({
-  section,
-  tab,
-  membership,
-}: {
+interface CenterShellProps {
   section: RosterSection;
   tab: RosterTab;
   membership: Membership;
-}) {
+}
+
+export function CenterShell({ section, tab, membership }: CenterShellProps) {
   const { center } = membership;
   const isOwner = membership.role === "owner";
   const navigate = useNavigate();
@@ -69,8 +67,6 @@ export function CenterShell({
     enabled: isOwner,
   });
 
-  // Filters last while the center is open, and every visit starts on all
-  // trainers and branches (saving them hid other trainers' bookings).
   const [filters, setFilters] = useState<ScheduleFilters>(DEFAULT_FILTERS);
   const [booking, setBooking] = useState<BookingRequest | null>(null);
   const goTo = useCallback(
@@ -96,7 +92,6 @@ export function CenterShell({
         memberSessionTypes: memberSessionTypes.data,
         trainerRates: trainerRates.data,
         members: members.data,
-        // My schedule only shows your own sessions, also for owners who train.
         filters:
           section === "work"
             ? { ...filters, onlyMe: true, memberIds: [] }
@@ -121,7 +116,6 @@ export function CenterShell({
     ],
   );
 
-  // Repeats only shows while the center has active repeats (or is open).
   const repeats = useQuery({
     ...repeatsQueryOptions(center.id),
     enabled:
@@ -130,7 +124,6 @@ export function CenterShell({
   const tabs = sectionOf(section).tabs.filter(
     (t) => t.key !== "repeats" || tab === "repeats" || !!repeats.data?.length,
   );
-  // The phone bottom bar's + creates a session from the schedules.
   useRegisterAddAction(
     () => value.openBooking(),
     tab === "schedule" || tab === "week",

@@ -5,9 +5,11 @@ import { sessionAccess } from "../../utils/permissions";
 import { formatLongDay, formatRange, inTz } from "../../utils/time";
 import { BranchTag, MemberAvatar, SessionStatusBadge } from "../atoms";
 
-// Read-only summary of a session (the calendar's popup, above its actions). The
-// history is in the session drawer.
-export function SessionDetails({ session }: { session: Session }) {
+interface SessionDetailsProps {
+  session: Session;
+}
+
+export function SessionDetails({ session }: SessionDetailsProps) {
   const ctx = useRoster();
   const { center, memberById, branchById } = ctx;
   const access = sessionAccess(session, ctx);

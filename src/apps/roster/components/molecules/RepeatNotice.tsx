@@ -10,17 +10,13 @@ import type { Session } from "../../models/roster";
 import { formatDate } from "../../utils/time";
 import { formatWeekdays } from "../../utils/weekdays";
 
-// For a session booked by a weekly repeat: which days it repeats on, and
-// Stop repeating (the owner or that trainer). Stopping books no new weeks
-// and removes its upcoming sessions nobody changed.
-export function RepeatNotice({
-  session,
-  onStopped,
-}: {
+interface RepeatNoticeProps {
   session: Session;
-  // E.g. close the drawer: this session may have been one of those removed.
+  /** E.g. close the drawer: this session may have been one of those removed. */
   onStopped?: () => void;
-}) {
+}
+
+export function RepeatNotice({ session, onStopped }: RepeatNoticeProps) {
   const { center, isOwner, meId } = useRoster();
   const repeat = useQuery({
     ...repeatQueryOptions(center.id, session.repeat_id ?? ""),

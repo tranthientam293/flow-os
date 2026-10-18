@@ -1,21 +1,21 @@
 import { cn } from "@/utils";
 import { WEEKDAY_NAMES } from "../../utils/weekdays";
 
-// Toggle chips for the days of the week, starting on the center's first day
-// (`weekStart`: 0 = Sunday, 1 = Monday). antd Form passes value/onChange.
+interface WeekdayPickerProps {
+  id?: string;
+  value?: number[];
+  onChange?: (days: number[]) => void;
+  weekStart: number;
+  disabled?: boolean;
+}
+
 export function WeekdayPicker({
   id,
   value = [],
   onChange,
   weekStart,
   disabled,
-}: {
-  id?: string;
-  value?: number[];
-  onChange?: (days: number[]) => void;
-  weekStart: number;
-  disabled?: boolean;
-}) {
+}: WeekdayPickerProps) {
   const days = Array.from({ length: 7 }, (_, i) => (weekStart + i) % 7);
   const toggle = (day: number) =>
     onChange?.(

@@ -60,19 +60,19 @@ const EMPTY_TITLE: Record<Period, string> = {
   week: "Nothing booked this week",
 };
 
+interface AllCentersScheduleProps {
+  section: RosterSection;
+  memberships: Membership[];
+}
+
 export function AllCentersSchedule({
   section,
   memberships,
-}: {
-  section: RosterSection;
-  memberships: Membership[];
-}) {
+}: AllCentersScheduleProps) {
   const screens = Grid.useBreakpoint();
   const phone = screens.md === false;
   const { title, description } = sectionOf(section);
   const [booking, setBooking] = useState<Booking | null>(null);
-  // Calendar by week on desktop and a list of the day on phones, until the
-  // user picks.
   const [pickedView, setPickedView] = useState<View | null>(null);
   const view: View = pickedView ?? (phone ? "list" : "calendar");
   const [pickedPeriod, setPeriod] = useState<Period | null>(null);
@@ -91,7 +91,6 @@ export function AllCentersSchedule({
       setBooking({ centerId, request: { ...request, nonce: Date.now() } }),
   );
 
-  // One timezone for the whole grid: the centers' own when they share one.
   const zones = new Set(visible.map((m) => m.center.timezone));
   const tz =
     zones.size === 1
@@ -99,16 +98,13 @@ export function AllCentersSchedule({
       : (browserTimezone() ?? visible[0].center.timezone);
   const today = todayIn(tz);
   const weekStart = memberships[0].center.week_start;
-  // The day being looked at.
   const [anchor, setAnchor] = useState(today);
   const range = periodRange(anchor, period, weekStart);
-  // A day loads its whole week, so Day and Week share one cache.
   const load =
     period === "day" ? periodRange(anchor, "week", weekStart) : range;
 
   const from = dayStartIso(load.start, tz);
   const to = dayStartIso(addDays(load.start, load.days), tz);
-  // Only my own sessions are loaded: `m.id` is my member id at that center.
   const queries = useQueries({
     queries: visible.map((m) => ({
       ...sessionsQueryOptions(m.center.id, from, to, m.id),
@@ -241,7 +237,6 @@ export function AllCentersSchedule({
               },
             ]}
           />
-          {/* Phones create from the bottom bar's +. */}
           <Button
             type='primary'
             icon={<Plus />}
@@ -254,7 +249,6 @@ export function AllCentersSchedule({
       </div>
 
       {view === "list" ? (
-        // Readable column on wide screens, like My week.
         <div className='mx-auto flex w-full max-w-2xl flex-col gap-4'>
           {!isLoading &&
           !days.some((d) => sessions.some((s) => dateOf(s) === d)) ? (
@@ -330,19 +324,21 @@ export function AllCentersSchedule({
   );
 }
 
+interface BookingDrawerProps {
+  booking: Booking | null;
+  memberships: Membership[];
+  contexts: ReturnType<typeof useCenterContexts>["contexts"];
+  onChangeCenter: (centerId: string) => void;
+  onClose: () => void;
+}
+
 function BookingDrawer({
   booking,
   memberships,
   contexts,
   onChangeCenter,
   onClose,
-}: {
-  booking: Booking | null;
-  memberships: Membership[];
-  contexts: ReturnType<typeof useCenterContexts>["contexts"];
-  onChangeCenter: (centerId: string) => void;
-  onClose: () => void;
-}) {
+}: BookingDrawerProps) {
   const screens = Grid.useBreakpoint();
   const ctx = booking?.centerId ? contexts.get(booking.centerId) : undefined;
   const editing = !!booking?.request.session;

@@ -27,7 +27,6 @@ export function ExpensesPage() {
 
   const list = useMemo(() => expenses.data ?? [], [expenses.data]);
   const total = useMemo(() => sumAmounts(list), [list]);
-  // After saving, show the month the expense is in.
   const showMonthOf = (draft: ExpenseDraft) =>
     setMonth(draft.date.startOf("month"));
 

@@ -6,14 +6,12 @@ const OPTIONS: { value: Period; label: string }[] = [
   { value: "week", label: "Week" },
 ];
 
-// Day or week: how much of the schedule is shown.
-export function PeriodSelect({
-  value,
-  onChange,
-}: {
+interface PeriodSelectProps {
   value: Period;
   onChange: (period: Period) => void;
-}) {
+}
+
+export function PeriodSelect({ value, onChange }: PeriodSelectProps) {
   return (
     <Select<Period>
       aria-label='View'

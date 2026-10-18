@@ -153,11 +153,11 @@ function SessionTypesPanel() {
   );
 }
 
-type SessionTypeModalProps = {
+interface SessionTypeModalProps {
   open: boolean;
   data: SessionType | null;
   onClose: () => void;
-};
+}
 
 function SessionTypeModal({ open, data, onClose }: SessionTypeModalProps) {
   const { center } = useRoster();
@@ -167,7 +167,6 @@ function SessionTypeModal({ open, data, onClose }: SessionTypeModalProps) {
 
   useEffect(() => {
     if (!open) return;
-    // New types start at the center's default session length.
     const values: Values = data
       ? {
           name: data.name,

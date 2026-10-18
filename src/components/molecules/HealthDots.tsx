@@ -1,7 +1,11 @@
 import type { HealthStatus } from "@/types";
 import { cn } from "@/utils";
 
-export function HealthDots({ health }: { health: HealthStatus }) {
+interface HealthDotsProps {
+  health: HealthStatus;
+}
+
+export function HealthDots({ health }: HealthDotsProps) {
   const color =
     health.state === "healthy"
       ? "bg-brand"

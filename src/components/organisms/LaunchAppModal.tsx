@@ -11,7 +11,6 @@ export function LaunchAppModal() {
   const appId = useUiStore((s) => s.launchingAppId);
   const setLaunchingAppId = useUiStore((s) => s.setLaunchingAppId);
   const pending = getApp(appId ?? undefined);
-  // Keeps the content in place while the modal animates closed.
   const [app, setApp] = useState(pending);
   if (pending && pending !== app) setApp(pending);
   const close = () => setLaunchingAppId(null);

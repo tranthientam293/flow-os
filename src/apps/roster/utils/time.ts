@@ -44,7 +44,6 @@ export const formatRange = (startsAt: string, endsAt: string, tz: string) =>
 export const durationHours = (startsAt: string, endsAt: string) =>
   dayjs(endsAt).diff(dayjs(startsAt), "minute") / 60;
 
-// Display formats follow the platform's DATE_FORMAT (YYYY/MM/DD).
 export const formatDate = (date: string) => dayjs(date).format(DATE_FORMAT);
 
 export const formatLongDay = (date: string) => dayjs(date).format(DAY_FORMAT);
@@ -56,8 +55,6 @@ export function formatWeekRange(start: string) {
 
 export const formatMonth = (date: string) => dayjs(date).format(MONTH_FORMAT);
 
-// Sessions can be booked and changed only while their date is in the
-// center's current month (1st to last day), by owners and trainers alike.
 export function inCurrentMonth(center: Center, startsAt: string) {
   const day = inTz(startsAt, center.timezone).format(DATE);
   const { first, last } = monthBounds(todayIn(center.timezone));
@@ -91,8 +88,6 @@ export function openingHours(center: Center) {
 export const minutesToTime = (minutes: number) =>
   `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 
-// First and last day of the month that contains `date`. Sessions can only be
-// booked within the current month.
 export function monthBounds(date: string) {
   const d = dayjs(date);
   return {
@@ -101,10 +96,8 @@ export function monthBounds(date: string) {
   };
 }
 
-// How much of the calendar is shown at once.
 export type Period = "day" | "week";
 
-// The days a period covers around `anchor`.
 export const periodRange = (
   anchor: string,
   period: Period,
@@ -114,11 +107,9 @@ export const periodRange = (
     ? { start: anchor, days: 1 }
     : { start: weekStartOf(anchor, weekStart), days: 7 };
 
-// Moves `anchor` one period back (-1) or forward (1).
 export const stepPeriod = (anchor: string, period: Period, direction: 1 | -1) =>
   addDays(anchor, direction * (period === "week" ? 7 : 1));
 
-// The shortest a session can be: its type's minimum, if it has a type.
 export const minSessionMinutes = (
   type?: Pick<SessionType, "min_session_min">,
 ) =>

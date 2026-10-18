@@ -49,7 +49,6 @@ export function TrainersView() {
   const [editing, setEditing] = useState<Member | "new" | null>(null);
   const [invited, setInvited] = useState<Member | null>(null);
 
-  // The owner never shows here; they opt into booking as a trainer in Settings.
   const list = (members.data ?? []).filter((m) => m.role === "trainer");
   const viewWeek = (m: Member) => {
     setFilters({ ...filters, memberIds: [m.id], onlyMe: false });
@@ -68,7 +67,6 @@ export function TrainersView() {
   const sessionsOf = (m: Member) =>
     memberSessionTypes.filter((mst) => mst.member_id === m.id);
 
-  // One line per session type, so the Sessions and Salary columns line up.
   const sessionList = (m: Member) => {
     const rows = sessionsOf(m);
     return rows.length ? (
@@ -82,7 +80,6 @@ export function TrainersView() {
     );
   };
 
-  // A trainer's salary falls back to the type's default.
   const salaryList = (m: Member) => {
     const rows = sessionsOf(m);
     return rows.length ? (

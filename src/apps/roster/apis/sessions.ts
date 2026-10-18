@@ -11,7 +11,6 @@ import type {
 import { check } from "../utils/errors";
 import { refreshCenter } from "./branches";
 
-// Pass `memberId` to load only that member's sessions.
 export const sessionsQueryOptions = (
   centerId: string,
   from: string,
@@ -62,7 +61,6 @@ export const saveSessionMutationOptions = (centerId: string) =>
     },
   });
 
-// Who did what to a session, newest first (recorded by a database trigger).
 export const sessionEventsQueryOptions = (
   centerId: string,
   sessionId: string,
@@ -95,13 +93,10 @@ export const sessionFeesQueryOptions = (centerId: string, sessionId: string) =>
 
 export type CheckoutPayload = {
   sessionId: string;
-  // The trainer's salary (ignored when the owner checks out); null keeps a
-  // saved one, or uses base salary × hours or × trainees.
   salary: number | null;
   fees: { label: string; amount: number }[];
 };
 
-// Completes a session and records its pay (roster_checkout_session).
 export const checkoutSessionMutationOptions = (centerId: string) =>
   mutationOptions({
     mutationFn: async ({ sessionId, salary, fees }: CheckoutPayload) => {
@@ -166,8 +161,6 @@ export const setSessionStatusMutationOptions = (centerId: string) =>
     },
   });
 
-// Deletes one session (roster_delete_session): a soft delete, so its trainer
-// can restore it from the Deleted tab. A repeat keeps running without that day.
 export const deleteSessionMutationOptions = (centerId: string) =>
   mutationOptions({
     mutationFn: async (sessionId: string) => {
@@ -184,7 +177,6 @@ export const deleteSessionMutationOptions = (centerId: string) =>
     },
   });
 
-// One trainer's deleted sessions at a center, most recently deleted first.
 export const deletedSessionsQueryOptions = (
   centerId: string,
   memberId: string,
@@ -203,7 +195,6 @@ export const deletedSessionsQueryOptions = (
       ),
   });
 
-// Brings a deleted session back (roster_restore_session).
 export const restoreSessionMutationOptions = (centerId: string) =>
   mutationOptions({
     mutationFn: async (sessionId: string) => {

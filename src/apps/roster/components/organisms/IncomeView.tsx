@@ -29,37 +29,28 @@ import {
   todayIn,
 } from "../../utils/time";
 
-// One completed session with its pay.
 type Line = {
   session: Session;
   center: string;
   branch: Branch | undefined;
-  // The center's timezone, for the session's date and time.
   tz: string;
   hours: number;
   salary: number;
   fees: number;
-  // The fees one by one, for the pay modal.
   feeItems: SessionFee[];
   total: number;
 };
 
 const formatHours = (hours: number) => `${formatNumber(hours)} h`;
 
-// My schedule → Income: your completed sessions in one month, with their
-// salary and fees and the month's total. Only your own sessions, also at
-// centers you own.
-export function IncomeView({
-  section,
-  memberships,
-}: {
+interface IncomeViewProps {
   section: RosterSection;
   memberships: Membership[];
-}) {
-  // Each center's context, for the checkout (fees) and its permissions.
+}
+
+export function IncomeView({ section, memberships }: IncomeViewProps) {
   const { contexts } = useCenterContexts(section, memberships, () => {});
   const { openCheckout } = useCheckout();
-  // The session whose pay is shown in the modal.
   const [viewing, setViewing] = useState<Line | null>(null);
   const tz = memberships[0].center.timezone;
   const thisMonth = monthBounds(todayIn(tz)).first;
@@ -72,7 +63,6 @@ export function IncomeView({
       return {
         ...incomeQueryOptions(
           m.center.id,
-          // My member id at that center: only my sessions.
           m.id,
           dayStartIso(first, m.center.timezone),
           dayStartIso(next, m.center.timezone),
@@ -142,7 +132,6 @@ export function IncomeView({
           format={MONTH_FORMAT}
           allowClear={false}
           value={dayjs(month)}
-          // Months after this one have no completed sessions yet.
           disabledDate={(d) =>
             d.startOf("month").format("YYYY-MM-DD") > thisMonth
           }
@@ -169,7 +158,6 @@ export function IncomeView({
         />
       ) : (
         <>
-          {/* The month's totals. */}
           <section
             aria-label='Month total'
             className='grid grid-cols-2 gap-2 sm:grid-cols-5'
@@ -187,7 +175,6 @@ export function IncomeView({
               pagination={false}
               scroll={{ x: "max-content" }}
               dataSource={lines}
-              // Clicking a row shows its pay.
               onRow={(l) => ({ onClick: () => setViewing(l) })}
               rowClassName='cursor-pointer'
               columns={[
@@ -251,7 +238,6 @@ export function IncomeView({
                 {
                   key: "actions",
                   render: (_, l) => {
-                    // Fees can change while the session is in the current month.
                     const ctx = contexts.get(l.session.center_id);
                     const canEdit =
                       !!ctx && sessionAccess(l.session, ctx).canEdit;
@@ -265,7 +251,6 @@ export function IncomeView({
                             title='Edit salary and fees'
                             aria-label='Edit salary and fees'
                             onClick={(e) => {
-                              // Don't also open the row's pay.
                               e.stopPropagation();
                               openCheckout(l.session, ctx);
                             }}
@@ -312,8 +297,11 @@ export function IncomeView({
   );
 }
 
-// A session's pay in the modal: salary, each fee, and the total.
-function PayList({ line }: { line: Line }) {
+interface PayListProps {
+  line: Line;
+}
+
+function PayList({ line }: PayListProps) {
   return (
     <ul className='flex flex-col gap-1.5 text-sm'>
       <li className='flex justify-between gap-4'>
@@ -341,21 +329,17 @@ function PayList({ line }: { line: Line }) {
   );
 }
 
-// One total in the month summary.
-function Stat({
-  label,
-  value,
-  strong = false,
-}: {
+interface StatProps {
   label: string;
   value: string;
   strong?: boolean;
-}) {
+}
+
+function Stat({ label, value, strong = false }: StatProps) {
   return (
     <div
       className={cn(
         "flex flex-col gap-0.5 rounded-md border bg-card px-3 py-2.5",
-        // The total spans the row on phones.
         strong && "col-span-2 border-brand/40 bg-brand/5 sm:col-span-1",
       )}
     >

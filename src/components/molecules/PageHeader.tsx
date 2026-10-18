@@ -1,14 +1,12 @@
 import type { ReactNode } from "react";
 
-export function PageHeader({
-  title,
-  description,
-  actions,
-}: {
+interface PageHeaderProps {
   title: string;
   description?: ReactNode;
   actions?: ReactNode;
-}) {
+}
+
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
     <div className='flex flex-wrap items-end justify-between gap-4'>
       <div className='min-w-0'>

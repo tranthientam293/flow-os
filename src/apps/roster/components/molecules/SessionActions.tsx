@@ -17,7 +17,7 @@ import { sessionAccess } from "../../utils/permissions";
 type Tone = "neutral" | "danger" | "primary";
 type ButtonProps = ComponentProps<typeof Button>;
 
-interface Props {
+interface SessionActionsProps {
   session: Session;
   onEdit: () => void;
   /**
@@ -40,7 +40,7 @@ export function SessionActions({
   onDone,
   onView,
   iconOnly = false,
-}: Props) {
+}: SessionActionsProps) {
   const ctx = useRoster();
   const access = sessionAccess(session, ctx);
   const now = useNow();
@@ -48,7 +48,6 @@ export function SessionActions({
   const reopen = useMutation(reopenSessionMutationOptions(ctx.center.id));
   const remove = useMutation(deleteSessionMutationOptions(ctx.center.id));
   const { openCheckout } = useCheckout();
-  // Icon buttons get a finger-sized target on phones.
   const phone = Grid.useBreakpoint().md === false;
 
   if (!access.canEdit && !onView) return null;
@@ -82,7 +81,6 @@ export function SessionActions({
     <div
       className={cn("flex items-center gap-2", iconOnly && "justify-end gap-1")}
     >
-      {/* The owner, or the session's own trainer, while it's in this month. */}
       {canEdit && (
         <Popconfirm
           title='Delete this session?'
@@ -132,7 +130,6 @@ export function SessionActions({
           {...look("Edit", "neutral")}
         />
       )}
-      {/* Back to scheduled. Undoing a completion clears its salary and fees. */}
       {canEdit && status === "completed" && (
         <Popconfirm
           title='Restore to scheduled?'
@@ -155,7 +152,6 @@ export function SessionActions({
           {...look("Restore", "primary", !editable)}
         />
       )}
-      {/* Completing records the salary and fees once it has taken place. */}
       {canEdit && status === "scheduled" && started && (
         <Button
           icon={<CircleCheck />}

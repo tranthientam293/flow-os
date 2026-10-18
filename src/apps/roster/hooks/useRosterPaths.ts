@@ -17,11 +17,8 @@ export function useRosterPaths() {
     return {
       base,
       settings: `${base}/${SETTINGS_PATH}`,
-      // My schedule → Income.
       income: `${base}/work/${INCOME_PATH}`,
-      // My schedule → Repeats.
       repeats: `${base}/work/${REPEATS_PATH}`,
-      // My schedule → Deleted.
       deleted: `${base}/work/${DELETED_PATH}`,
       section: (section: RosterSection) => `${base}/${section}`,
       center: (section: RosterSection, centerId: string, tab?: RosterTab) =>

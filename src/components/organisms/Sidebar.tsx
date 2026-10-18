@@ -6,11 +6,11 @@ import { FOOTER_NAV, PLATFORM_NAV, appPath, ROUTES } from "@/constants";
 import { useInstalledApps, useLaunchApp } from "@/hooks";
 import { useUiStore } from "@/stores";
 
-type SidebarProps = {
+interface SidebarProps {
   collapsed?: boolean;
   showCollapseToggle?: boolean;
   onNavigate?: () => void;
-};
+}
 
 export function Sidebar({
   collapsed = false,
@@ -43,7 +43,6 @@ export function Sidebar({
 
         <div className='flex flex-col gap-0.5'>
           {collapsed ? (
-            // Keeps the section recognisable when only icons show.
             <Tooltip title='Apps' placement='right' mouseEnterDelay={0.3}>
               <div className='flex h-6 items-center justify-center text-muted-foreground'>
                 <Blocks className='size-3.5' strokeWidth={1.75} />

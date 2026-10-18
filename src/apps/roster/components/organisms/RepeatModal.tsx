@@ -31,17 +31,12 @@ type Values = {
 
 const asTime = (time: string) => dayjs(`2000-01-01T${hhmm(time)}`);
 
-// Edits a weekly repeat. Changes apply from now on: its upcoming sessions
-// nobody has changed are rebooked with the new settings; sessions already
-// held, and upcoming ones edited by hand, stay as they are. The trainer can't
-// be changed (stop the repeat and start a new one instead).
-export function RepeatModal({
-  repeat,
-  onClose,
-}: {
+interface RepeatModalProps {
   repeat: Repeat;
   onClose: () => void;
-}) {
+}
+
+export function RepeatModal({ repeat, onClose }: RepeatModalProps) {
   const ctx = useRoster();
   const {
     center,

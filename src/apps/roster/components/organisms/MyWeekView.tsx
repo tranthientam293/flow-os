@@ -100,13 +100,12 @@ export function MyWeekView() {
   );
 }
 
-export function AgendaCard({
-  session,
-  showCenter = false,
-}: {
+interface AgendaCardProps {
   session: Session;
   showCenter?: boolean;
-}) {
+}
+
+export function AgendaCard({ session, showCenter = false }: AgendaCardProps) {
   const { center, branchById, openBooking } = useRoster();
   const branch = branchById.get(session.branch_id);
   return (

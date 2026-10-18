@@ -180,11 +180,11 @@ export function BranchesView() {
   );
 }
 
-type BranchModalProps = {
+interface BranchModalProps {
   open: boolean;
   data: Branch | null;
   onClose: () => void;
-};
+}
 
 function BranchModal({ data, open, onClose }: BranchModalProps) {
   const { center, branches } = useRoster();

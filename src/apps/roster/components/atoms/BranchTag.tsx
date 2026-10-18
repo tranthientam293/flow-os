@@ -1,15 +1,17 @@
 import { cn } from "@/utils";
 import type { Branch } from "../../models/roster";
 
+interface BranchTagProps {
+  branch: Pick<Branch, "code" | "name" | "color"> | undefined;
+  showName?: boolean;
+  className?: string;
+}
+
 export function BranchTag({
   branch,
   showName = false,
   className,
-}: {
-  branch: Pick<Branch, "code" | "name" | "color"> | undefined;
-  showName?: boolean;
-  className?: string;
-}) {
+}: BranchTagProps) {
   if (!branch) return null;
   return (
     <span

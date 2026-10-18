@@ -4,8 +4,11 @@ import {
   type AddActionContextValue,
 } from "../../context/add-action-context";
 
-// Holds what the phone bottom bar's + does on the current page.
-export function AddActionProvider({ children }: { children: ReactNode }) {
+interface AddActionProviderProps {
+  children: ReactNode;
+}
+
+export function AddActionProvider({ children }: AddActionProviderProps) {
   const [addAction, setAddActionState] = useState<(() => void) | null>(null);
   // Stable, so registering effects don't re-run. Wrapped: a function passed
   // to setState would be called as an updater.

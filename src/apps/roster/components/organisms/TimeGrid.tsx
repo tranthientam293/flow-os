@@ -6,8 +6,6 @@ import { cascade, layoutOverlaps } from "../../utils/layout";
 import { inTz, minutesOfDay, minutesToTime } from "../../utils/time";
 import { SessionBlock } from "../molecules";
 
-// Space kept free on the right of each day, like Google Calendar, so a busy
-// time can still be clicked to book another trainer then.
 const SLOT_GUTTER_PX = 14;
 
 export type GridColumn = {
@@ -18,6 +16,18 @@ export type GridColumn = {
   highlight?: boolean;
 };
 
+interface TimeGridProps {
+  columns: GridColumn[];
+  timezone: string;
+  openMinutes: number;
+  closeMinutes: number;
+  onSlotClick?: (column: GridColumn, time: string) => void;
+  minColumnWidth?: number;
+  showCenter?: boolean;
+  /** Lets a multi-center view give each block its own center context. */
+  wrapSession?: (session: Session, block: ReactNode) => ReactNode;
+}
+
 export function TimeGrid({
   columns,
   timezone: tz,
@@ -27,17 +37,7 @@ export function TimeGrid({
   minColumnWidth = 110,
   showCenter = false,
   wrapSession = (_session, block) => block,
-}: {
-  columns: GridColumn[];
-  timezone: string;
-  openMinutes: number;
-  closeMinutes: number;
-  onSlotClick?: (column: GridColumn, time: string) => void;
-  minColumnWidth?: number;
-  showCenter?: boolean;
-  // Lets a multi-center view give each block its own center context.
-  wrapSession?: (session: Session, block: ReactNode) => ReactNode;
-}) {
+}: TimeGridProps) {
   const all = columns.flatMap((c) => c.sessions);
   const startHour = Math.min(
     Math.floor(openMinutes / 60),
@@ -181,7 +181,6 @@ export function TimeGrid({
                     compact={blockHeight < 40}
                     className={cn(
                       "absolute",
-                      // A thin outline keeps stacked blocks apart.
                       stacked && "ring-1 ring-background",
                     )}
                     style={{

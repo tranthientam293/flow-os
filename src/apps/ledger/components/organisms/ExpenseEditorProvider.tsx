@@ -14,21 +14,23 @@ import type { Expense, ExpenseDraft } from "../../models/ledger";
 import { ExpenseModal } from "./ExpenseModal";
 
 type Target = {
-  // Bumped on every open, so the modal (and its form) starts fresh each time.
   session?: number;
   expense?: Expense;
   onSaved?: (draft: ExpenseDraft) => void;
 };
 
-// One expense modal (add, edit, delete) for every page of the app.
-export function ExpenseEditorProvider({ children }: { children: ReactNode }) {
+interface ExpenseEditorProviderProps {
+  children: ReactNode;
+}
+
+export function ExpenseEditorProvider({
+  children,
+}: ExpenseEditorProviderProps) {
   const { user } = useFlowApp();
   const save = useMutation(saveExpenseMutationOptions(user.id));
   const remove = useMutation(deleteExpenseMutationOptions(user.id));
   const { mutateAsync: deleteAsync } = remove;
   const { confirmDelete, holder } = useConfirmDelete();
-  // `target` outlives `open` so the modal keeps its title and fields while
-  // it fades out.
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState<Target>({});
   const [headerAdd, setHeaderAddState] = useState<(() => void) | null>(null);
@@ -63,7 +65,6 @@ export function ExpenseEditorProvider({ children }: { children: ReactNode }) {
       {holder}
       {children}
       <ExpenseModal
-        // A new key per open: the form never shows the last expense's values.
         key={session}
         open={open}
         expense={expense}

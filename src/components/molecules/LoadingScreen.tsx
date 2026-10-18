@@ -8,7 +8,6 @@ export function LoadingScreen() {
         className='absolute inset-0 dot-grid [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_65%)]'
       />
 
-      {/* Delayed fade-in, so fast loads never flash this screen. */}
       <div className='relative flex animate-fade-up-delayed flex-col items-center'>
         <div className='flex size-14 items-center justify-center rounded-xl border bg-card shadow-sm'>
           <LogoMark size={28} />

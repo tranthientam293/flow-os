@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { Card } from "antd";
 
-type SettingsPanelProps = {
+interface SettingsPanelProps {
   title: string;
   description: string;
   children: ReactNode;
   footer?: ReactNode;
-};
+}
 
 export function SettingsPanel({
   title,

@@ -23,19 +23,12 @@ const EVERYTHING_ELSE: ExpenseCategory = {
 
 type Row = CategoryTotal & { color: string; share: number };
 
-// Spending per top-level category: a doughnut of each one's share of the
-// month (Recharts), and a list that is also its legend (icon, name, amount,
-// share). Each slice wears its category's color, the same family as its
-// icon, so the icon is the legend key. After the top five the rest fold into
-// a gray "Everything else". Category colors aren't colorblind-checked as a set, so
-// the list's names, amounts and shares carry identity too.
-export function TopCategories({
-  totals,
-  monthTotal,
-}: {
+interface TopCategoriesProps {
   totals: CategoryTotal[];
   monthTotal: number;
-}) {
+}
+
+export function TopCategories({ totals, monthTotal }: TopCategoriesProps) {
   const rows = useMemo<Row[]>(() => {
     const top =
       totals.length <= SHOWN + 1
@@ -78,10 +71,8 @@ export function TopCategories({
                 nameKey='category.name'
                 innerRadius={58}
                 outerRadius={86}
-                // Clockwise from 12 o'clock, largest first.
                 startAngle={90}
                 endAngle={-270}
-                // 2px of card color between slices.
                 stroke='var(--card)'
                 strokeWidth={2}
                 isAnimationActive={false}
@@ -93,7 +84,6 @@ export function TopCategories({
               {/* Recharts fills in active and payload. */}
               <Tooltip content={<SliceTooltip />} />
             </PieChart>
-            {/* The month's total in the hole. */}
             <div className='pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center'>
               <span className='text-xs text-muted-foreground'>Total</span>
               <span className='text-sm font-semibold text-foreground'>
@@ -126,13 +116,12 @@ export function TopCategories({
   );
 }
 
-function SliceTooltip({
-  active,
-  payload,
-}: {
+interface SliceTooltipProps {
   active?: boolean;
   payload?: readonly { payload?: Row }[];
-}) {
+}
+
+function SliceTooltip({ active, payload }: SliceTooltipProps) {
   const row = payload?.[0]?.payload;
   if (!active || !row) return null;
   return (

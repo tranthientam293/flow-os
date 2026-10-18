@@ -12,7 +12,6 @@ import { useLedgerPaths } from "../../hooks/useLedgerPaths";
 export function LedgerHeader() {
   const { app } = useFlowApp();
   const paths = useLedgerPaths();
-  // Tabs keep the chosen month (?month=…).
   const { search } = useLocation();
 
   return (
@@ -105,8 +104,6 @@ function AccountMenu() {
   );
 }
 
-// Add expense, shown only while the page's own Add expense button is
-// scrolled out of view (see AddExpenseButton).
 function HeaderAddButton() {
   const { headerAdd } = useExpenseEditor();
   if (!headerAdd) return null;

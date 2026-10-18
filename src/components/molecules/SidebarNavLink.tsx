@@ -4,7 +4,7 @@ import { NavLink } from "react-router";
 import { Tooltip } from "antd";
 import { cn } from "@/utils";
 
-type SidebarNavLinkProps = {
+interface SidebarNavLinkProps {
   label: string;
   to: string;
   icon: LucideIcon;
@@ -12,7 +12,7 @@ type SidebarNavLinkProps = {
   end?: boolean;
   onNavigate?: () => void;
   onClick?: (event: MouseEvent) => void;
-};
+}
 
 export function SidebarNavLink({
   label,

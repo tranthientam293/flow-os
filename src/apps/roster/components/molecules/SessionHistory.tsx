@@ -4,8 +4,11 @@ import { Skeleton } from "antd";
 import { fromNow } from "@/libs";
 import { useSessionEvents } from "../../hooks/useSessionEvents";
 
-// The latest change to a session, with the earlier ones on demand.
-export function SessionHistory({ sessionId }: { sessionId: string }) {
+interface SessionHistoryProps {
+  sessionId: string;
+}
+
+export function SessionHistory({ sessionId }: SessionHistoryProps) {
   const { events, isLoading, describe } = useSessionEvents(sessionId);
   const [expanded, setExpanded] = useState(false);
   const [last, ...earlier] = events;

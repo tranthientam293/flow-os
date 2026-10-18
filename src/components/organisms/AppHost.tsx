@@ -12,7 +12,11 @@ import { useInstalledApps } from "@/hooks";
 import { supabase } from "@/libs";
 import type { RegisteredApp } from "@/types";
 
-export function AppHost({ app }: { app: RegisteredApp }) {
+interface AppHostProps {
+  app: RegisteredApp;
+}
+
+export function AppHost({ app }: AppHostProps) {
   const user = useRequiredUser();
   const { isInstalled, isLoading } = useInstalledApps();
   const install = useMutation(installAppMutationOptions(user.id));
@@ -65,7 +69,10 @@ function HomeLink() {
   );
 }
 
-type BoundaryProps = { appName: string; children: ReactNode };
+interface BoundaryProps {
+  appName: string;
+  children: ReactNode;
+}
 
 class AppErrorBoundary extends Component<
   BoundaryProps,

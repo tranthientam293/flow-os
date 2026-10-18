@@ -5,7 +5,11 @@ import { useThemeSync } from "@/hooks";
 import { AuthProvider } from "@/context";
 import { AntdProvider } from "./AntdProvider";
 
-export function AppProviders({ children }: { children: ReactNode }) {
+interface AppProvidersProps {
+  children: ReactNode;
+}
+
+export function AppProviders({ children }: AppProvidersProps) {
   useThemeSync();
   return (
     <QueryClientProvider client={queryClient}>

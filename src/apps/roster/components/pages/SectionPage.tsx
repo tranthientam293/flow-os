@@ -13,6 +13,16 @@ import {
 } from "../organisms";
 import { SectionEmpty } from "../molecules";
 
+interface SectionPageProps {
+  section: RosterSection;
+  /** My schedule without a center: its Schedule or Income tab. */
+  view?: WorkView;
+  memberships: Membership[];
+  email: string;
+  inviteCount: number;
+  onCreateCenter: () => void;
+}
+
 export function SectionPage({
   section,
   view = "schedule",
@@ -20,15 +30,7 @@ export function SectionPage({
   email,
   inviteCount,
   onCreateCenter,
-}: {
-  section: RosterSection;
-  // My schedule without a center: its Schedule or Income tab.
-  view?: WorkView;
-  memberships: Membership[];
-  email: string;
-  inviteCount: number;
-  onCreateCenter: () => void;
-}) {
+}: SectionPageProps) {
   const { centerId, tab } = useParams();
   const paths = useRosterPaths();
   const [lastCenterId, setLastCenterId] = useAppStorage<string>(
@@ -40,7 +42,6 @@ export function SectionPage({
   const membership = list.find((m) => m.center.id === centerId);
   const current = tabs.find((t) => t.key === tab)?.key;
 
-  // Remembered for the Overview tile.
   useEffect(() => {
     if (membership && membership.center.id !== lastCenterId)
       setLastCenterId(membership.center.id);
@@ -57,8 +58,6 @@ export function SectionPage({
       />
     );
 
-  // Owners pick a center and manage it on its own; trainers see one week
-  // across every center they train at.
   if (!centerId)
     return section === "centers" ? (
       <CenterList
