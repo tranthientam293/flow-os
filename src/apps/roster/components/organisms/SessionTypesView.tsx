@@ -1,16 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
-import { Button, Input, InputNumber, Popconfirm, Select } from "antd";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Select,
+  Table,
+} from "antd";
 import { SettingsPanel } from "@/components/molecules";
 import {
   deleteSessionTypeMutationOptions,
   saveSessionTypeMutationOptions,
 } from "../../apis/session-types";
+import {
+  MAX_SESSION_HOURS,
+  MIN_SESSION_MINUTES,
+} from "../../constants/options";
 import { useRoster } from "../../context/roster-context";
 import type { SessionType } from "../../models/roster";
 import {
-  formatRate,
+  formatAmount,
   moneyInputProps,
   payBasisOf,
   rateSuffix,
@@ -22,6 +35,14 @@ const BASIS_OPTIONS: { value: PayBasis; label: string }[] = [
   { value: "trainee", label: "Per trainee" },
 ];
 
+type Values = {
+  name: string;
+  pay_basis: PayBasis;
+  default_hourly_rate: number | null;
+  min_session_min: number;
+};
+type SessionTypeModalState = { isOpen: boolean; data: SessionType | null };
+
 export function SessionTypesView() {
   return (
     <div className='mx-auto flex max-w-3xl flex-col gap-6 px-4 py-4 sm:px-6'>
@@ -32,189 +53,193 @@ export function SessionTypesView() {
 
 function SessionTypesPanel() {
   const { center, sessionTypes } = useRoster();
-  const save = useMutation(saveSessionTypeMutationOptions(center.id));
-  const [name, setName] = useState("");
-  const [basis, setBasis] = useState<PayBasis>("hour");
-  const [rate, setRate] = useState<number | null>(null);
+  const remove = useMutation(deleteSessionTypeMutationOptions(center.id));
+  const [modalState, setModalState] = useState<SessionTypeModalState>({
+    isOpen: false,
+    data: null,
+  });
 
-  const add = () => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    save.mutate(
-      { name: trimmed, default_hourly_rate: rate, pay_basis: basis },
-      {
-        onSuccess: () => {
-          setName("");
-          setBasis("hour");
-          setRate(null);
-        },
-      },
-    );
+  const closeModal = () => {
+    setModalState((prev) => ({ ...prev, isOpen: false }));
   };
 
   return (
     <SettingsPanel
       title='Session types'
-      description='Kinds of sessions your center runs, e.g. “Piano lesson” or “Group class”. Each one pays per hour or per trainee (the number of trainees is set on each session), with a default salary. The type picked when booking becomes the session’s default title. Set each trainer’s types and salary in the Trainers tab.'
+      description='Kinds of sessions your center runs, e.g. “Piano lesson” or “Group class”. Each one pays per hour or per trainee (the number of trainees is set on each session), with a default salary and a minimum session length. The type picked when booking becomes the session’s default title. Set each trainer’s types and salary in the Trainers tab.'
     >
       <div className='flex flex-col gap-3'>
-        {sessionTypes.length > 0 && (
-          <ul className='divide-y rounded-md border'>
-            {sessionTypes.map((type) => (
-              <SessionTypeRow key={type.id} type={type} />
-            ))}
-          </ul>
-        )}
-        <div className='flex flex-wrap gap-2'>
-          <Input
-            value={name}
-            maxLength={80}
-            placeholder='New session type'
-            aria-label='New session type'
-            className='min-w-40 flex-1'
-            onChange={(e) => setName(e.target.value)}
-            onPressEnter={add}
-          />
-          <Select<PayBasis>
-            value={basis}
-            options={BASIS_OPTIONS}
-            aria-label='Pay basis'
-            className='w-32'
-            onChange={setBasis}
-          />
-          <InputNumber<number>
-            value={rate}
-            {...moneyInputProps}
-            suffix={rateSuffix(basis)}
-            placeholder='Default salary'
-            aria-label='Default salary'
-            className='w-48'
-            onChange={setRate}
-          />
+        <div className='flex justify-end'>
           <Button
+            type='primary'
             icon={<Plus />}
-            loading={save.isPending && !save.variables?.id}
-            disabled={!name.trim()}
-            onClick={add}
+            onClick={() => setModalState({ isOpen: true, data: null })}
           >
-            Add
+            Add session type
           </Button>
         </div>
+        {sessionTypes.length > 0 && (
+          <Table<SessionType>
+            rowKey='id'
+            size='small'
+            pagination={false}
+            dataSource={sessionTypes}
+            scroll={{ x: "max-content" }}
+            columns={[
+              { title: "Name", dataIndex: "name" },
+              {
+                title: "Pays",
+                render: (_, t) =>
+                  BASIS_OPTIONS.find((o) => o.value === payBasisOf(t))?.label,
+              },
+              {
+                title: "Default salary",
+                align: "right",
+                className: "tabular-nums",
+                render: (_, t) =>
+                  t.default_hourly_rate === null
+                    ? "—"
+                    : formatAmount(t.default_hourly_rate),
+              },
+              {
+                title: "Length (minutes)",
+                align: "right",
+                className: "tabular-nums",
+                dataIndex: "min_session_min",
+              },
+              {
+                key: "actions",
+                render: (_, t) => (
+                  <div className='flex justify-end gap-1'>
+                    <Button
+                      size='small'
+                      type='text'
+                      icon={<Pencil />}
+                      title='Edit'
+                      aria-label={`Edit ${t.name}`}
+                      onClick={() => setModalState({ isOpen: true, data: t })}
+                    />
+                    <Popconfirm
+                      title={`Delete ${t.name}?`}
+                      description='Booked sessions keep their title. Trainers lose this type.'
+                      okText='Delete'
+                      okButtonProps={{ danger: true }}
+                      onConfirm={() => remove.mutate(t.id)}
+                    >
+                      <Button
+                        size='small'
+                        type='text'
+                        danger
+                        icon={<Trash2 />}
+                        title='Delete'
+                        aria-label={`Delete ${t.name}`}
+                        loading={remove.isPending && remove.variables === t.id}
+                      />
+                    </Popconfirm>
+                  </div>
+                ),
+              },
+            ]}
+          />
+        )}
       </div>
+
+      <SessionTypeModal
+        open={modalState.isOpen}
+        data={modalState.data}
+        onClose={closeModal}
+      />
     </SettingsPanel>
   );
 }
 
-function SessionTypeRow({ type }: { type: SessionType }) {
+type SessionTypeModalProps = {
+  open: boolean;
+  data: SessionType | null;
+  onClose: () => void;
+};
+
+function SessionTypeModal({ open, data, onClose }: SessionTypeModalProps) {
   const { center } = useRoster();
+  const [form] = Form.useForm<Values>();
   const save = useMutation(saveSessionTypeMutationOptions(center.id));
-  const remove = useMutation(deleteSessionTypeMutationOptions(center.id));
-  const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(type.name);
-  const [basis, setBasis] = useState<PayBasis>(payBasisOf(type));
-  const [rate, setRate] = useState<number | null>(type.default_hourly_rate);
+  const basis = Form.useWatch("pay_basis", form) ?? "hour";
 
-  const cancel = () => {
-    setName(type.name);
-    setBasis(payBasisOf(type));
-    setRate(type.default_hourly_rate);
-    setEditing(false);
-  };
+  useEffect(() => {
+    if (!open) return;
+    // New types start at the center's default session length.
+    const values: Values = data
+      ? {
+          name: data.name,
+          pay_basis: payBasisOf(data),
+          default_hourly_rate: data.default_hourly_rate,
+          min_session_min: data.min_session_min,
+        }
+      : {
+          name: "",
+          pay_basis: "hour",
+          default_hourly_rate: null,
+          min_session_min: center.default_session_min,
+        };
+    form.setFieldsValue(values);
+  }, [open, data, form, center.default_session_min]);
 
-  const submit = () => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
+  const onFinish = (values: Values) =>
     save.mutate(
       {
-        id: type.id,
-        name: trimmed,
-        default_hourly_rate: rate,
-        pay_basis: basis,
+        id: data?.id,
+        name: values.name.trim(),
+        pay_basis: values.pay_basis,
+        default_hourly_rate: values.default_hourly_rate ?? null,
+        min_session_min: values.min_session_min,
       },
-      { onSuccess: () => setEditing(false) },
+      { onSuccess: onClose },
     );
-  };
 
   return (
-    <li className='flex flex-wrap items-center gap-2 px-3 py-1.5 text-sm'>
-      {editing ? (
-        <>
-          <Input
-            size='small'
-            value={name}
-            maxLength={80}
-            aria-label='Session type name'
-            className='min-w-32 flex-1'
-            onChange={(e) => setName(e.target.value)}
-            onPressEnter={submit}
-          />
-          <Select<PayBasis>
-            size='small'
-            value={basis}
-            options={BASIS_OPTIONS}
-            aria-label='Pay basis'
-            className='w-28'
-            onChange={setBasis}
-          />
-          <InputNumber<number>
-            size='small'
-            value={rate}
-            {...moneyInputProps}
-            suffix={rateSuffix(basis)}
-            placeholder='Salary'
-            aria-label='Default salary'
-            className='w-40'
-            onChange={setRate}
-          />
-          <Button
-            size='small'
-            type='text'
-            icon={<Check />}
-            aria-label='Save'
-            loading={save.isPending}
-            onClick={submit}
-          />
-          <Button
-            size='small'
-            type='text'
-            icon={<X />}
-            aria-label='Cancel'
-            onClick={cancel}
-          />
-        </>
-      ) : (
-        <>
-          <span className='min-w-0 flex-1 truncate text-foreground'>
-            {type.name}
-          </span>
-          <span className='text-muted-foreground tabular-nums'>
-            {formatRate(type.default_hourly_rate, payBasisOf(type))}
-          </span>
-          <Button
-            size='small'
-            type='text'
-            icon={<Pencil />}
-            aria-label={`Edit ${type.name}`}
-            onClick={() => setEditing(true)}
-          />
-          <Popconfirm
-            title={`Delete ${type.name}?`}
-            description='Booked sessions keep their title. Trainers lose this type.'
-            okText='Delete'
-            okButtonProps={{ danger: true }}
-            onConfirm={() => remove.mutate(type.id)}
-          >
-            <Button
-              size='small'
-              type='text'
-              danger
-              icon={<Trash2 />}
-              aria-label={`Delete ${type.name}`}
-              loading={remove.isPending}
+    <Modal
+      open={open}
+      title={data ? "Edit session type" : "Add session type"}
+      onCancel={onClose}
+      onOk={() => form.submit()}
+      okText='Save'
+      confirmLoading={save.isPending}
+      destroyOnHidden
+    >
+      <Form form={form} layout='vertical' onFinish={onFinish}>
+        <Form.Item
+          name='name'
+          label='Name'
+          rules={[{ required: true, whitespace: true }, { max: 80 }]}
+        >
+          <Input maxLength={80} placeholder='Piano lesson' />
+        </Form.Item>
+        <div className='grid grid-cols-2 gap-3'>
+          <Form.Item name='pay_basis' label='Pays'>
+            <Select<PayBasis> options={BASIS_OPTIONS} />
+          </Form.Item>
+          <Form.Item name='default_hourly_rate' label='Default salary'>
+            <InputNumber<number>
+              {...moneyInputProps}
+              suffix={rateSuffix(basis)}
+              className='w-full'
             />
-          </Popconfirm>
-        </>
-      )}
-    </li>
+          </Form.Item>
+        </div>
+        <Form.Item
+          name='min_session_min'
+          label='Session length (minutes)'
+          extra='Sessions of this type must be at least this long.'
+          rules={[{ required: true, message: "Enter a length" }]}
+        >
+          <InputNumber<number>
+            min={MIN_SESSION_MINUTES}
+            max={MAX_SESSION_HOURS * 60}
+            precision={0}
+            className='w-full'
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 }

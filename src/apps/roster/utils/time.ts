@@ -1,6 +1,7 @@
 import { DATE_FORMAT, DAY_FORMAT, MONTH_FORMAT } from "@/constants";
 import { dayjs } from "@/libs";
-import type { Center } from "../models/roster";
+import { MIN_SESSION_MINUTES } from "../constants/options";
+import type { Center, SessionType } from "../models/roster";
 
 export const DATE = "YYYY-MM-DD";
 
@@ -116,3 +117,9 @@ export const periodRange = (
 // Moves `anchor` one period back (-1) or forward (1).
 export const stepPeriod = (anchor: string, period: Period, direction: 1 | -1) =>
   addDays(anchor, direction * (period === "week" ? 7 : 1));
+
+// The shortest a session can be: its type's minimum, if it has a type.
+export const minSessionMinutes = (
+  type?: Pick<SessionType, "min_session_min">,
+) =>
+  Math.max(type?.min_session_min ?? MIN_SESSION_MINUTES, MIN_SESSION_MINUTES);

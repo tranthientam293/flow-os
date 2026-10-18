@@ -11,13 +11,10 @@ import {
   TimePicker,
 } from "antd";
 import { updateRepeatMutationOptions } from "../../apis/repeats";
-import {
-  MAX_SESSION_HOURS,
-  MIN_SESSION_MINUTES,
-} from "../../constants/options";
+import { MAX_SESSION_HOURS } from "../../constants/options";
 import { useRoster } from "../../context/roster-context";
 import type { Repeat } from "../../models/roster";
-import { hhmm, openingHours } from "../../utils/time";
+import { hhmm, minSessionMinutes, openingHours } from "../../utils/time";
 import { WeekdayPicker } from "../molecules";
 
 const TIME = "HH:mm";
@@ -53,6 +50,7 @@ export function RepeatModal({
     memberBranches,
     sessionTypes,
     memberSessionTypes,
+    typeById,
     memberById,
   } = ctx;
   const update = useMutation(updateRepeatMutationOptions(center.id));
@@ -150,20 +148,26 @@ export function RepeatModal({
           name='time'
           label='Time'
           extra={`Open ${hours.open}–${hours.close === "24:00" ? "midnight" : hours.close}.`}
+          dependencies={["sessionTypeId"]}
           rules={[
             { required: true, message: "Choose a start and end time" },
-            {
+            ({ getFieldValue }) => ({
               validator: (_rule, value: [Dayjs, Dayjs] | undefined) => {
                 if (!value?.[0] || !value[1]) return Promise.resolve();
                 const [s, e] = value;
                 const minutes = e.diff(s, "minute");
+                const typeId = getFieldValue("sessionTypeId") as
+                  string | undefined;
+                const minimum = minSessionMinutes(
+                  typeId ? typeById.get(typeId) : undefined,
+                );
                 if (s.format(TIME) < hours.open)
                   return Promise.reject(new Error(`Opens at ${hours.open}`));
                 if (e.format(TIME) > hours.close)
                   return Promise.reject(new Error(`Closes at ${hours.close}`));
-                if (minutes < MIN_SESSION_MINUTES)
+                if (minutes < minimum)
                   return Promise.reject(
-                    new Error(`At least ${MIN_SESSION_MINUTES} minute(s)`),
+                    new Error(`At least ${minimum} minute(s)`),
                   );
                 if (minutes > MAX_SESSION_HOURS * 60)
                   return Promise.reject(
@@ -171,7 +175,7 @@ export function RepeatModal({
                   );
                 return Promise.resolve();
               },
-            },
+            }),
           ]}
         >
           <TimePicker.RangePicker

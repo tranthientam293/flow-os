@@ -29,6 +29,7 @@ export const saveSessionTypeMutationOptions = (centerId: string) =>
       name: string;
       default_hourly_rate: number | null;
       pay_basis: PayBasis;
+      min_session_min: number;
     }) => {
       check(
         id

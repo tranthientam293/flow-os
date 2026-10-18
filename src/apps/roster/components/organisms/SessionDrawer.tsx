@@ -38,6 +38,7 @@ import {
   dayStartIso,
   formatRange,
   inTz,
+  minSessionMinutes,
   monthBounds,
   openingHours,
   todayIn,
@@ -296,7 +297,13 @@ export function SessionForm({
               ? today
               : requested,
           ),
-          time: [start, start.add(sessionLength, "minute")],
+          time: [
+            start,
+            start.add(
+              Math.max(sessionLength, minSessionMinutes(onlyType ?? undefined)),
+              "minute",
+            ),
+          ],
           traineeCount: 1,
         };
       })();
@@ -311,8 +318,16 @@ export function SessionForm({
     );
   }
 
-  // A session type fills in the title, unless the title was typed by hand.
+  const typeMinutes = (typeId: string | undefined) =>
+    minSessionMinutes(typeId ? typeById.get(typeId) : undefined);
+
+  // A session type fills in the title, unless the title was typed by hand,
+  // and stretches a new booking to the type's minimum length.
   const onTypeChange = (typeId: string | undefined) => {
+    const [start, end] = (form.getFieldValue("time") ?? []) as Dayjs[];
+    const minimum = typeMinutes(typeId);
+    if (!existing && start && end && end.diff(start, "minute") < minimum)
+      form.setFieldValue("time", [start, start.add(minimum, "minute")]);
     const previous = form.getFieldValue("sessionTypeId") as string | undefined;
     const title = (
       (form.getFieldValue("title") as string | undefined) ?? ""
@@ -383,7 +398,10 @@ export function SessionForm({
       oldStart && oldEnd ? oldEnd.diff(oldStart, "minute") : sessionLength;
     form.setFieldValue("time", [
       next,
-      next.add(Math.max(length, MIN_SESSION_MINUTES), "minute"),
+      next.add(
+        Math.max(length, typeMinutes(form.getFieldValue("sessionTypeId"))),
+        "minute",
+      ),
     ]);
     requestAnimationFrame(() =>
       (timeRef.current as RangePickerFocus | null)?.focus(1),
@@ -531,20 +549,22 @@ export function SessionForm({
             )}
           </>
         }
+        dependencies={["sessionTypeId"]}
         rules={[
           { required: true, message: "Choose a start and end time" },
-          {
+          ({ getFieldValue }) => ({
             validator: (_rule, value: [Dayjs, Dayjs] | undefined) => {
               if (!value?.[0] || !value[1]) return Promise.resolve();
               const [s, e] = value;
               const minutes = e.diff(s, "minute");
+              const minimum = typeMinutes(getFieldValue("sessionTypeId"));
               if (s.format(TIME) < hours.open)
                 return Promise.reject(new Error(`Opens at ${hours.open}`));
               if (e.format(TIME) > hours.close)
                 return Promise.reject(new Error(`Closes at ${hours.close}`));
-              if (minutes < MIN_SESSION_MINUTES)
+              if (minutes < minimum)
                 return Promise.reject(
-                  new Error(`At least ${MIN_SESSION_MINUTES} minute(s)`),
+                  new Error(`At least ${minimum} minute(s)`),
                 );
               if (minutes > MAX_SESSION_HOURS * 60)
                 return Promise.reject(
@@ -552,7 +572,7 @@ export function SessionForm({
                 );
               return Promise.resolve();
             },
-          },
+          }),
         ]}
       >
         <TimePicker.RangePicker

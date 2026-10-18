@@ -115,9 +115,9 @@ export type Database = {
         ]
       }
       roster_session_types: {
-        Row: { center_id: string; created_at: string; default_hourly_rate: number | null; id: string; name: string; pay_basis: string }
-        Insert: { center_id: string; created_at?: string; default_hourly_rate?: number | null; id?: string; name: string; pay_basis?: string }
-        Update: { center_id?: string; created_at?: string; default_hourly_rate?: number | null; id?: string; name?: string; pay_basis?: string }
+        Row: { center_id: string; created_at: string; default_hourly_rate: number | null; id: string; min_session_min: number; name: string; pay_basis: string }
+        Insert: { center_id: string; created_at?: string; default_hourly_rate?: number | null; id?: string; min_session_min?: number; name: string; pay_basis?: string }
+        Update: { center_id?: string; created_at?: string; default_hourly_rate?: number | null; id?: string; min_session_min?: number; name?: string; pay_basis?: string }
         Relationships: [
           { foreignKeyName: "roster_session_types_center_id_fkey"; columns: ["center_id"]; isOneToOne: false; referencedRelation: "roster_centers"; referencedColumns: ["id"] },
         ]

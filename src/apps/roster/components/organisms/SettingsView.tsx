@@ -15,7 +15,7 @@ import {
   deleteCenterMutationOptions,
   updateCenterMutationOptions,
 } from "../../apis/centers";
-import { TIMEZONES } from "../../constants/options";
+import { MIN_SESSION_MINUTES, TIMEZONES } from "../../constants/options";
 import { useRoster } from "../../context/roster-context";
 import { hhmm } from "../../utils/time";
 import { OwnerAsTrainerPanel } from "./OwnerAsTrainerPanel";
@@ -122,7 +122,7 @@ function CenterSettings() {
             rules={[{ required: true }]}
           >
             <InputNumber<number>
-              min={60}
+              min={MIN_SESSION_MINUTES}
               max={480}
               step={15}
               className='w-full'
