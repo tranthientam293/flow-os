@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { House } from "lucide-react";
-import { Button, Form, Input, Popconfirm, Segmented, Select, Spin } from "antd";
+import { Button, Form, Input, Popconfirm, Segmented, Spin } from "antd";
 import { Badge } from "@/components/atoms";
 import { SettingsPanel } from "@/components/molecules";
 import { APP_NAME } from "@/constants";
 import { useAppStorage, useBackToPlatform } from "@/hooks";
+import { cn } from "@/utils";
 import { leaveCenterMutationOptions } from "../../apis/centers";
 import {
   memberQueryOptions,
@@ -26,6 +27,14 @@ export function MySettingsPage({ memberships }: MySettingsPageProps) {
   const membership =
     memberships.find((m) => m.center.id === centerId) ?? memberships[0];
   const { backToPlatform, holder } = useBackToPlatform(ROSTER_LEAVE_NOTE);
+  const trainsAnywhere = memberships.some((m) => m.role !== "owner");
+  const centerTabs = membership && memberships.length > 1 && (
+    <CenterTabs
+      memberships={memberships}
+      activeCenterId={membership.center.id}
+      onChange={setCenterId}
+    />
+  );
 
   return (
     <div className='mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 sm:px-6'>
@@ -42,28 +51,25 @@ export function MySettingsPage({ memberships }: MySettingsPageProps) {
           title='My profile'
           description='How you appear on the schedule. Each center keeps its own profile.'
         >
-          {memberships.length > 1 && (
-            <Select
-              className='mb-4 w-full sm:w-64'
-              aria-label='Center'
-              value={membership.center.id}
-              onChange={setCenterId}
-              options={memberships.map((m) => ({
-                value: m.center.id,
-                label: m.center.name,
-              }))}
-            />
-          )}
+          {centerTabs}
           <ProfileForm key={membership.id} membership={membership} />
         </SettingsPanel>
       )}
 
-      {membership && membership.role !== "owner" && (
+      {membership && trainsAnywhere && (
         <SettingsPanel
           title='My salary'
-          description={`Your salary at ${membership.center.name} for each session type you teach, per shift, per hour or per trainee as the type pays. It fills in your salary when you complete a session; the owner’s rate is shown as a reference.`}
+          description='Your salary for each session type you teach, per shift, per hour or per trainee as the type pays. It fills in your salary when you complete a session; the owner’s rate is shown as a reference.'
         >
-          <MySalaryForm key={membership.id} membership={membership} />
+          {centerTabs}
+          {membership.role === "owner" ? (
+            <p className='text-sm text-muted-foreground'>
+              You own {membership.center.name}, so you aren’t paid a salary
+              there.
+            </p>
+          ) : (
+            <MySalaryForm key={membership.id} membership={membership} />
+          )}
         </SettingsPanel>
       )}
 
@@ -89,6 +95,46 @@ export function MySettingsPage({ memberships }: MySettingsPageProps) {
           Back to {APP_NAME}
         </Button>
       </SettingsPanel>
+    </div>
+  );
+}
+
+interface CenterTabsProps {
+  memberships: Membership[];
+  activeCenterId: string;
+  onChange: (centerId: string) => void;
+}
+
+function CenterTabs({
+  memberships,
+  activeCenterId,
+  onChange,
+}: CenterTabsProps) {
+  return (
+    <div
+      role='tablist'
+      aria-label='Center'
+      className='mb-4 flex h-10 scrollbar-none items-stretch gap-1 overflow-x-auto overflow-y-hidden border-b [&::-webkit-scrollbar]:hidden'
+    >
+      {memberships.map((m) => {
+        const isActive = m.center.id === activeCenterId;
+        return (
+          <button
+            key={m.id}
+            type='button'
+            role='tab'
+            aria-selected={isActive}
+            onClick={() => onChange(m.center.id)}
+            className={cn(
+              "flex shrink-0 items-center px-3 text-sm whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground",
+              isActive &&
+                "text-foreground shadow-[inset_0_-2px_0_var(--foreground)]",
+            )}
+          >
+            {m.center.name}
+          </button>
+        );
+      })}
     </div>
   );
 }
