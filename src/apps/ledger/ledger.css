@@ -49,11 +49,11 @@
 
     .ledger-modal-enter.ledger-modal-enter-active,
     .ledger-modal-appear.ledger-modal-appear-active {
-      animation-name: flow-sheet-up;
+      animation-name: sheet-up;
     }
 
     .ledger-modal-leave.ledger-modal-leave-active {
-      animation-name: flow-sheet-down;
+      animation-name: sheet-down;
     }
   }
 
@@ -108,12 +108,12 @@
     .ledger-picker-sheet.ant-slide-up-appear.ant-slide-up-appear-active,
     .ledger-picker-sheet.ant-slide-down-enter.ant-slide-down-enter-active,
     .ledger-picker-sheet.ant-slide-down-appear.ant-slide-down-appear-active {
-      animation-name: flow-sheet-up;
+      animation-name: sheet-up;
     }
 
     .ledger-picker-sheet.ant-slide-up-leave.ant-slide-up-leave-active,
     .ledger-picker-sheet.ant-slide-down-leave.ant-slide-down-leave-active {
-      animation-name: flow-sheet-down;
+      animation-name: sheet-down;
       animation-duration: 200ms;
     }
   }
