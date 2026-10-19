@@ -1,0 +1,84 @@
+name: Sync wiki
+
+# Publishes the Markdown pages in WIKI_SOURCES to the repository's GitHub
+# wiki. Every file lands at the wiki's root under its own name (the wiki has
+# no folders), so names must be unique across sources; `_Sidebar.md` files
+# are joined into one sidebar. Pages this workflow published earlier and
+# since removed from the repo are deleted; pages made in the wiki by hand are
+# left alone. The wiki must have at least one page (create it in the GitHub
+# UI once) before the first run.
+
+# Runs only by hand: Actions → Sync wiki → Run workflow.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: wiki
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  # Folders whose .md files become wiki pages, separated by spaces.
+  WIKI_SOURCES: docs/apps/ledger
+  # Lists what the last run published, so removed pages can be deleted.
+  MANIFEST: .synced-from-repo
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone the wiki
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git clone --depth 1 \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" \
+            wiki
+
+      - name: Copy pages
+        run: |
+          set -euo pipefail
+          staging="$(mktemp -d)"
+
+          for dir in $WIKI_SOURCES; do
+            for file in "$dir"/*.md; do
+              name="$(basename "$file")"
+              if [ "$name" = "_Sidebar.md" ]; then
+                cat "$file" >> "$staging/_Sidebar.md"
+                printf '\n' >> "$staging/_Sidebar.md"
+              elif [ -e "$staging/$name" ]; then
+                echo "::error file=$file::$name is also in another source; wiki page names must be unique"
+                exit 1
+              else
+                cp "$file" "$staging/$name"
+              fi
+            done
+          done
+
+          # Delete pages published last time that are gone from the repo.
+          if [ -f "wiki/$MANIFEST" ]; then
+            while IFS= read -r name; do
+              [ -n "$name" ] && [ ! -e "$staging/$name" ] && rm -f "wiki/$name"
+            done < "wiki/$MANIFEST"
+          fi
+
+          (cd "$staging" && ls -1) > "wiki/$MANIFEST"
+          cp "$staging"/*.md wiki/
+
+      - name: Push
+        working-directory: wiki
+        run: |
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Wiki is already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Sync from ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
+          git push
