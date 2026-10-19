@@ -1,12 +1,11 @@
 name: Sync wiki
 
-# Publishes the Markdown pages in WIKI_SOURCES to the repository's GitHub
+# Publishes the Markdown files matching WIKI_PAGES to the repository's GitHub
 # wiki. Every file lands at the wiki's root under its own name (the wiki has
-# no folders), so names must be unique across sources; `_Sidebar.md` files
-# are joined into one sidebar. Pages this workflow published earlier and
-# since removed from the repo are deleted; pages made in the wiki by hand are
-# left alone. The wiki must have at least one page (create it in the GitHub
-# UI once) before the first run.
+# no folders), so names must be unique. Pages this workflow published earlier
+# and since removed from the repo are deleted; pages made in the wiki by hand
+# are left alone. The wiki must have at least one page (create it in the
+# GitHub UI once) before the first run.
 
 # Runs only by hand: Actions → Sync wiki → Run workflow.
 on:
@@ -20,8 +19,12 @@ permissions:
   contents: write
 
 env:
-  # Folders whose .md files become wiki pages, separated by spaces.
-  WIKI_SOURCES: docs/apps/ledger
+  # Globs of files that become wiki pages, separated by spaces. Roster's v1
+  # planning docs (plan.md, data-model.md, design.md) stay out.
+  WIKI_PAGES: >-
+    docs/wiki/*.md
+    docs/apps/ledger/*.md
+    docs/apps/roster/Roster*.md
   # Lists what the last run published, so removed pages can be deleted.
   MANIFEST: .synced-from-repo
 
@@ -43,27 +46,33 @@ jobs:
       - name: Copy pages
         run: |
           set -euo pipefail
+          shopt -s nullglob
           staging="$(mktemp -d)"
 
-          for dir in $WIKI_SOURCES; do
-            for file in "$dir"/*.md; do
+          # Split without expanding, so each glob is checked on its own.
+          read -ra patterns <<< "$WIKI_PAGES"
+          for pattern in "${patterns[@]}"; do
+            files=($pattern)
+            if [ ${#files[@]} -eq 0 ]; then
+              echo "::error::$pattern matches no files"
+              exit 1
+            fi
+            for file in "${files[@]}"; do
               name="$(basename "$file")"
-              if [ "$name" = "_Sidebar.md" ]; then
-                cat "$file" >> "$staging/_Sidebar.md"
-                printf '\n' >> "$staging/_Sidebar.md"
-              elif [ -e "$staging/$name" ]; then
-                echo "::error file=$file::$name is also in another source; wiki page names must be unique"
+              if [ -e "$staging/$name" ]; then
+                echo "::error file=$file::$name is used twice; wiki page names must be unique"
                 exit 1
-              else
-                cp "$file" "$staging/$name"
               fi
+              cp "$file" "$staging/$name"
             done
           done
 
           # Delete pages published last time that are gone from the repo.
           if [ -f "wiki/$MANIFEST" ]; then
             while IFS= read -r name; do
-              [ -n "$name" ] && [ ! -e "$staging/$name" ] && rm -f "wiki/$name"
+              if [ -n "$name" ] && [ ! -e "$staging/$name" ]; then
+                rm -f "wiki/$name"
+              fi
             done < "wiki/$MANIFEST"
           fi
 
