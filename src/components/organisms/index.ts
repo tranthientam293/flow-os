@@ -4,6 +4,7 @@ export * from "./AppearanceSettings";
 export * from "./LaunchAppModal";
 export * from "./MobileNav";
 export * from "./ProfileSettings";
+export * from "./SessionsSettings";
 export * from "./Sidebar";
 export * from "./SignInForm";
 export * from "./SignUpForm";

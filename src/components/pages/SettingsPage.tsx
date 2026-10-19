@@ -1,5 +1,9 @@
 import { PageHeader } from "@/components/molecules";
-import { AppearanceSettings, ProfileSettings } from "@/components/organisms";
+import {
+  AppearanceSettings,
+  ProfileSettings,
+  SessionsSettings,
+} from "@/components/organisms";
 
 export function SettingsPage() {
   return (
@@ -10,6 +14,7 @@ export function SettingsPage() {
       />
       <div className='mt-8 flex flex-col gap-6'>
         <ProfileSettings />
+        <SessionsSettings />
         <AppearanceSettings />
       </div>
     </div>

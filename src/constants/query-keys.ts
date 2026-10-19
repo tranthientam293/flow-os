@@ -4,4 +4,5 @@ export const QUERY_KEYS = {
   appStorage: (userId: string, appId: string, key: string) =>
     ["app-storage", userId, appId, key] as const,
   health: ["health"] as const,
+  sessions: (userId: string) => ["sessions", userId] as const,
 };

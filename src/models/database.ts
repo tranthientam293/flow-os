@@ -151,6 +151,12 @@ export type Database = {
     }
     Views: { [_ in never]: never }
     Functions: {
+      list_my_sessions: {
+        Args: never
+        Returns: { created_at: string; id: string; ip: string | null; is_current: boolean; last_active_at: string; user_agent: string | null }[]
+      }
+      revoke_all_my_sessions: { Args: { p_password: string }; Returns: string }
+      revoke_my_session: { Args: { p_password: string; p_session_id: string }; Returns: string }
       roster_can_book: { Args: { p_branch_id: string; p_member_id: string }; Returns: boolean }
       roster_claim_invite: { Args: { p_member_id: string }; Returns: string }
       roster_create_center: {

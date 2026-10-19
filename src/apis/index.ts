@@ -3,3 +3,4 @@ export * from "./auth";
 export * from "./health";
 export * from "./installed-apps";
 export * from "./profile";
+export * from "./sessions";
