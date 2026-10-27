@@ -115,7 +115,7 @@ function CategoryList({ fill, value, onSelect }: CategoryListProps) {
       />
       <div
         className={cn(
-          "-mx-2 overflow-y-auto",
+          "overflow-y-auto",
           fill ? "min-h-0 flex-1" : "max-h-[60vh]",
         )}
       >
