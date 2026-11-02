@@ -7,7 +7,7 @@
 | App id       | `ledger` (folder `src/apps/ledger/`, never renamed)                                          |
 | Display name | Ledger                                                                                       |
 | Category     | Utilities                                                                                    |
-| Version      | 0.27.8                                                                                       |
+| Version      | 0.28.0                                                                                       |
 | Currency     | Vietnamese đồng (VND, ₫), whole đồng only                                                    |
 | Tables       | `ledger_expenses`, `ledger_settings`                                                         |
 | Source       | [`src/apps/ledger/`](https://github.com/tranthientam293/flow-os/tree/master/src/apps/ledger) |

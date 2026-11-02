@@ -8,7 +8,7 @@ Live site: [flow-os-project.vercel.app](https://flow-os-project.vercel.app) · S
 
 | App              | Version | What it does                                                                                               |
 | ---------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
-| [Ledger](Ledger) | 0.27.8  | Daily expense tracker: write down what you spend and see where your money goes                             |
+| [Ledger](Ledger) | 0.28.0  | Daily expense tracker: write down what you spend and see where your money goes                             |
 | [Roster](Roster) | 2.44.0  | Schedules for a center and its trainers: owners set up branches and trainers, trainers book their sessions |
 
 ## Using flowOS

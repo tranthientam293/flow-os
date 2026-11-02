@@ -84,22 +84,35 @@ export function CategoryPicker({ id, value, onChange }: CategoryPickerProps) {
 
 interface CategoryListProps {
   fill: boolean;
+  // Lists top-level categories only; searching a subcategory finds its parent.
+  parentsOnly?: boolean;
   value?: string;
   onSelect: (id: string) => void;
 }
 
-function CategoryList({ fill, value, onSelect }: CategoryListProps) {
+export function CategoryList({
+  fill,
+  parentsOnly,
+  value,
+  onSelect,
+}: CategoryListProps) {
   const [query, setQuery] = useState("");
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return EXPENSE_CATEGORIES;
     return EXPENSE_CATEGORIES.flatMap((parent) => {
-      if (matches(parent, q)) return [parent];
+      if (parentsOnly) {
+        const hit =
+          !q ||
+          matches(parent, q) ||
+          (parent.children ?? []).some((c) => matches(c, q));
+        return hit ? [{ ...parent, children: undefined }] : [];
+      }
+      if (!q || matches(parent, q)) return [parent];
       const children = (parent.children ?? []).filter((c) => matches(c, q));
       return children.length ? [{ ...parent, children }] : [];
     });
-  }, [query]);
+  }, [query, parentsOnly]);
 
   return (
     <div className='flex min-h-0 flex-1 flex-col gap-3'>

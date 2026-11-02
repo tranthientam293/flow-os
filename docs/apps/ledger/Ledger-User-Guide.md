@@ -99,6 +99,10 @@ Every section stays visible with its own message when there's nothing to show.
 
 The month's total (with **Add expense** next to it on desktop), the month picker, then every expense of the month grouped by day, newest first. Each day shows its total; each expense shows its category icon and name, note and amount.
 
+To see one category only, tap **All categories** (next to the month picker) and pick it. The list has top-level categories only, and each includes its subcategories (Transportation also shows Vehicle Maintenance). Searching a subcategory's name finds its parent. The total above shows what you spent in that category. Tap ✕ to clear the filter.
+
+On phones the button shows only the filter icon, with a green dot while a filter is on. Tap it, pick a category, then tap **Apply**; **Clear** removes the filter. Closing the dialog without either keeps the filter as it was. The filter is kept in the address (`?category=transportation`), so reloading keeps it.
+
 ## Settings
 
 - **Monthly limit**: a plain amount in đồng (no sums here). Leave it empty for no limit. **Save** and **Cancel** appear when you change it; **Remove limit** clears a saved limit. Your limit follows your account to every device.

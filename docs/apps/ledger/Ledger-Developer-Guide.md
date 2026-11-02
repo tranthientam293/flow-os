@@ -29,7 +29,7 @@ src/apps/ledger/
     pages/               DashboardPage, ExpensesPage, SettingsPage
   constants/             categories, chart colors, query keys, modal sizes, routes
   context/               expense-editor-context.ts
-  hooks/                 useConfirmDelete, useLedgerPaths, useMonthParam
+  hooks/                 useCategoryParam, useConfirmDelete, useLedgerPaths, useMonthParam
   models/                ledger.ts (Expense, ExpenseDraft, LedgerSettings)
   utils/                 errors, expression (amount sums), money (formatting), stats
 ```
@@ -52,6 +52,8 @@ Paths are built with `useLedgerPaths()`, never hard-coded. Path segments live in
 ### The month in the URL
 
 `useMonthParam()` reads and writes `?month=YYYY-MM`. A missing, invalid or future month means the current month, and choosing the current month removes the parameter. It updates with `replace`, so switching months doesn't add browser history. The Dashboard and Expenses both use it, so tabs and links keep the chosen month.
+
+`useCategoryParam()` reads and writes `?category=<id>` for the Expenses filter, which takes top-level categories only (`CategoryList parentsOnly`). Unknown or subcategory ids mean no filter, and clearing it removes the parameter (also with `replace`). The page filters the month's expenses on the client: an expense matches when its category rolls up to the chosen one (`PARENT_CATEGORY`).
 
 ## Data fetching
 
