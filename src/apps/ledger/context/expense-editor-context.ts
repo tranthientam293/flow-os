@@ -14,6 +14,17 @@ export type ExpenseEditorContextValue = {
   // header then shows its own Add expense, which runs this.
   headerAdd: (() => void) | null;
   setHeaderAdd: (add: (() => void) | null) => void;
+  // Set by a page that gives the phone bottom bar's round + its own action
+  // (Funds list: new fund; a fund page: put in or use money); null means
+  // Add expense.
+  barAdd: BarAdd | null;
+  setBarAdd: (add: BarAdd | null) => void;
+};
+
+export type BarAdd = {
+  // The button's accessible name and hint, e.g. "Put money in".
+  label: string;
+  onClick: () => void;
 };
 
 export const ExpenseEditorContext =

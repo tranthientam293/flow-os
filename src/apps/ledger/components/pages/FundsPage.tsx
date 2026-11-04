@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ChevronRight, PiggyBank, Plus, Users } from "lucide-react";
 import { Link, useNavigate } from "react-router";
@@ -11,6 +11,7 @@ import {
   createFundMutationOptions,
   myFundsQueryOptions,
 } from "../../apis/funds";
+import { useExpenseEditor } from "../../context/expense-editor-context";
 import { useLedgerPaths } from "../../hooks/useLedgerPaths";
 import { formatAmount } from "../../utils/money";
 import { PageTitle } from "../molecules";
@@ -26,10 +27,19 @@ export function FundsPage() {
   // Bumped on each open so the modal starts empty.
   const [session, setSession] = useState(0);
 
-  const openCreate = () => {
+  // Stable: the bottom bar keeps it while this page is open.
+  const openCreate = useCallback(() => {
     setSession((n) => n + 1);
     setOpen(true);
-  };
+  }, []);
+
+  // On phones the bottom bar's round + creates a fund here (New fund is
+  // hidden on phones).
+  const { setBarAdd } = useExpenseEditor();
+  useEffect(() => {
+    setBarAdd({ label: "New fund", onClick: openCreate });
+    return () => setBarAdd(null);
+  }, [setBarAdd, openCreate]);
 
   return (
     <main className='mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-4 pt-6 pb-6 sm:px-6'>
@@ -38,7 +48,13 @@ export function FundsPage() {
           title='Funds'
           description='Money you share with others: who put in what, and where it went.'
         />
-        <Button type='primary' icon={<Plus />} onClick={openCreate}>
+        {/* Phones use the bottom bar's round + instead. */}
+        <Button
+          type='primary'
+          icon={<Plus />}
+          onClick={openCreate}
+          className='max-sm:hidden'
+        >
           New fund
         </Button>
       </div>

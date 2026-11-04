@@ -122,6 +122,8 @@ Only the owner invites or removes people, edits the fund's name and note (✏️
 
 On a fund's page, tap **Put money in** or **Use money**. Pick who the money is from (or who used it; you by default), the amount (sums work, as for expenses), a note and the date (today or earlier; future days can't be picked). Any member can do this.
 
+On phones, the round **+** in the bottom bar does this on a fund's page: it opens a new transaction with a **Put money in** / **Use money** switch at the top (Put money in to start), whichever tab you're on. On the Funds list it creates a fund. Everywhere else it adds an expense. On phones that + replaces the page's own **New fund**, **Put money in** and **Use money** buttons, which are hidden.
+
 Each transaction shows:
 
 - whose money it is, and whether it was **put in** (green, +) or **used** (red, −),

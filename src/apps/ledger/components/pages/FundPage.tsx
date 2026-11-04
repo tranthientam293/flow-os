@@ -27,6 +27,7 @@ import {
   saveFundTransactionMutationOptions,
   updateFundMutationOptions,
 } from "../../apis/funds";
+import { useExpenseEditor } from "../../context/expense-editor-context";
 import { useConfirmDelete } from "../../hooks/useConfirmDelete";
 import { useLedgerPaths } from "../../hooks/useLedgerPaths";
 import type {
@@ -74,6 +75,8 @@ type TransactionTarget = {
   session: number;
   kind: FundTransactionKind;
   transaction?: FundTransaction;
+  // Picked in the modal (the phone bottom bar's +), not by the button.
+  chooseKind?: boolean;
 };
 
 function FundView({ fund }: { fund: FundSummary }) {
@@ -155,8 +158,17 @@ function FundView({ fund }: { fund: FundSummary }) {
   // Stable, so the memoized list and rows don't re-render when other page
   // state (a modal, the tab) changes.
   const openEditor = useCallback(
-    (kind: FundTransactionKind, transaction?: FundTransaction) => {
-      setTarget((prev) => ({ session: prev.session + 1, kind, transaction }));
+    (
+      kind: FundTransactionKind,
+      transaction?: FundTransaction,
+      chooseKind = false,
+    ) => {
+      setTarget((prev) => ({
+        session: prev.session + 1,
+        kind,
+        transaction,
+        chooseKind,
+      }));
       setEditorOpen(true);
     },
     [],
@@ -185,6 +197,19 @@ function FundView({ fund }: { fund: FundSummary }) {
     setHistory(t);
     setHistoryOpen(true);
   }, []);
+
+  // On phones the bottom bar's round + opens a new transaction with a Put
+  // money in / Use money switch (starting at Put money in), instead of adding
+  // an expense, while this page is open and loaded. The tab doesn't decide.
+  const { setBarAdd } = useExpenseEditor();
+  useEffect(() => {
+    if (!ready) return;
+    setBarAdd({
+      label: "Put money in or use money",
+      onClick: () => openEditor("contribute", undefined, true),
+    });
+    return () => setBarAdd(null);
+  }, [ready, openEditor, setBarAdd]);
 
   const loading = !ready;
 
@@ -279,13 +304,13 @@ function FundView({ fund }: { fund: FundSummary }) {
             </p>
           </div>
         </div>
-        <div className='grid grid-cols-2 gap-2'>
+        {/* Phones use the bottom bar's round + instead (Put in / Use switch in the modal). */}
+        <div className='grid grid-cols-2 gap-2 max-sm:hidden'>
           <Button
             type='primary'
             icon={<ArrowDownLeft />}
             disabled={loading}
             onClick={() => openEditor("contribute")}
-            className='max-sm:h-11'
           >
             Put money in
           </Button>
@@ -293,7 +318,6 @@ function FundView({ fund }: { fund: FundSummary }) {
             icon={<ArrowUpRight />}
             disabled={loading}
             onClick={() => openEditor("spend")}
-            className='max-sm:h-11'
           >
             Use money
           </Button>
@@ -356,6 +380,7 @@ function FundView({ fund }: { fund: FundSummary }) {
         key={target.session}
         open={editorOpen}
         kind={target.kind}
+        chooseKind={target.chooseKind}
         transaction={target.transaction}
         members={members}
         myMemberId={myMemberId}

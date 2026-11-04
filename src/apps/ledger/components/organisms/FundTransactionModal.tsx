@@ -1,6 +1,14 @@
 import { useState } from "react";
 import dayjs, { type Dayjs } from "dayjs";
-import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Segmented,
+  Select,
+} from "antd";
 import { DATE_FORMAT } from "@/constants";
 import {
   MODAL_TRANSITION,
@@ -23,6 +31,9 @@ interface FundTransactionModalProps {
   // by the button that opened the modal.
   transaction?: FundTransaction;
   kind: FundTransactionKind;
+  // A new transaction whose kind is picked in the modal (Put money in / Use
+  // money switch, starting at `kind`): the phone bottom bar's round +.
+  chooseKind?: boolean;
   // Everyone in the fund, for the person field.
   members: FundMember[];
   myMemberId: string;
@@ -35,6 +46,7 @@ export function FundTransactionModal({
   open,
   transaction,
   kind,
+  chooseKind = false,
   members,
   myMemberId,
   saving,
@@ -43,7 +55,11 @@ export function FundTransactionModal({
 }: FundTransactionModalProps) {
   const [form] = Form.useForm<FundTransactionDraft>();
   const [changed, setChanged] = useState(false);
-  const chosenKind: FundTransactionKind = transaction?.kind ?? kind;
+  // Only a new transaction opened with chooseKind can switch.
+  const switchable = chooseKind && !transaction;
+  const [pickedKind, setPickedKind] = useState(kind);
+  const chosenKind: FundTransactionKind =
+    transaction?.kind ?? (switchable ? pickedKind : kind);
   const isIn = chosenKind === "contribute";
 
   // Members who have joined (not invited); a removed one stays on their own
@@ -124,6 +140,18 @@ export function FundTransactionModal({
           })
         }
       >
+        {switchable && (
+          <Segmented<FundTransactionKind>
+            block
+            value={pickedKind}
+            onChange={setPickedKind}
+            options={[
+              { value: "contribute", label: "Put money in" },
+              { value: "spend", label: "Use money" },
+            ]}
+            className='mb-4'
+          />
+        )}
         <Form.Item
           name='memberId'
           label={isIn ? "Who put it in" : "Who used it"}

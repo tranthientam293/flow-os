@@ -6,6 +6,7 @@ import {
   saveExpenseMutationOptions,
 } from "../../apis/expenses";
 import {
+  type BarAdd,
   ExpenseEditorContext,
   type ExpenseEditorContextValue,
 } from "../../context/expense-editor-context";
@@ -40,6 +41,8 @@ export function ExpenseEditorProvider({
     (add: (() => void) | null) => setHeaderAddState(() => add),
     [],
   );
+  // An object, not a function, so useState's setter takes it as is.
+  const [barAdd, setBarAdd] = useState<BarAdd | null>(null);
 
   const value = useMemo<ExpenseEditorContextValue>(
     () => ({
@@ -54,8 +57,10 @@ export function ExpenseEditorProvider({
       deleteExpense: (expense) => confirmDelete(() => deleteAsync(expense.id)),
       headerAdd,
       setHeaderAdd,
+      barAdd,
+      setBarAdd,
     }),
-    [confirmDelete, deleteAsync, headerAdd, setHeaderAdd],
+    [confirmDelete, deleteAsync, headerAdd, setHeaderAdd, barAdd],
   );
 
   const { expense, onSaved, session } = target;

@@ -18,7 +18,14 @@ export function LedgerBottomBar() {
   const paths = useLedgerPaths();
   const { search } = useLocation();
   const [, setMonth] = useMonthParam();
-  const { openEditor } = useExpenseEditor();
+  const { openEditor, barAdd } = useExpenseEditor();
+  // The Funds list (create a fund) and a fund page (put in / use money) give
+  // + their own action; everywhere else it adds an expense.
+  const addLabel = barAdd?.label ?? "Add expense";
+  const add =
+    barAdd?.onClick ??
+    (() =>
+      openEditor(undefined, (draft) => setMonth(draft.date.startOf("month"))));
 
   return (
     <nav
@@ -44,14 +51,10 @@ export function LedgerBottomBar() {
         <Button
           type='primary'
           shape='circle'
-          aria-label='Add expense'
-          title='Add expense'
+          aria-label={addLabel}
+          title={addLabel}
           icon={<Plus className='size-6!' strokeWidth={2.5} />}
-          onClick={() =>
-            openEditor(undefined, (draft) =>
-              setMonth(draft.date.startOf("month")),
-            )
-          }
+          onClick={add}
           className='absolute -top-5 left-1/2 size-14 -translate-x-1/2 ring-4 ring-brand-soft'
         />
       </div>
