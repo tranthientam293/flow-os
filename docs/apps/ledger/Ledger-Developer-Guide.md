@@ -21,17 +21,17 @@ src/apps/ledger/
   LedgerApp.tsx          Root: routes, header, bottom bar, footer, editor provider
   ledger.css             Dialog and picker animations (desktop and phone sheets)
   README.md              Screens, business rules, tables, changelog (source of truth)
-  apis/                  Query and mutation options (expenses.ts, settings.ts)
+  apis/                  Query and mutation options (expenses.ts, funds.ts, settings.ts)
   components/
-    atoms/               CategoryIcon
-    molecules/           AmountInput, CategoryPicker, ExpenseList, MonthPicker, …
-    organisms/           Charts, ExpenseModal, ExpenseEditorProvider, header and bottom bar, …
-    pages/               DashboardPage, ExpensesPage, SettingsPage
+    atoms/               CategoryIcon, FundKindIcon
+    molecules/           AmountInput, CategoryPicker, ExpenseList, FundTransactionList, MonthPicker, …
+    organisms/           Charts, ExpenseModal, ExpenseEditorProvider, Fund*Modal, FundMembersPanel, header and bottom bar, …
+    pages/               DashboardPage, ExpensesPage, FundsPage, FundPage, FundMembersPage, SettingsPage
   constants/             categories, chart colors, query keys, modal sizes, routes
   context/               expense-editor-context.ts
   hooks/                 useCategoryParam, useConfirmDelete, useLedgerPaths, useMonthParam
-  models/                ledger.ts (Expense, ExpenseDraft, LedgerSettings)
-  utils/                 errors, expression (amount sums), money (formatting), stats
+  models/                ledger.ts (Expense, ExpenseDraft, LedgerSettings, Fund* types)
+  utils/                 errors, expression (amount sums), funds (totals, history diffs), money (formatting), stats
 ```
 
 Components follow atomic design, as in `src/components`: each level has an `index.ts` barrel, other levels import through it, and siblings import each other directly.
@@ -40,12 +40,15 @@ Components follow atomic design, as in `src/components`: each level has an `inde
 
 `LedgerApp.tsx` renders nested routes under the platform's `/apps/ledger/*`:
 
-| Route      | Page                       |
-| ---------- | -------------------------- |
-| index      | `DashboardPage`            |
-| `expenses` | `ExpensesPage`             |
-| `settings` | `SettingsPage`             |
-| `*`        | Redirects to the Dashboard |
+| Route                   | Page                       |
+| ----------------------- | -------------------------- |
+| index                   | `DashboardPage`            |
+| `expenses`              | `ExpensesPage`             |
+| `funds`                 | `FundsPage`                |
+| `funds/:fundId`         | `FundPage`                 |
+| `funds/:fundId/members` | `FundMembersPage`          |
+| `settings`              | `SettingsPage`             |
+| `*`                     | Redirects to the Dashboard |
 
 Paths are built with `useLedgerPaths()`, never hard-coded. Path segments live in `constants/routes.ts`.
 
@@ -59,16 +62,23 @@ Paths are built with `useLedgerPaths()`, never hard-coded. Path segments live in
 
 All server state goes through TanStack Query. Query and mutation options live in `apis/` and are used as `useQuery(monthExpensesQueryOptions(userId, month))`.
 
-| Options                           | Key                                             |
-| --------------------------------- | ----------------------------------------------- |
-| `monthExpensesQueryOptions`       | `["ledger", "expenses", userId, month]`         |
-| `yearExpensesQueryOptions`        | `["ledger", "expenses", userId, "year", month]` |
-| `settingsQueryOptions`            | `["ledger", "settings", userId]`                |
-| `saveExpenseMutationOptions`      | Invalidates `["ledger", "expenses", userId]`    |
-| `deleteExpenseMutationOptions`    | Invalidates `["ledger", "expenses", userId]`    |
-| `saveMonthlyLimitMutationOptions` | Writes the result into the settings key         |
+| Options                                                      | Key                                                               |
+| ------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `monthExpensesQueryOptions`                                  | `["ledger", "expenses", userId, month]`                           |
+| `yearExpensesQueryOptions`                                   | `["ledger", "expenses", userId, "year", month]`                   |
+| `settingsQueryOptions`                                       | `["ledger", "settings", userId]`                                  |
+| `saveExpenseMutationOptions`                                 | Invalidates `["ledger", "expenses", userId]`                      |
+| `deleteExpenseMutationOptions`                               | Invalidates `["ledger", "expenses", userId]`                      |
+| `saveMonthlyLimitMutationOptions`                            | Writes the result into the settings key                           |
+| `myFundsQueryOptions` (RPC `ledger_my_funds`)                | `["ledger", "funds", userId]`                                     |
+| `fundMembersQueryOptions`                                    | `["ledger", "funds", userId, fundId, "members"]`                  |
+| `fundTransactionsQueryOptions`                               | `["ledger", "funds", userId, fundId, "transactions"]`             |
+| `fundRevisionsQueryOptions`                                  | `["ledger", "funds", userId, fundId, "revisions", transactionId]` |
+| Fund mutations (create, edit, delete, members, transactions) | Invalidate `["ledger", "funds", userId]`                          |
 
-Keys are built by `LEDGER_KEYS` in `constants/keys.ts`. The year query sits under the `expenses` prefix on purpose: saving or deleting an expense refreshes the month lists and the 12-month chart together.
+Keys are built by `LEDGER_KEYS` in `constants/keys.ts`. The year query sits under the `expenses` prefix on purpose: saving or deleting an expense refreshes the month lists and the 12-month chart together. Likewise every fund query sits under `funds`, so any fund change refreshes the list's balances, members, transactions and history together.
+
+Fund permissions live in the database, not the app: RLS and the `ledger_fund_transactions_guard` trigger decide who may add, edit or delete, and set `created_by` / `updated_by`; the `ledger_fund_transactions_log` trigger writes the history. The UI only hides buttons a user can't use. An update that RLS filters out returns no rows, which the mutations turn into an error.
 
 Mutations set `meta.successMessage` and `meta.errorMessage`; the platform's query client shows them as toasts. `utils/errors.ts` `check()` unwraps a Supabase result and throws a readable error.
 

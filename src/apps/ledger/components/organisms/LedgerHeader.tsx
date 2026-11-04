@@ -5,7 +5,7 @@ import { APP_NAME } from "@/constants";
 import { useFlowApp } from "@/context";
 import { useBackToPlatform } from "@/hooks";
 import { cn } from "@/utils";
-import { SECTIONS } from "../../constants/routes";
+import { FUNDS_PATH, SECTIONS } from "../../constants/routes";
 import { useExpenseEditor } from "../../context/expense-editor-context";
 import { useLedgerPaths } from "../../hooks/useLedgerPaths";
 
@@ -28,7 +28,8 @@ export function LedgerHeader() {
           <NavLink
             key={s.path}
             to={{ pathname: paths.section(s.path), search }}
-            end
+            // Funds stays active on a fund's own page.
+            end={s.path !== FUNDS_PATH}
             className={({ isActive }) =>
               cn(
                 "shrink-0 rounded-md px-2.5 py-1.5 text-sm text-foreground-light transition-colors hover:bg-accent hover:text-foreground",

@@ -1,16 +1,14 @@
 import type { ReactNode } from "react";
 import {
   LayoutDashboard,
-  LogOut,
   type LucideIcon,
+  PiggyBank,
   Plus,
   ReceiptText,
   Settings,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { Button } from "antd";
-import { APP_NAME } from "@/constants";
-import { useBackToPlatform } from "@/hooks";
 import { cn } from "@/utils";
 import { useExpenseEditor } from "../../context/expense-editor-context";
 import { useLedgerPaths } from "../../hooks/useLedgerPaths";
@@ -21,14 +19,12 @@ export function LedgerBottomBar() {
   const { search } = useLocation();
   const [, setMonth] = useMonthParam();
   const { openEditor } = useExpenseEditor();
-  const { backToPlatform, holder } = useBackToPlatform();
 
   return (
     <nav
       aria-label='Ledger'
       className='fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t bg-card pb-[env(safe-area-inset-bottom)] sm:hidden'
     >
-      {holder}
       <Tab to={{ pathname: paths.base, search }} icon={LayoutDashboard}>
         Dashboard
       </Tab>
@@ -59,13 +55,14 @@ export function LedgerBottomBar() {
           className='absolute -top-5 left-1/2 size-14 -translate-x-1/2 ring-4 ring-brand-soft'
         />
       </div>
+      {/* Funds stays active on a fund's own page. */}
+      <Tab to={paths.funds} icon={PiggyBank} end={false}>
+        Funds
+      </Tab>
+      {/* Back to flowOS lives in Settings. */}
       <Tab to={paths.settings} icon={Settings}>
         Settings
       </Tab>
-      <button type='button' onClick={backToPlatform} className={TAB_CLASS}>
-        <LogOut className='size-5' />
-        {APP_NAME}
-      </button>
     </nav>
   );
 }
@@ -76,14 +73,15 @@ const TAB_CLASS =
 interface TabProps {
   to: string | { pathname: string; search: string };
   icon: LucideIcon;
+  end?: boolean;
   children: ReactNode;
 }
 
-function Tab({ to, icon: Icon, children }: TabProps) {
+function Tab({ to, icon: Icon, end = true, children }: TabProps) {
   return (
     <NavLink
       to={to}
-      end
+      end={end}
       className={({ isActive }) =>
         cn(TAB_CLASS, isActive && "font-medium text-brand-strong")
       }

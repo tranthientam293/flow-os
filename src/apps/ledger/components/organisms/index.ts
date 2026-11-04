@@ -1,6 +1,12 @@
 export { DailySpendingChart } from "./DailySpendingChart";
 export { ExpenseEditorProvider } from "./ExpenseEditorProvider";
 export { ExpenseModal } from "./ExpenseModal";
+export { FundGate } from "./FundGate";
+export { FundHistoryModal } from "./FundHistoryModal";
+export { FundInvites } from "./FundInvites";
+export { FundMembersPanel } from "./FundMembersPanel";
+export { FundModal } from "./FundModal";
+export { FundTransactionModal } from "./FundTransactionModal";
 export { LedgerBottomBar } from "./LedgerBottomBar";
 export { LedgerHeader } from "./LedgerHeader";
 export { MonthlyLimitSettings } from "./MonthlyLimitSettings";

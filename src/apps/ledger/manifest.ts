@@ -9,6 +9,6 @@ export default {
     "Write down what you spend each day and see where your money goes.",
   icon: Wallet,
   category: "Utilities",
-  version: "0.28.0",
+  version: "0.29.0",
   load: () => import("./LedgerApp"),
 } satisfies AppManifest;

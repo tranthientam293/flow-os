@@ -30,6 +30,34 @@ export type Database = {
         Update: { amount?: number; category_id?: string; created_at?: string; id?: string; note?: string | null; spent_on?: string; updated_at?: string; user_id?: string }
         Relationships: []
       }
+      ledger_fund_members: {
+        Row: { created_at: string; display_name: string; email: string; fund_id: string; id: string; joined_at: string | null; removed_at: string | null; role: string; status: string; updated_at: string; user_id: string | null }
+        Insert: { created_at?: string; display_name: string; email: string; fund_id: string; id?: string; joined_at?: string | null; removed_at?: string | null; role?: string; status?: string; updated_at?: string; user_id?: string | null }
+        Update: { created_at?: string; display_name?: string; email?: string; fund_id?: string; id?: string; joined_at?: string | null; removed_at?: string | null; role?: string; status?: string; updated_at?: string; user_id?: string | null }
+        Relationships: [
+          { foreignKeyName: "ledger_fund_members_fund_id_fkey"; columns: ["fund_id"]; isOneToOne: false; referencedRelation: "ledger_funds"; referencedColumns: ["id"] },
+        ]
+      }
+      ledger_fund_transaction_revisions: {
+        Row: { action: string; actor_id: string | null; amount: number; created_at: string; fund_id: string; id: string; kind: string; member_id: string; note: string | null; occurred_on: string; transaction_id: string }
+        Insert: { action: string; actor_id?: string | null; amount: number; created_at?: string; fund_id: string; id?: string; kind: string; member_id: string; note?: string | null; occurred_on: string; transaction_id: string }
+        Update: { action?: string; actor_id?: string | null; amount?: number; created_at?: string; fund_id?: string; id?: string; kind?: string; member_id?: string; note?: string | null; occurred_on?: string; transaction_id?: string }
+        Relationships: []
+      }
+      ledger_fund_transactions: {
+        Row: { amount: number; created_at: string; created_by: string | null; deleted_at: string | null; fund_id: string; id: string; kind: string; member_id: string; note: string | null; occurred_on: string; updated_at: string; updated_by: string | null }
+        Insert: { amount: number; created_at?: string; created_by?: string | null; deleted_at?: string | null; fund_id: string; id?: string; kind: string; member_id: string; note?: string | null; occurred_on?: string; updated_at?: string; updated_by?: string | null }
+        Update: { amount?: number; created_at?: string; created_by?: string | null; deleted_at?: string | null; fund_id?: string; id?: string; kind?: string; member_id?: string; note?: string | null; occurred_on?: string; updated_at?: string; updated_by?: string | null }
+        Relationships: [
+          { foreignKeyName: "ledger_fund_transactions_fund_id_fkey"; columns: ["fund_id"]; isOneToOne: false; referencedRelation: "ledger_funds"; referencedColumns: ["id"] },
+        ]
+      }
+      ledger_funds: {
+        Row: { created_at: string; created_by: string | null; id: string; name: string; note: string | null; updated_at: string }
+        Insert: { created_at?: string; created_by?: string | null; id?: string; name: string; note?: string | null; updated_at?: string }
+        Update: { created_at?: string; created_by?: string | null; id?: string; name?: string; note?: string | null; updated_at?: string }
+        Relationships: []
+      }
       ledger_settings: {
         Row: { created_at: string; monthly_limit: number | null; updated_at: string; user_id: string }
         Insert: { created_at?: string; monthly_limit?: number | null; updated_at?: string; user_id?: string }
@@ -151,6 +179,24 @@ export type Database = {
     }
     Views: { [_ in never]: never }
     Functions: {
+      ledger_accept_fund_invite: { Args: { p_member_id: string }; Returns: string }
+      ledger_add_fund_member: {
+        Args: { p_display_name?: string | null; p_email: string; p_fund_id: string }
+        Returns: string
+      }
+      ledger_create_fund: { Args: { p_name: string; p_note?: string | null }; Returns: string }
+      ledger_fund_is_owner: { Args: { p_fund_id: string }; Returns: boolean }
+      ledger_fund_member_id: { Args: { p_fund_id: string }; Returns: string }
+      ledger_decline_fund_invite: { Args: { p_member_id: string }; Returns: undefined }
+      ledger_my_fund_invites: {
+        Args: never
+        Returns: { fund_id: string; fund_name: string; fund_note: string | null; invited_at: string; invited_by: string | null; member_id: string }[]
+      }
+      ledger_my_funds: {
+        Args: never
+        Returns: { balance: number; contributed: number; created_at: string; id: string; member_count: number; my_member_id: string; my_role: string; name: string; note: string | null; spent: number }[]
+      }
+      ledger_remove_fund_member: { Args: { p_member_id: string }; Returns: undefined }
       list_my_sessions: {
         Args: never
         Returns: { created_at: string; id: string; ip: string | null; is_current: boolean; last_active_at: string; user_agent: string | null }[]
