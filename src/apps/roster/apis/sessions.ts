@@ -95,16 +95,23 @@ export type CheckoutPayload = {
   sessionId: string;
   salary: number | null;
   fees: { label: string; amount: number }[];
+  traineeCount: number | null;
 };
 
 export const checkoutSessionMutationOptions = (centerId: string) =>
   mutationOptions({
-    mutationFn: async ({ sessionId, salary, fees }: CheckoutPayload) => {
+    mutationFn: async ({
+      sessionId,
+      salary,
+      fees,
+      traineeCount,
+    }: CheckoutPayload) => {
       check(
         await supabase.rpc("roster_checkout_session", {
           p_session_id: sessionId,
           p_salary: salary,
           p_fees: fees,
+          p_trainee_count: traineeCount,
         }),
       );
     },

@@ -33,7 +33,11 @@ import { formatLongDay, formatRange, inTz } from "../../utils/time";
 import { BranchTag, MemberAvatar } from "../atoms";
 
 type FeeRow = { label?: string; amount?: number | null };
-type Values = { salary: number | null; fees: FeeRow[] };
+type Values = {
+  salary: number | null;
+  traineeCount?: number | null;
+  fees: FeeRow[];
+};
 
 const sum = (values: (number | null | undefined)[]) =>
   values.reduce<number>((total, v) => total + (v ?? 0), 0);
@@ -63,6 +67,7 @@ export function CheckoutModal({ session, onClose }: CheckoutModalProps) {
       {
         sessionId: session.id,
         salary: isTrainer ? (values.salary ?? 0) : null,
+        traineeCount: values.traineeCount ?? null,
         fees: (values.fees ?? []).flatMap((f) =>
           f?.label?.trim()
             ? [{ label: f.label.trim(), amount: f.amount ?? 0 }]
@@ -146,7 +151,13 @@ function CheckoutForm({ session, fees, form, onSubmit }: CheckoutFormProps) {
     (Date.parse(session.ends_at) - Date.parse(session.starts_at)) / 36e5;
   const isTrainer = session.member_id === ctx.meId;
   const basis = payBasisOf(type);
-  const units = payUnits(session, basis);
+  const perTrainee = basis === "trainee";
+  const traineeValue = Form.useWatch("traineeCount", form);
+  const traineeCount =
+    canEdit && perTrainee
+      ? (traineeValue ?? session.trainee_count)
+      : session.trainee_count;
+  const units = payUnits({ ...session, trainee_count: traineeCount }, basis);
   const unitsText = formatUnits(units, basis);
   const trainerRate =
     trainerOwnRateFor(
@@ -161,7 +172,11 @@ function CheckoutForm({ session, fees, form, onSubmit }: CheckoutFormProps) {
       session.session_type_id,
     );
   const trainerRateSalary = salaryFor(trainerRate, units);
+  // Once set, the salary is the trainer's figure; until then it follows the
+  // rate × the trainees entered here.
   const trainerSalary = session.salary ?? trainerRateSalary;
+  const savedSalary =
+    session.salary ?? salaryFor(trainerRate, payUnits(session, basis));
 
   const salaryValue = Form.useWatch("salary", form);
   const feeRows: FeeRow[] = Form.useWatch("fees", form) ?? [];
@@ -171,7 +186,8 @@ function CheckoutForm({ session, fees, form, onSubmit }: CheckoutFormProps) {
     : sum(fees.map((f) => f.amount));
 
   const initialValues: Values = {
-    salary: trainerSalary,
+    salary: savedSalary,
+    ...(perTrainee ? { traineeCount: session.trainee_count } : {}),
     fees: fees.map((f) => ({ label: f.label, amount: f.amount })),
   };
 
@@ -206,7 +222,7 @@ function CheckoutForm({ session, fees, form, onSubmit }: CheckoutFormProps) {
       />,
     ],
     ["Session type", type?.name ?? "—"],
-    ...(basis === "trainee"
+    ...(perTrainee && !canEdit
       ? ([["Trainees", session.trainee_count]] as [string, React.ReactNode][])
       : []),
   ];
@@ -227,6 +243,27 @@ function CheckoutForm({ session, fees, form, onSubmit }: CheckoutFormProps) {
           </div>
         ))}
       </dl>
+
+      {canEdit && perTrainee && (
+        <Form.Item
+          name='traineeCount'
+          label='Trainees'
+          extra={`Booked: ${formatUnits(session.trainee_count, basis)}. Enter how many actually came.`}
+          rules={[{ required: true, message: "Enter the number of trainees" }]}
+        >
+          <InputNumber<number>
+            min={1}
+            max={999}
+            precision={0}
+            placeholder='Number of trainees'
+            className='w-full'
+            onChange={(count) => {
+              if (isTrainer && count)
+                form.setFieldValue("salary", salaryFor(trainerRate, count));
+            }}
+          />
+        </Form.Item>
+      )}
 
       {canEdit && isTrainer ? (
         <Form.Item

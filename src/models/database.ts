@@ -224,7 +224,7 @@ export type Database = {
       }
       roster_trainer_can_edit: { Args: { p_center_id: string; p_starts_at: string }; Returns: boolean }
       roster_checkout_session: {
-        Args: { p_fees?: { label: string; amount: number }[]; p_salary?: number | null; p_session_id: string }
+        Args: { p_fees?: { label: string; amount: number }[]; p_salary?: number | null; p_session_id: string; p_trainee_count?: number | null }
         Returns: undefined
       }
       roster_reopen_session: { Args: { p_session_id: string }; Returns: undefined }
