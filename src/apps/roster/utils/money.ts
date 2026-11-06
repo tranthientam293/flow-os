@@ -65,8 +65,7 @@ const isPayBasis = (value: unknown): value is PayBasis =>
 export const payBasisOf = (type: SessionType | undefined): PayBasis =>
   isPayBasis(type?.pay_basis) ? type.pay_basis : "hour";
 
-export const rateSuffix = (basis: PayBasis) =>
-  `${CURRENCY_SYMBOL} / ${PAY_BASES[basis].unitShort}`;
+export const rateSuffix = (_basis: PayBasis) => CURRENCY_SYMBOL;
 
 const sessionHours = (session: Pick<Session, "starts_at" | "ends_at">) =>
   (Date.parse(session.ends_at) - Date.parse(session.starts_at)) / 36e5;

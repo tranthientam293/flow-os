@@ -138,7 +138,7 @@ export function CenterShell({ section, tab, membership }: CenterShellProps) {
           </span>
           <nav
             aria-label={`${center.name} sections`}
-            className='flex min-w-0 flex-1 [scrollbar-width:none] items-stretch gap-1 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden'
+            className='flex min-w-0 flex-1 scrollbar-none items-stretch gap-1 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden'
           >
             {tabs.map((t) => (
               <button
